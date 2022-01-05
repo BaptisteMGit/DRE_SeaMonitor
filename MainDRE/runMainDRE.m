@@ -7,9 +7,9 @@ mooringPos = [-6.427, 55.3, -65.33]; % [lon0, lat0, hgt0]
 mooringName = 'MooringTest';
 listAz = 0.1:10:360; % List of azimuth to process (in degree) 
 drBathy = 100; % Horizontal resolution for bathymetric profile 
-
+rMax = 1500; % Max distance based on literature 
 mainVarargin = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'inputSRC', inputSRC, ...
-    'mooringPos', mooringPos, 'mooringName', mooringName, 'listAz', listAz, 'drBathy', drBathy};
+    'mooringPos', mooringPos, 'mooringName', mooringName, 'listAz', listAz, 'drBathy', drBathy, 'rMax', rMax};
 
 MainDRE(mainVarargin{:})
 

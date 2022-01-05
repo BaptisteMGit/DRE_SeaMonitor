@@ -5,6 +5,7 @@ D = getVararginValue(varargin, 'data', []);
 SRC = getVararginValue(varargin, 'SRC', 'ENU');
 theta = getVararginValue(varargin, 'theta', []);
 dr = getVararginValue(varargin, 'dr', 100);
+rMax = getVararginValue(varargin, 'rMax', []);
 
 theta_rad = theta * pi / 180;
 % dr = 50; % Range résolution in meters 
@@ -58,6 +59,10 @@ N = N(idx);
 U = U(idx);
 
 rmax = sqrt(max(abs(E)).^2 + max(abs(N)).^2); % Maximum range in m 
+
+if rMax && (rmax > rMax)
+    rmax = rMax;
+end
 r = 0:dr:rmax; % Range 
 
 E_profile = r * cos(theta_rad);

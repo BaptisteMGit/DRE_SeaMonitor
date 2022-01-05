@@ -11,6 +11,7 @@ SSP            =   getVararginValue(varargin, 'SPP', []); % Sound Speed Profile 
 % SSPType      =   getVararginValue(varargin, 'SSPType', '1D'); % Type of SSP: '1D' (profile at mooring point) or '2D' (several profiles along the 2D bathy profile)
 SL             =   getVararginValue(varargin, 'SL', 100); % Source level in decibel (dB) 
 NL             =   getVararginValue(varargin, 'NL', 60); % Noise level for the frequency band (Wenz model or smthg else) 
+rMax           =   getVararginValue(varargin, 'rMax', 2000); % Maximum distance based on literature 
 
 %% Convert bathymetric data set from inputSRC to ENU using mooringPos
 if ~exist(fullfile(rootBathy ,'ENU', bathyFile), 'file')
@@ -51,7 +52,7 @@ if ~exist(rootSaveResult, 'dir'); mkdir(rootSaveResult);end
 for theta = listAz 
     %% Extract 2D profile
     fprintf('Extraction of 2D profile, azimuth = %2.1f°\n', theta);
-    varGetProfiles = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta};
+    varGetProfiles = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
     [dataProfile] = getBathy2Dprofile(varGetProfiles{:});
     
     bathy.z = dataProfile.z;
@@ -105,15 +106,20 @@ for theta = listAz
 
     %% Plot TL  
     figure;
-    plotshd( sprintf('%s.shd', nameProfile) )
-    plotbty( nameProfile )
-    saveas(gcf, sprintf('%s.png', nameProfile))
-    close(gcf)
+    plotshd( sprintf('%s.shd', nameProfile) );
+    plotbty( nameProfile );
+    saveas(gcf, sprintf('%sTL.png', nameProfile));
+    close(gcf);
     
     %% Compute and plot SPL 
     varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', SL};
     [SPL, zt, rt] = computeSpl(varSpl{:});
-    plotspl(SPL, zt, rt)
+    figure;
+    plotspl(varSpl{:});
+    plotbty( nameProfile );
+    saveas(gcf, sprintf('%sSPL.png', nameProfile));
+    close(gcf);
+
 
 end
 
