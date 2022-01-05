@@ -1,4 +1,4 @@
-cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\MainDRE'
+% cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\MainDRE'
 %% Tests for MainDRE
 rootBathy = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry';
 bathyFile = '2008 HI1240 Runabay Head to Tuns.csv'; % Bathymetric file in WGS84

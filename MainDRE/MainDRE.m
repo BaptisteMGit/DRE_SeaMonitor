@@ -99,14 +99,21 @@ for theta = listAz
         'Beam', Beam, 'BOTTOM', bott, 'topOption', topOption, 'TitleEnv', nameProfile};
     writeEnvDRE(varEnv{:})
 %     write_env( envfil, model, TitleEnv, freq, SSP, Bdry, Pos, Beam, cInt, RMax)
-    
+    %% Run BELLHOP
     cd(rootSaveResult)
     bellhop( nameProfile )
+
+    %% Plot TL  
     figure;
     plotshd( sprintf('%s.shd', nameProfile) )
     plotbty( nameProfile )
     saveas(gcf, sprintf('%s.png', nameProfile))
     close(gcf)
+    
+    %% Compute and plot SPL 
+    varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', SL};
+    [SPL, zt, rt] = computeSpl(varSpl{:});
+    plotspl(SPL, zt, rt)
 
 end
 
