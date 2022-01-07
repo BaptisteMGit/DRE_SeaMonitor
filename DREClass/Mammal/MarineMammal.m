@@ -1,11 +1,10 @@
 classdef MarineMammal
     properties
-        sourceLevel % Source level (According to literature) 
-        CentroidFrequency % Centroid emission frequency (Hz) 
+        signal % Signal object  
         rMax % Maximum detection range according to literature 
 
-        MinFrequency % Minimum emission frequency (Hz) 
-        MaxFrequency % Maximum emission frequency (Hz) 
+        minFrequency % Minimum emission frequency (Hz) 
+        maxFrequency % Maximum emission frequency (Hz) 
 
         %TODO: add directionnality later 
     end
@@ -20,36 +19,32 @@ classdef MarineMammal
 
     methods
         %% Constructor 
-        function obj = MarineMammal(sl, cFreq, rmax, minFreq, maxFreq)
-            % sourceLevel 
+        function obj = MarineMammal(sig, rmax, minFreq, maxFreq)
+            % Signal  
             if nargin >= 1
-                if (sl < slmax) && (sl > slmin)
-                    obj.sourceLevel = sl;
+                if isa(sig, 'Signal')
+                    obj.signal = sig;
                 else
-                    error('sourceLevel should belongs to the interval [%d, %d]dB !', slmin, slmax)
+                    error('Signal should be an object from class Signal !')
                 end
 
-                % CentroidFrequency
+                % rMax
                 if nargin >= 2
-                    obj.CentroidFrequency = cFreq;
-                    
-                    % rMax
-                    if nargin >= 3
-                        obj.rMax = rmax;
+                    obj.rMax = rmax;
 
-                        % MinFrequency
-                        if nargin >= 4 
-                            obj.MinFrequency = minFreq;
+                    % MinFrequency
+                    if nargin >= 3 
+                        obj.minFrequency = minFreq;
 
-                            % MaxFrequency
-                            if nargin >= 5
-                                obj.MaxFrequency = maxFreq;
-                            end
+                        % MaxFrequency
+                        if nargin >= 4
+                            obj.maxFrequency = maxFreq;
                         end
                     end
                 end
-            end 
-        end
+            end
+        end 
+    
         
 
         %% Set methods 
@@ -61,14 +56,14 @@ classdef MarineMammal
             end
         end
 
-        function obj = set.sourceLevel(obj, sl)
-            %TODO: check sl limits for marine mammals 
-            if sl > 100
-                error('Maximum detection range rMax should be greater than 100m !')
-            else 
-                obj.sourceLevel = sl;
-            end
-        end
+%         function obj = set.sourceLevel(obj, sl)
+%             %TODO: check sl limits for marine mammals 
+%             if sl > 100
+%                 error('Maximum detection range rMax should be greater than 100m !')
+%             else 
+%                 obj.sourceLevel = sl;
+%             end
+%         end
         %% Get methods 
 %         function value = get.PropertyName(obj)
 %         end

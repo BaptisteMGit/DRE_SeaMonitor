@@ -55,12 +55,13 @@ classdef DRESimulation
             end 
         end
 
-        function 
+        function fheehhf()
             r = round([obj.Value],2);
         end
     
-   end
+    end
 end
+
 
 
 
