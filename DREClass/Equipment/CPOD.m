@@ -1,0 +1,2 @@
+classdef CPOD < Detector 
+end

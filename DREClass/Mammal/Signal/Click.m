@@ -1,6 +1,6 @@
 classdef Click < Signal
     properties 
-        meanICI % Mean inter-click interval in clicks/s
+        meanICI % Mean inter-click interval in ms
         peakFrequency % Peak frequency in kHz
     end
 

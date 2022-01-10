@@ -78,15 +78,15 @@ N_profile = r * sin(theta_rad);
 
 % [EGrid, NGrid] = meshgrid(E_profile, N_profile);
 % Z_profile = griddata(E, N, U, EGrid, NGrid);
-tic
+% tic
 % Z_profile = griddata(E, N, U, E_profile, N_profile);
 F = scatteredInterpolant(E, N, U);
 F.ExtrapolationMethod = 'none';
 Z_profile = F(E_profile, N_profile);
-toc
+% toc
 
 %% Save
-r = r' / 1000; % Switch to km (required for AcTup) 
+r = r' / 1000; % Switch to km (required for Bellhop) 
 z = Z_profile';
 z = -z; % Switch to positive depth toward the bottom 
 % Remove NaN 

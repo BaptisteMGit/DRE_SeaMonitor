@@ -1,0 +1,2 @@
+classdef SoundTrap < Detector 
+end

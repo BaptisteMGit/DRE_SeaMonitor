@@ -16,7 +16,7 @@ icount = find(spl > -200); % Remove value conresponding to tlt = 1e-37 -> Easy w
 splmed = median( spl(icount) );    % median value
 splstd = std( spl(icount) );       % standard deviation
 % splmax = splmed + 0.75 * splstd;       % max for colorbar
-splmax = sl;
+splmax = sl-20;
 splmax = 10 * round( splmax / 10 );   % make sure the limits are round numbers
 splmin = splmax - 50;                 % min for colorbar
 

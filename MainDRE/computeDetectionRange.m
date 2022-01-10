@@ -21,7 +21,10 @@ spl_r = median(spl);
 
 signal = spl_r -  nl;
 idetected = signal > dt;
-detectedRange = rt(idetected);
-
-detectionRange = max(detectedRange);
+if idetected
+    detectedRange = rt(idetected);
+    detectionRange = max(detectedRange);
+else
+    detectionRange = 0;
+end
 end

@@ -2,10 +2,12 @@ classdef MarineMammal
     properties
         signal % Signal object  
         rMax % Maximum detection range according to literature 
+        livingDepth % Depth where the mammal is supposed to live 
+        deltaLivingDepth % Range around livingDepth where the mammal has a high probability to be encountered 
 
-        minFrequency % Minimum emission frequency (Hz) 
-        maxFrequency % Maximum emission frequency (Hz) 
-
+%         minFrequency % Minimum emission frequency (Hz) 
+%         maxFrequency % Maximum emission frequency (Hz) 
+        
         %TODO: add directionnality later 
     end
 
