@@ -11,8 +11,8 @@
         marineMammal 
         % Detector 
         detector 
-%         noiseLevel
-%         detectionThreshold
+        % Env parameters
+        noiseLevel
         % Bellhop parameters 
         beam
         bottom
@@ -38,31 +38,36 @@
 
     %% Constructor 
     methods
-        function obj = DRESimulation(bathyEnv, moor, mammal, dr, dz)
+        function obj = DRESimulation(bathyEnv, moor, mammal, det, dr, dz)
             % Bathy env 
             if nargin >= 1
                 obj.bathyEnvironment = bathyEnv;
+            end
                 
-                % Mooring
-                if nargin >= 2
-                    obj.mooring = moor;
+            % Mooring
+            if nargin >= 2
+                obj.mooring = moor;
+            end
                     
-                    % Mammal
-                    if nargin >= 3
-                        obj.marineMammal = mammal;
-                        
-                        % drSimu
-                        if nargin >= 4 
-                            obj.drSimu = dr;
+            % Mammal
+            if nargin >= 3
+                obj.marineMammal = mammal;
+            end
 
-                            % dzSimu
-                            if nargin >= 5
-                                obj.dzSimu = dz;
-                            end
-                        end
-                    end
-                end
-            end 
+            % Detector
+            if nargin >= 4
+                obj.detector = det;
+            end
+                        
+            % drSimu
+            if nargin >= 5
+                obj.drSimu = dr;
+            end
+
+            % dzSimu
+            if nargin >= 6
+                obj.dzSimu = dz;
+            end
         end
     end 
     
@@ -150,11 +155,7 @@
             fprintf('\n--> DONE <--\n');
         end
 
-        function plotBathyENU(obj)
-            varPlotBathy = {'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
-            plotBathy(varPlotBathy{:})
-        end
-        
+        %% Set environment 
         function obj = setSource(obj)
             obj.receiverPos.s.z = obj.mooring.hydrophoneDepth; % TODO: check 
         end
@@ -214,7 +215,8 @@
             bathyProfile = table2array(bathyProfile);
             fprintf('\n--> DONE <--\n');
         end
-
+        
+        %% Write environment files 
         function writeBtyFile(obj, nameProfile, bathyProfile)
 %             nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
             BTYfilename = sprintf('%s.bty', nameProfile);
@@ -242,7 +244,8 @@
             cd(current)
             fprintf('\n--> DONE <--\n');
         end
-
+        
+        %% Plot functions
         function plotTL(obj, nameProfile, saveBool, bathyBool)
             figure; 
             current = pwd;
@@ -261,6 +264,8 @@
         function plotSPL(obj, nameProfile, saveBool, bathyBool)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
             figure;
+            current = pwd;
+            cd(obj.rootSaveResult)
             plotspl(varSpl{:});
             if bathyBool
                 plotbty( nameProfile );
@@ -269,10 +274,13 @@
                 saveas(gcf, sprintf('%sSPL.png', nameProfile));
             end
             close(gcf);
+            cd(current)
         end
 
         function plotDR(obj)
             figure;
+            current = pwd;
+            cd(obj.rootSaveResult)
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
             
             figure;
@@ -280,9 +288,17 @@
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
             plot(xx, yy, 'k', 'LineWidth', 3)
+            cd(current)
+        end
+        
+        function plotBathyENU(obj)
+            varPlotBathy = {'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
+            plotBathy(varPlotBathy{:})
         end
 
         function obj = addDetectionRange(obj, nameProfile)
+            current = pwd;
+            cd(obj.rootSaveResult)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSpl(varSpl{:});
             computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseLevel,...
@@ -291,6 +307,7 @@
 
             i = find(~obj.listDetectionRange, 1, 'first');
             obj.listDetectionRange(i) = detectionRange;
+            cd(current)
         end
     end
 end

@@ -21,7 +21,7 @@ classdef MarineMammal
 
     methods
         %% Constructor 
-        function obj = MarineMammal(sig, rmax, minFreq, maxFreq)
+        function obj = MarineMammal(sig, rmax, lDepth, deltaLDepth)
             % Signal  
             if nargin >= 1
                 if isa(sig, 'Signal')
@@ -29,21 +29,21 @@ classdef MarineMammal
                 else
                     error('Signal should be an object from class Signal !')
                 end
+            end
 
-                % rMax
-                if nargin >= 2
-                    obj.rMax = rmax;
+            % rMax
+            if nargin >= 2
+                obj.rMax = rmax;
+            end
+            
+            % MinFrequency
+            if nargin >= 3 
+                obj.livingDepth = lDepth;
+            end
 
-                    % MinFrequency
-                    if nargin >= 3 
-                        obj.minFrequency = minFreq;
-
-                        % MaxFrequency
-                        if nargin >= 4
-                            obj.maxFrequency = maxFreq;
-                        end
-                    end
-                end
+            % MaxFrequency
+            if nargin >= 4
+                obj.deltaLivingDepth = deltaLDepth;
             end
         end 
     

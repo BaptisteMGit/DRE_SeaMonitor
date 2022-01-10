@@ -21,9 +21,10 @@ mooring = Mooring(mooringPos, mooringName, hydroDepth);
 
 dolphin = CommonBottlenoseDolphin();
 
+detector = CPOD();
+
 dr = 0.01;
 dz = 0.5;
-simulation = DRESimulation(bathyEnv, mooring, dolphin, dr, dz);
+simulation = DRESimulation(bathyEnv, mooring, dolphin, detector, dr, dz);
 simulation.noiseLevel = 30;
-simulation.detectionThreshold = 10;
 simulation.runSimulation
