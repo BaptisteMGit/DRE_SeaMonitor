@@ -1,4 +1,6 @@
 function [T] = getBathy2Dprofile(varargin)
+%% getBathy2Dprofile: extract 2D profile from bathymetry file 
+% 
 rootBathy = getVararginValue(varargin, 'rootBathy', '');
 bathyFile = getVararginValue(varargin, 'bathyFile', '');
 D = getVararginValue(varargin, 'data', []);
@@ -40,16 +42,22 @@ U = D(:,3);
 
 %% Reducing dataset used to interpolate z_profile
 % Use of only one quarter of the dataset 
+% Offset permit to take a larger zone in order to avoid issues with large
+% bathymetry cells  
+dN = abs(max(diff(N))); % We assume regular grid
+dE = abs(max(diff(E))); 
+offset = max(dE, dN); 
+
 switch SRC
     case 'ENU'
         if (theta >= 0) && (theta < 90)
-           idx = (E > 0) & (N > 0);
+           idx = (E > 0 - offset) & (N > 0 - offset);
         elseif (theta >= 90) && (theta < 180)
-            idx = (E < 0) & (N > 0);
+            idx = (E < 0 + offset) & (N > 0 - offset);
         elseif (theta >= 180) && (theta < 270)
-            idx = (E < 0) & (N < 0);
+            idx = (E < 0 + offset) & (N < 0 + offset);
         else
-            idx = (E > 0) & (N < 0);
+            idx = (E > 0 - offset) & (N < 0 + offset);
         end
     case 'UTM'
         
@@ -58,7 +66,7 @@ E = E(idx);
 N = N(idx);
 U = U(idx);
 
-rmax = sqrt(max(abs(E)).^2 + max(abs(N)).^2); % Maximum range in m 
+rmax = sqrt(max(abs(E)).^2 + max(abs(N)).^2); % Maximum range in m not to go out from the map boundaries 
 
 if rMax && (rmax > rMax)
     rmax = rMax;
@@ -68,13 +76,13 @@ r = 0:dr:rmax; % Range
 E_profile = r * cos(theta_rad);
 N_profile = r * sin(theta_rad);
 
-% %% Plot azimuth
-% hold on 
-% plot(r * cos(theta_rad), r * sin(theta_rad), '--', 'LineWidth', 3, 'Color', 'red')
-% 
-% % mooring site 
-% hold on 
-% scatter(0, 0, 50, 'filled', 'red') 
+%% Plot azimuth
+hold on 
+plot(r * cos(theta_rad), r * sin(theta_rad), '--', 'LineWidth', 3, 'Color', 'red')
+
+% mooring site 
+hold on 
+scatter(0, 0, 50, 'filled', 'red') 
 
 % [EGrid, NGrid] = meshgrid(E_profile, N_profile);
 % Z_profile = griddata(E, N, U, EGrid, NGrid);

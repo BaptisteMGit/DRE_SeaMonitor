@@ -109,55 +109,85 @@
     %% Simulation methods  
     methods 
         function runSimulation(obj)
+            % Create result folder
+            if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
+
+            [obj, obj.dataBathy] = obj.getBathyData();
+
             obj = obj.setSource();
-            obj.dataBathy = obj.getBathyData();
-            obj = obj.setBeam();    
+            obj = obj.setBeam();
+
+            % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
+
             for theta = obj.listAz
-                nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
+
+                nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
+
                 % Bathy
                 bathyProfile = getBathyProfile(obj, theta);
                 obj.writeBtyFile(nameProfile, bathyProfile)
+
                 % Env
                 obj = obj.setBottom();
                 obj = obj.setSsp(bathyProfile);
                 obj = obj.setBeambox(bathyProfile);
-                obj = obj.setReceiverPos(bathyProfile);
+                obj = obj.setReceiverPos(bathyProfile);                
                 obj.writeEnvirnoment(nameProfile)
+
                 % Run
                 obj.runBellhop(nameProfile)
+
                 % Plots
                 saveBool = true;
                 bathyBool = true;
                 obj.plotTL(nameProfile, saveBool, bathyBool)
                 obj.plotSPL(nameProfile, saveBool, bathyBool)
                 obj = obj.addDetectionRange(nameProfile);
+
             end   
+
             % Plot detection range (polar plot and map) 
             obj.plotDR()
+
         end
 
-        function data = getBathyData(obj)
+        function [obj, data] = getBathyData(obj)
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             inputSRC = obj.bathyEnvironment.inputSRC;
             mooringPos = obj.mooring.mooringPos;
-
-            if ~exist(fullfile(rootBathy ,'ENU', bathyFile), 'file')
-                varConvBathy = {'bathyFile', bathyFile, 'SRC_source', inputSRC, 'SRC_dest', 'ENU', 'mooringPos', mooringPos};
+            
+            % If file is not ENU: convert to ENU
+            if ~strcmp(inputSRC, 'ENU')
                 fprintf('Conversion of bathymetry data \n\tBathy file: %s \n\t%s -> %s ', bathyFile, inputSRC, 'ENU');
-                data = convertBathyFile(varConvBathy{:});
+                varConvertBathy = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC_source', inputSRC, ...
+                    'SRC_dest', 'ENU', 'mooringPos', mooringPos};
+                [data, outputFile] = convertBathyFile(varConvertBathy{:});                        
                 data = table2array(data);
+                obj.bathyEnvironment.bathyFile = outputFile;
+
+%             if ~exist(fullfile(rootBathy ,'ENU', bathyFile), 'file')
+%                 varConvBathy = {'bathyFile', bathyFile, 'SRC_source', inputSRC, 'SRC_dest', 'ENU', 'mooringPos', mooringPos};
+%                 data = convertBathyFile(varConvBathy{:});
+%                 data = table2array(data);
             else
                 fprintf('Load existing bathymetry data \n\tBathy file: %s \n\tSRC: %s', bathyFile, 'ENU');
-                data = readmatrix(fullfile(rootBathy ,'ENU', bathyFile), 'Delimiter', ' ');
+                data = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
             end
             fprintf('\n--> DONE <--\n');
         end
 
         %% Set environment 
         function obj = setSource(obj)
-            obj.receiverPos.s.z = obj.mooring.hydrophoneDepth; % TODO: check 
+            % Position of the hydrophone in the water column 
+            if obj.mooring.hydrophoneDepth < 0  % If negative the position of the hydrophone if reference to the seafloor
+                F = scatteredInterpolant(obj.dataBathy(:, 1), obj.dataBathy(:, 2), obj.dataBathy(:, 3));
+                depthOnMooringPos = -F(0, 0); % Get depth on mooring position ("-" to get depth positive toward the bottom)
+                obj.receiverPos.s.z = depthOnMooringPos + obj.mooring.hydrophoneDepth; % TODO: check 
+            else
+                obj.receiverPos.s.z = obj.mooring.hydrophoneDepth; % TODO: check 
+            end
         end
 
         function obj = setBeam(obj)
@@ -251,9 +281,15 @@
             current = pwd;
             cd(obj.rootSaveResult)
             plotshd( sprintf('%s.shd', nameProfile) );
+            a = colorbar;
+            a.Label.String = 'Transmission Loss (dB)';
+
             if bathyBool
                 plotbty( nameProfile );
             end
+            
+            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+
             if saveBool
                 saveas(gcf, sprintf('%sTL.png', nameProfile));
             end
@@ -270,6 +306,9 @@
             if bathyBool
                 plotbty( nameProfile );
             end
+
+            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+
             if saveBool
                 saveas(gcf, sprintf('%sSPL.png', nameProfile));
             end
@@ -283,7 +322,7 @@
             cd(obj.rootSaveResult)
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
             
-            figure;
+%             figure;
             obj.plotBathyENU()
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
@@ -292,7 +331,7 @@
         end
         
         function plotBathyENU(obj)
-            varPlotBathy = {'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
+            varPlotBathy = {'rootBathy', obj.bathyEnvironment.rootBathy, 'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
             plotBathy(varPlotBathy{:})
         end
 
@@ -302,7 +341,7 @@
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSpl(varSpl{:});
             computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseLevel,...
-                'DT', obj.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
+                'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
             detectionRange = computeDetectionRange(computeArgin{:});
 
             i = find(~obj.listDetectionRange, 1, 'first');

@@ -24,7 +24,7 @@ xlab     = 'Range (m)';
 
 caxis( [ splmin, splmax ] )
 a = colorbar;
-a.Label.String = 'SPL (dB)';
+a.Label.String = 'Sound Pressure Level (dB)';
 set( gca, 'YDir', 'Reverse' )
 xlabel( xlab )
 ylabel( 'Depth (m)' );

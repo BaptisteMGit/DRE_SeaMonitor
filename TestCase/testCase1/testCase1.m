@@ -16,35 +16,41 @@
 % The dataset has been converted into csv XYZ file using function
 % NETCDFtoCSV (in folder utilities)
 
+fprintf('Running test case 1 based on the paper from Nuuttila HK')
 
 %% Bathymetry 
 rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\TestCase\testCase1\Bathymetry';
-bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
-inputSRC = 'WGS84'; % SRC of the input bathyFile 
-drBathy = 10; % Horizontal resolution for bathymetric profile 
+bathyFile = 'ENU_gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
+inputSRC = 'ENU'; % SRC of the input bathyFile 
+drBathy = 100; % Horizontal resolution for bathymetric profile 
 
 bathyEnv = BathyEnvironment(rootBathy, bathyFile, inputSRC, drBathy);
 
 %% Mooring 
 mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0]
 mooringName = 'TestCase1';
-hydroDepth = 2;
+hydroDepth = -1; % Negative hydroDepth = depth reference to the seafloor 
+% -> hydrophone 1 meter over the seafloor 
 
 mooring = Mooring(mooringPos, mooringName, hydroDepth);
 
 %% Marine mammal 
 porpoise = Porpoise();
 porpoise.centroidFrequency = 130; % frequency in kHz
-porpoise.sourceLevel = 
+porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
+porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
+porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
 
 %% Simulation parameters 
-dr = 0.01;
-dz = 0.5;
+dr = 0.001;
+dz = 0.1;
 
 %% Detector 
 cpod = CPOD();
-cpod.
 
 %% Run simulation 
 simulation = DRESimulation(bathyEnv, mooring, porpoise, cpod, dr, dz);
+simulation.noiseLevel = 30; % Noise level (to discuss)
+% simulation.listAz = 180.1;
+simulation.plotBathyENU
 simulation.runSimulation

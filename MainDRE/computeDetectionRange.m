@@ -2,8 +2,8 @@ function detectionRange = computeDetectionRange(varargin)
 spl = getVararginValue(varargin, 'SPL', []);
 zt = getVararginValue(varargin, 'Depth', []);
 rt = getVararginValue(varargin, 'Range', []);
-nl = getVararginValue(varargin, 'NL', []);
-dt = getVararginValue(varargin, 'DT', []);
+nl = getVararginValue(varargin, 'NL', 0);
+dt = getVararginValue(varargin, 'DT', 0);
 zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 
@@ -21,7 +21,7 @@ spl_r = median(spl);
 
 signal = spl_r -  nl;
 idetected = signal > dt;
-if idetected
+if ~isempty(idetected)
     detectedRange = rt(idetected);
     detectionRange = max(detectedRange);
 else

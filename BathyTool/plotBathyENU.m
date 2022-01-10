@@ -1,9 +1,9 @@
-function plotBathyENU(filename)
-root = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry\ENU'; 
-D = readmatrix(sprintf('%s\\%s',root, filename), 'Delimiter',' ');
-E = D(:,1);
-N = D(:,2);
-U = D(:,3);
+function plotBathyENU(rootBathy, bathyFile)
+% root = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry\ENU'; 
+D = readtable(fullfile(rootBathy, bathyFile));
+E = table2array(D(:,1));
+N = table2array(D(:,2));
+U = table2array(D(:,3));
 
 pts = 1E+3;
 xGrid = linspace(min(E), max(E), pts);

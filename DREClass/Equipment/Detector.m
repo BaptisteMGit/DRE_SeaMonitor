@@ -6,7 +6,9 @@ classdef Detector
     
     methods
         function obj = Detector(dThreshold)
-            obj.detectionThreshold = dThreshold; 
+            if nargin >= 1
+                obj.detectionThreshold = dThreshold; 
+            end
         end
     end
 
