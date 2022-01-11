@@ -1,15 +1,16 @@
 classdef DREApp < handle
-% mainUI Detection Range App 
+% DREApp: Detection Range App 
 %
 % This app allows the user to configure and run detection range simulation 
 %
 % Baptiste Menetrier
     
     properties
-        Figure                  % Graphics handles
+        % Graphics handles
+        Figure                  
         ButtonGroup
         
-        % Name 
+        % Name of the window 
         Name = "Detection Range Estimation";
         % App release version 
         Version = 0.1; 
@@ -63,10 +64,13 @@ classdef DREApp < handle
         % Label Heigth
         lHeight = 40;
         
+        % Sub-windows 
+        childWindow
+        configEnvWindow
     end
     
+    %% Constructor of the class 
     methods
-        % Constructor of the class 
         function app = DREApp
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
@@ -81,16 +85,22 @@ classdef DREApp < handle
                             'CloseRequestFcn', @closeWindowCallback);
             
             % Button group 
-            bg = uibuttongroup(fig, ...
-                    'Position', app.bgPosition,...
-                    'Units', 'normalized');
+            app.ButtonGroup = uibuttongroup(app.Figure, ...
+                                    'Position', app.bgPosition,...
+                                    'Units', 'normalized');
 
             % Buttons
-            app.addButton('Configure Environment',  @configEnvironmentButtonPushed)
+            app.addButton('Configure Environment',  @app.configEnvironmentButtonPushed)
             app.addButton('Run DRE', @runDREButtonPushed)
             app.addButton('Plotting Tools', @plottingToolsButtonPushed)
-            app.addButton('Exit App', {@exitAppButtonPushed, fig})
-
+            app.addButton('Exit App', {@app.exitAppButtonPushed})
+            
+            % Main label 
+            uilabel(app.Figure, ....
+                'Position', app.lPosition, ...
+                'HorizontalAlignment', 'center', ...
+                'VerticalAlignment', 'center', ...
+                'Text', sprintf('Detection Range Estimation \nUser-Interface \nVersion %2.1f', app.Version));
         end
     end
 
@@ -104,8 +114,24 @@ classdef DREApp < handle
             app.currButtonID = app.currButtonID + 1;
         end
     end
-        
-    %% Get methods
+    
+    %% Callback functions 
+    methods 
+        function exitAppButtonPushed(app, hObject, eventData)
+            hObject = app.Figure;
+            closeWindowCallback(hObject, eventData)
+        end
+
+        function configEnvironmentButtonPushed(app, hObject, eventData)
+            app.configEnvWindow = configEnvironmentUI;
+            app.childWindow = [app.childWindow, app.configEnvWindow];
+        end
+    end
+
+    %% Get methods for dependent properties 
+    % NOTE: even if the implementation looks a bit complicated dependent
+    % properties increase app performance by saving memmory space and
+    % dependent properties can be used to maintain app proportions 
     methods 
 
         function fPosition = get.fPosition(app)
@@ -129,11 +155,11 @@ classdef DREApp < handle
         end
         
         function bgX = get.bgX(app)
-            bgX = app.Width / 2;
+            bgX = app.Width / 2 - app.bgWidth / 2;
         end
 
         function bgY = get.bgY(app)
-            bgY = app.Height * 1/3 + app.OffsetX;
+            bgY = app.Height * 1/3 + app.OffsetX - app.bgHeight / 2;
         end
 
         function bgPos = get.bgPosition(app)
@@ -149,7 +175,7 @@ classdef DREApp < handle
         end
 
         function bH = get.bHeight(app)        
-            bH = 1/app.nbButton * (app.bgHeight - (app.nbButton + 1) * app.OffsetButton);
+            bH = 1/app.nbButton * (app.bgHeight - (app.nbButton + 1) * app.bStep);
         end
 
         function bPos = get.bPosition(app)
