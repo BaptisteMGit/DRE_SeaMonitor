@@ -8,6 +8,7 @@ classdef plottingToolsUI < handle
         % Graphics handles
         Figure                  
         ButtonGroup
+        ListButtons
         
         % Name of the window 
         Name = "Plotting Tools";
@@ -72,7 +73,9 @@ classdef plottingToolsUI < handle
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
                             'CloseRequestFcn', @closeWindowCallback);
-            
+            % Resize function must be defined after Figure is define 
+            app.Figure.SizeChangedFcn = @app.resizeWindow;
+
             % Button group 
             app.ButtonGroup = uibuttongroup(app.Figure, ...
                                     'Position', app.bgPosition,...
@@ -95,20 +98,39 @@ classdef plottingToolsUI < handle
     %% Set up methods 
     methods
         function addButton(app, name, callbackFunction)
-            uibutton(app.ButtonGroup, ...
-                'Text', name, ...
-                'Position', app.bPosition, ...
-                'ButtonPushedFcn', callbackFunction);
+            button = uibutton(app.ButtonGroup, ...
+                        'Text', name, ...
+                        'Position', app.bPosition, ...
+                        'ButtonPushedFcn', callbackFunction);
             app.currButtonID = app.currButtonID + 1;
+            app.ListButtons = [app.ListButtons, button];
         end
     end
 
     %% Callback functions 
     methods 
-        function exitAppButtonPushed(app, hObject, eventData)
+        function goBackToMainUI(app, hObject, eventData)
             hObject = app.Figure;
             closeWindowCallback(hObject, eventData)
         end
+
+        function resizeWindow(app, hObject, eventData)
+            currentPos = get(app.Figure, 'Position');
+            app.Width = currentPos(3);
+            app.Height = currentPos(4);
+            pause(0.01) % To avoid freeze ending in visuals bugs           
+%             app.updateLabel
+            app.updateButtons
+        end
+
+        function updateButtons(app)
+            for i_b = 1:length(app.ListButtons)
+                button = app.ListButtons(i_b);
+                app.currButtonID = i_b-1;
+                set(button, 'Position', app.bPosition)
+            end
+        end
+
     end
 
     %% Get methods for dependent properties 

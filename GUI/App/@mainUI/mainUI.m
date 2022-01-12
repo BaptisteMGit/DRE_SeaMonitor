@@ -12,7 +12,7 @@ classdef mainUI < handle
         Figure                  
         ButtonGroup
         Label
-        ListButtons
+        handleButtons
 
         % Name of the window 
         Name = "Detection Range Estimation";
@@ -119,7 +119,7 @@ classdef mainUI < handle
                         'Position', app.bPosition, ...
                         'ButtonPushedFcn', callbackFunction);
             app.currButtonID = app.currButtonID + 1;
-            app.ListButtons = [app.ListButtons, button];
+            app.handleButtons = [app.handleButtons, button];
         end
     end
     
@@ -131,8 +131,8 @@ classdef mainUI < handle
         end
 
         function configEnvironmentButtonPushed(app, hObject, eventData)
-            app.configEnvironmentWindow = configEnvironmentUI;
-            app.configEnvironmentWindow.Simulation = app.Simulation;
+            app.configEnvironmentWindow = configEnvironmentUI(app.Simulation);
+%             app.configEnvironmentWindow.Simulation = app.Simulation;
             app.childWindow = [app.childWindow, app.configEnvironmentWindow];
         end
 
@@ -146,21 +146,22 @@ classdef mainUI < handle
             currentPos = get(app.Figure, 'Position');
             app.Width = currentPos(3);
             app.Height = currentPos(4);
-            app.updateButtonGroup
-            app.updateButtons
+            pause(0.01) % To avoid freeze ending in visuals bugs           
             app.updateLabel
-
+%             app.updateButtonGroup
+            app.updateButtons
         end
 
-        function updateButtonGroup(app)
-            app.ButtonGroup.Position = app.bgPosition;
-        end
+%         function updateButtonGroup(app)
+%             app.ButtonGroup.Position = app.bgPosition;
+%         end
 
         function updateButtons(app)
-            for i_b = 1:length(app.ListButtons)
-                button = app.ListButtons(i_b);
+            for i_b = 1:length(app.handleButtons)
+                button = app.handleButtons(i_b);
                 app.currButtonID = i_b-1;
-                button.Position = app.bPosition;
+%                 button.Position = app.bPosition;
+                set(button, 'Position', app.bPosition)
             end
         end
 
@@ -220,9 +221,9 @@ classdef mainUI < handle
         end
 
         function bPos = get.bPosition(app)
-            bX = app.bgWidth/2 - app.bWidth/2; % X POSITIONS OF BUTTON 
+            bX = app.bgWidth/2 - app.bWidth/2; % X Position of button
             topButtonY = app.bgHeight - app.bStep - app.bHeight;
-            bY = topButtonY - app.currButtonID * (app.bHeight + app.bStep); % Y POSITIONS OF BUTTON 
+            bY = topButtonY - app.currButtonID * (app.bHeight + app.bStep); % Y Position of button 
             bPos = [bX, bY, app.bWidth, app.bHeight];
         end
 

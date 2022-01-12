@@ -1,16 +1,16 @@
  classdef DRESimulation < handle
     properties
         % Bathymetry
-        bathyEnvironment
+        bathyEnvironment = BathyEnvironment;
         % Mooring 
-        mooring 
+        mooring = Mooring;
         % Simulation
         drSimu = 0.01;                      % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
         dzSimu = 0.5;                       % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
         % Marine mammal to simulate 
-        marineMammal 
+        marineMammal = MarineMammal;
         % Detector 
-        detector 
+        detector = Detector; 
         % Env parameters
         noiseLevel
         % Bellhop parameters 
