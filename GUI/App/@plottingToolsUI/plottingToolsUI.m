@@ -1,23 +1,19 @@
-classdef DREApp < handle
-% DREApp: Detection Range App 
-%
-% This app allows the user to configure and run detection range simulation 
-%
-% Baptiste Menetrier
+classdef plottingToolsUI < handle
+    %PLOTTINGTOOLSUI Summary of this class goes here
+    %   Detailed explanation goes here
     
     properties
+        % Simulation handle 
+        Simulation
         % Graphics handles
         Figure                  
         ButtonGroup
         
         % Name of the window 
-        Name = "Detection Range Estimation";
-        % App release version 
-        Version = 0.1; 
+        Name = "Plotting Tools";
     end
     
     properties (Dependent)
-
         % Position of the main figure 
         fPosition 
 
@@ -44,7 +40,7 @@ classdef DREApp < handle
         % Label dimension
         lWidth
         % Label position
-        lStep
+        lStep 
         lX
         lY
         lPosition
@@ -58,20 +54,13 @@ classdef DREApp < handle
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 4;
+        nbButton = 7;
         currButtonID = 0;
-        
-        % Label Heigth
-        lHeight = 40;
-        
-        % Sub-windows 
-        childWindow
-        configEnvWindow
     end
     
-    %% Constructor of the class 
+    %% Constructor
     methods
-        function app = DREApp
+        function app = plottingToolsUI            
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Visible', 'on', ...
@@ -90,17 +79,16 @@ classdef DREApp < handle
                                     'Units', 'normalized');
 
             % Buttons
-            app.addButton('Configure Environment',  @app.configEnvironmentButtonPushed)
-            app.addButton('Run DRE', @runDREButtonPushed)
-            app.addButton('Plotting Tools', @plottingToolsButtonPushed)
-            app.addButton('Exit App', {@app.exitAppButtonPushed})
-            
-            % Main label 
-            uilabel(app.Figure, ....
-                'Position', app.lPosition, ...
-                'HorizontalAlignment', 'center', ...
-                'VerticalAlignment', 'center', ...
-                'Text', sprintf('Detection Range Estimation \nUser-Interface \nVersion %2.1f', app.Version));
+            app.addButton('Plot Bathymetry 1D',  @app.plotBathy1D)
+            app.addButton('Plot Bathymetry 2D',  @app.plotBathy2D)
+
+            app.addButton('Plot TL 1D', @app.plotTL1D)
+            app.addButton('Plot TL 2D', @app.plotTL2D)
+
+            app.addButton('Plot SPL 1D', @app.plotSPL1D)
+            app.addButton('Plot SPL 2D', @app.plotSPL2D)
+
+            app.addButton('Main menu', {@app.goBackToMainUI})
         end
     end
 
@@ -114,17 +102,12 @@ classdef DREApp < handle
             app.currButtonID = app.currButtonID + 1;
         end
     end
-    
+
     %% Callback functions 
     methods 
         function exitAppButtonPushed(app, hObject, eventData)
             hObject = app.Figure;
             closeWindowCallback(hObject, eventData)
-        end
-
-        function configEnvironmentButtonPushed(app, hObject, eventData)
-            app.configEnvWindow = configEnvironmentUI;
-            app.childWindow = [app.childWindow, app.configEnvWindow];
         end
     end
 
@@ -151,7 +134,7 @@ classdef DREApp < handle
         end
 
         function bgH = get.bgHeight(app)
-            bgH = app.Height * 2/3;
+            bgH = app.Height - 2*app.OffsetY;
         end
         
         function bgX = get.bgX(app)
@@ -159,7 +142,8 @@ classdef DREApp < handle
         end
 
         function bgY = get.bgY(app)
-            bgY = app.Height * 1/3 + app.OffsetX - app.bgHeight / 2;
+%             bgY = app.Height * 1/3 + app.OffsetY - app.bgHeight / 2;
+            bgY = app.OffsetY;
         end
 
         function bgPos = get.bgPosition(app)
@@ -205,4 +189,6 @@ classdef DREApp < handle
             lPos = [app.lX, app.lY, app.lWidth, app.lHeight];
         end
     end
-end                                             
+
+end
+

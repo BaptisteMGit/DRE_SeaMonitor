@@ -1,4 +1,4 @@
- classdef DRESimulation 
+ classdef DRESimulation < handle
     properties
         % Bathymetry
         bathyEnvironment

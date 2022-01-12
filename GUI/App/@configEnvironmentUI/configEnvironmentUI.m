@@ -1,10 +1,12 @@
-classdef configEnvironementUI < handle
+classdef configEnvironmentUI < handle
 % configEnvironementUI: App window dedicated to the configuration of the
 % simulation environment 
 %
 % Baptiste Menetrier    
 
     properties
+        % Simulation handle 
+        Simulation
         % Graphics handles
         Figure
         GridLayout 
@@ -29,7 +31,7 @@ classdef configEnvironementUI < handle
     
     %% Constructor of the class 
     methods       
-        function app = configEnvironementUI
+        function app = configEnvironmentUI
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Visible', 'on', ...
