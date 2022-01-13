@@ -35,6 +35,9 @@
         spl
         zt
         rt
+
+        % run date and time 
+        launchDate 
     end
 
     properties (Dependent, Hidden=true)
@@ -107,7 +110,7 @@
     methods 
         function root = get.rootSaveResult(obj)
 %             root = obj.rootSaveResult;
-            root = fullfile(obj.rootResult, obj.mooring.mooringName, datestr(now,'yyyymmdd_HHMM'));
+            root = fullfile(obj.rootResult, obj.mooring.mooringName, obj.launchDate);
         end
         
 %         function set.rootSaveResult(obj, root)
@@ -119,12 +122,12 @@
     methods 
         function runSimulation(obj)
             % Create result folder
+            obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
 
-            [obj, obj.dataBathy] = obj.getBathyData();
-
-            obj = obj.setSource();
-            obj = obj.setBeam();
+            obj.getBathyData();
+            obj.setSource();
+            obj.setBeam();
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
@@ -138,10 +141,10 @@
                 obj.writeBtyFile(nameProfile, bathyProfile)
 
                 % Env
-                obj = obj.setBottom();
-                obj = obj.setSsp(bathyProfile);
-                obj = obj.setBeambox(bathyProfile);
-                obj = obj.setReceiverPos(bathyProfile);                
+                obj.setBottom();
+                obj.setSsp(bathyProfile);
+                obj.setBeambox(bathyProfile);
+                obj.setReceiverPos(bathyProfile);                
                 obj.writeEnvirnoment(nameProfile)
 
                 % Run
@@ -152,7 +155,10 @@
                 bathyBool = true;
                 obj.plotTL(nameProfile, saveBool, bathyBool)
                 obj.plotSPL(nameProfile, saveBool, bathyBool)
-                obj = obj.addDetectionRange(nameProfile);
+
+                % Derive detection range for current profile and add it to
+                % the list of detection ranges 
+                obj.addDetectionRange(nameProfile);
 
             end   
 
@@ -161,7 +167,7 @@
 
         end
 
-        function [obj, data] = getBathyData(obj)
+        function getBathyData(obj)
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             inputSRC = obj.bathyEnvironment.inputSRC;
@@ -173,7 +179,7 @@
                 varConvertBathy = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC_source', inputSRC, ...
                     'SRC_dest', 'ENU', 'mooringPos', mooringPos};
                 [data, outputFile] = convertBathyFile(varConvertBathy{:});                        
-                data = table2array(data);
+                obj.dataBathy = table2array(data);
                 obj.bathyEnvironment.bathyFile = outputFile;
 
 %             if ~exist(fullfile(rootBathy ,'ENU', bathyFile), 'file')
@@ -182,13 +188,13 @@
 %                 data = table2array(data);
             else
                 fprintf('Load existing bathymetry data \n\tBathy file: %s \n\tSRC: %s', bathyFile, 'ENU');
-                data = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
+                obj.dataBathy = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
             end
             fprintf('\n--> DONE <--\n');
         end
 
         %% Set environment 
-        function obj = setSource(obj)
+        function setSource(obj)
             % Position of the hydrophone in the water column 
             if obj.mooring.hydrophoneDepth < 0  % If negative the position of the hydrophone if reference to the seafloor
                 F = scatteredInterpolant(obj.dataBathy(:, 1), obj.dataBathy(:, 2), obj.dataBathy(:, 3));
@@ -199,7 +205,7 @@
             end
         end
 
-        function obj = setBeam(obj)
+        function setBeam(obj)
             % Beam 
             obj.beam.RunType(1) = 'C'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
             obj.beam.RunType(2) = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
@@ -213,7 +219,7 @@
             obj.beam.Box.r = max(bathyProfile(:, 1)) + 0.1; % rmax (km), larger than bathy max range to avoid problems
         end
 
-        function obj = setBottom(obj)
+        function setBottom(obj)
             % Bottom properties 
             % TODO: replace by importation function call to get bottom properties
             % from ascii file (Chris) 
@@ -224,7 +230,7 @@
             obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
         end
 
-        function obj = setSsp(obj, bathyProfile)
+        function setSsp(obj, bathyProfile)
             % TODO: replace by importation function call to get SSP
             Ssp.z = [0, 100, 200];
             Ssp.c = [1500, 1542, 1512];
@@ -235,7 +241,7 @@
             obj.ssp = Ssp;
         end
         
-        function obj = setReceiverPos(obj, bathyProfile)
+        function setReceiverPos(obj, bathyProfile)
                 % Receivers
                 obj.receiverPos.r.range = 0:obj.drSimu:max(bathyProfile(:, 1)); % Receiver ranges (km)
                 obj.receiverPos.r.z = 0:obj.dzSimu:max(bathyProfile(:, 2)); % Receiver depths (m)  
@@ -344,7 +350,7 @@
             plotBathy(varPlotBathy{:})
         end
 
-        function obj = addDetectionRange(obj, nameProfile)
+        function addDetectionRange(obj, nameProfile)
             current = pwd;
             cd(obj.rootSaveResult)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
