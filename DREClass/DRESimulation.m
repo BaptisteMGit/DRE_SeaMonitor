@@ -375,7 +375,7 @@
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
             % Save 
             cd(obj.rootOutputFigures)
-            saveas(fig, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName));
+            saveas(gcf, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName));
 
 %             figure;
             obj.plotBathyENU()
