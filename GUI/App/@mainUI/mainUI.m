@@ -55,7 +55,7 @@ classdef mainUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 300;
+        Width = 400;
         Height = 400;
         % Define font style
         FontSize = 12;

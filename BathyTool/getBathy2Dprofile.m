@@ -77,12 +77,12 @@ E_profile = r * cos(theta_rad);
 N_profile = r * sin(theta_rad);
 
 %% Plot azimuth
-hold on 
-plot(r * cos(theta_rad), r * sin(theta_rad), '--', 'LineWidth', 3, 'Color', 'red')
-
-% mooring site 
-hold on 
-scatter(0, 0, 50, 'filled', 'red') 
+% hold on 
+% plot(r * cos(theta_rad), r * sin(theta_rad), '--', 'LineWidth', 1, 'Color', 'red')
+% 
+% % mooring site 
+% hold on 
+% scatter(0, 0, 50, 'filled', 'red') 
 
 % [EGrid, NGrid] = meshgrid(E_profile, N_profile);
 % Z_profile = griddata(E, N, U, EGrid, NGrid);

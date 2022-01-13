@@ -1,9 +1,11 @@
 classdef Mooring
+    
     properties
-        mooringName = 'DefaultMooringName';   % Mooring name considered 
-        mooringPos    % Position of the mooring [lon0, lat0, hgt0]
+        mooringName = 'DefaultMooringName';   % Name of the considered mooring
+        mooringPos = [0, 0, 0];   % Position of the mooring [lon0, lat0, hgt0]
         hydrophoneDepth = 5; % Depth of the hydrophone (for source position)
     end
+
     methods 
         function obj = Mooring(moorPos, moorName, hydroDepth)
             % mooringName 

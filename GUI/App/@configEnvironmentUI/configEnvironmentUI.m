@@ -114,15 +114,15 @@ classdef configEnvironmentUI < handle
             app.addEditField(app.Simulation.bathyEnvironment.bathyFile, 2, [4, 9], '', 'text') % Bathy file 
             app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, [4, 5], [], 'numeric') % Bathy resolution 
             % Mooring
-            app.addEditField('', 6, [4, 9], 'Mooring name (name of the simulation)', 'text') % Name
-            app.addEditField(0, 7, 5, [], 'numeric') % X Pos 
-            app.addEditField(0, 7, 7, [], 'numeric') % Y Pos 
-            app.addEditField(0, 7, 9, [], 'numeric') % Z Pos 
-            app.addEditField(0, 8, [4, 5], [], 'numeric') % Hydro depth
+            app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text') % Name
+            app.addEditField(app.Simulation.mooring.mooringPos(1), 7, 5, [], 'numeric') % X Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos(2), 7, 7, [], 'numeric') % Y Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos(3), 7, 9, [], 'numeric') % Z Pos 
+            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric') % Hydro depth
             
             % Drop down 
             % Reference frame
-            app.addDropDown({'WGS84', 'ENU', 'UTM'}, 'WGS84', 3, [4, 7], @app.referenceFrameChanged)
+            app.addDropDown({'WGS84', 'ENU', 'UTM'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged)
             % Specie
             app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 10, [4, 9], @app.specieChanged)
             % Hydrophone
@@ -241,8 +241,8 @@ classdef configEnvironmentUI < handle
         end
 
         function selectBathyFile(app, hObject, eventData)
-            [file,path,indx] = uigetfile({'*.nc', 'NETCDF'; ...
-                                       '*.csv;*.txt','Text File'; ...
+            [file,path,indx] = uigetfile({'*.csv;*.txt','Text File'; ...
+                                       '*.nc', 'NETCDF'; ...
                                        '*.*',  'All Files (*.*)'}, ...
                                        'Select a File');
             app.Simulation.bathyEnvironment.rootBathy = path;

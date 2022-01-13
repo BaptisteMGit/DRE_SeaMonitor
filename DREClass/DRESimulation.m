@@ -38,10 +38,15 @@
 
         % run date and time 
         launchDate 
+        
+        % Figure for the app 
+        appUIFigure 
     end
 
     properties (Dependent, Hidden=true)
         rootSaveResult 
+        rootOutputFiles
+        rootOutputFigures
     end
 
     %% Constructor 
@@ -113,6 +118,13 @@
             root = fullfile(obj.rootResult, obj.mooring.mooringName, obj.launchDate);
         end
         
+        function root = get.rootOutputFiles(obj)
+            root = fullfile(obj.rootSaveResult, 'bellhopFiles');
+        end
+
+        function root = get.rootOutputFigures(obj)
+            root = fullfile(obj.rootSaveResult, 'figures');
+        end
 %         function set.rootSaveResult(obj, root)
 %             obj.rootSaveResult = 
 %         end
@@ -121,9 +133,15 @@
     %% Simulation methods  
     methods 
         function runSimulation(obj)
-            % Create result folder
+            d = uiprogressdlg(obj.appUIFigure,'Title','Please Wait',...
+                            'Message','Setting up the environment...', ...
+                            'Cancelable', 'on', ...
+                            'ShowPercentage', 'on');
+            % Create result folders
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
+            if ~exist(obj.rootOutputFiles, 'dir'); mkdir(obj.rootOutputFiles);end
+            if ~exist(obj.rootOutputFigures, 'dir'); mkdir(obj.rootOutputFigures);end
 
             obj.getBathyData();
             obj.setSource();
@@ -131,8 +149,22 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
+            %         
+%             obj.plotBathyENU()
+            
+            flag = 1; % flag to ensure the all process as terminate without error 
+            for i_theta = 1:length(obj.listAz)
+                theta = obj.listAz(i_theta);
 
-            for theta = obj.listAz
+                % Check for Cancel button press
+                if d.CancelRequested
+                    flag = 0;
+                    break
+                end
+
+                % Update progress, report current estimate
+                d.Value = i_theta/length(obj.listAz);
+                d.Message = sprintf('Computing detection range for azimuth = %2.1f ° ...', theta);
 
                 nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
@@ -161,9 +193,12 @@
                 obj.addDetectionRange(nameProfile);
 
             end   
-
-            % Plot detection range (polar plot and map) 
-            obj.plotDR()
+            
+            close(d)
+            if flag
+                % Plot detection range (polar plot and map) 
+                obj.plotDR()
+            end
 
         end
 
@@ -266,13 +301,13 @@
 %             nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
             BTYfilename = sprintf('%s.bty', nameProfile);
             fprintf('Creation of bty file \n\tfilename = %s', BTYfilename);
-            writebdry(fullfile(obj.rootSaveResult, BTYfilename), obj.interpMethodBTY, bathyProfile)
+            writebdry(fullfile(obj.rootOutputFiles, BTYfilename), obj.interpMethodBTY, bathyProfile)
             fprintf('\n--> DONE <--\n');
         end
 
         function writeEnvirnoment(obj, nameProfile)
             fprintf('Writing environment file')
-            envfile = fullfile(obj.rootSaveResult, nameProfile);
+            envfile = fullfile(obj.rootOutputFiles, nameProfile);
 
             freq = obj.marineMammal.signal.centroidFrequency;
             varEnv = {'envfil', envfile, 'freq', freq, 'SSP', obj.ssp, 'Pos', obj.receiverPos,...
@@ -284,7 +319,7 @@
         function runBellhop(obj, nameProfile)
             fprintf('Running Bellhop')
             current = pwd;
-            cd(obj.rootSaveResult)
+            cd(obj.rootOutputFiles)
             bellhop( nameProfile )
             cd(current)
             fprintf('\n--> DONE <--\n');
@@ -292,10 +327,10 @@
         
         %% Plot functions
         function plotTL(obj, nameProfile, saveBool, bathyBool)
-            figure; 
+            figure('visible','off'); 
             current = pwd;
-            cd(obj.rootSaveResult)
-            plotshd( sprintf('%s.shd', nameProfile) );
+            cd(obj.rootOutputFiles)
+            plotshd( sprintf('%s.shd', nameProfile));
             a = colorbar;
             a.Label.String = 'Transmission Loss (dB)';
 
@@ -306,6 +341,7 @@
             scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
 
             if saveBool
+                cd(obj.rootOutputFigures)
                 saveas(gcf, sprintf('%sTL.png', nameProfile));
             end
             close(gcf);
@@ -314,9 +350,9 @@
 
         function plotSPL(obj, nameProfile, saveBool, bathyBool)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
-            figure;
+            figure('visible','off');
             current = pwd;
-            cd(obj.rootSaveResult)
+            cd(obj.rootOutputFiles)
             plotspl(varSpl{:});
             if bathyBool
                 plotbty( nameProfile );
@@ -325,6 +361,7 @@
             scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
 
             if saveBool
+                cd(obj.rootOutputFigures)
                 saveas(gcf, sprintf('%sSPL.png', nameProfile));
             end
             close(gcf);
@@ -334,14 +371,21 @@
         function plotDR(obj)
             figure;
             current = pwd;
-            cd(obj.rootSaveResult)
+%             cd(obj.rootSaveResult)
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
-            
+            % Save 
+            cd(obj.rootOutputFigures)
+            saveas(fig, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName));
+
 %             figure;
             obj.plotBathyENU()
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
             plot(xx, yy, 'k', 'LineWidth', 3)
+            % Save 
+            cd(obj.rootOutputFigures)
+            saveas(gcf, sprintf('%s_DREstimate.png', obj.mooring.mooringName));
+
             cd(current)
         end
         
@@ -352,7 +396,7 @@
 
         function addDetectionRange(obj, nameProfile)
             current = pwd;
-            cd(obj.rootSaveResult)
+            cd(obj.rootOutputFiles)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSpl(varSpl{:});
             computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseLevel,...

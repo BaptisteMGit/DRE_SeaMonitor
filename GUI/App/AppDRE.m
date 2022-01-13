@@ -17,6 +17,8 @@ classdef AppDRE
             end
             app.Simulation.rootResult = fullfile(pwd, 'Output');
             app.mainWindow.Simulation = app.Simulation;
+            % Pass figure to the simulation for progress bar interactivity 
+            app.Simulation.appUIFigure = app.mainWindow.Figure;
         end
     end
 

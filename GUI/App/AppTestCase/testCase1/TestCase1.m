@@ -31,7 +31,9 @@ classdef TestCase1 < DRESimulation
             obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, drBathy);
             
             %% Mooring 
-            mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0]
+%             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %
+%             Position used to compute ENU bathy 
+            mooringPos = [0, 0, 0]; % [lon0, lat0, hgt0]
             mooringName = 'TestCase1';
             hydroDepth = -1; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1 meter over the seafloor 
