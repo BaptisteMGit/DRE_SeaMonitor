@@ -5,6 +5,7 @@ classdef SoundTrap < Detector
     
     methods
         function obj = SoundTrap()
+            obj.name = 'SoundTrap';
             obj.detectionThreshold = 10; 
         end
     end

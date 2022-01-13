@@ -5,6 +5,7 @@ classdef FPOD < Detector
     
     methods
         function obj = FPOD()
+            obj.name = 'FPOD';
             obj.detectionThreshold = 10; 
         end
     end

@@ -4,35 +4,40 @@
         bathyEnvironment = BathyEnvironment;
         % Mooring 
         mooring = Mooring;
+        % Marine mammal to simulate 
+        marineMammal = CommonBottlenoseDolphin;
+        % Detector 
+        detector = CPOD; 
+        % Env parameters
+        noiseLevel
         % Simulation
         drSimu = 0.01;                      % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
         dzSimu = 0.5;                       % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
-        % Marine mammal to simulate 
-        marineMammal = MarineMammal;
-        % Detector 
-        detector = Detector; 
-        % Env parameters
-        noiseLevel
         % Bellhop parameters 
-        beam
-        bottom
-        ssp
-        receiverPos
         listAz = 0.1:10:360.1;
         % Output
         listDetectionRange
-        spl
-        zt
-        rt
+        % Folder to save the result 
+        rootResult = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Result'; % Default folder when executed from BM computer 
     end
     
     properties (Hidden)
         topOption = 'SVW';
         interpMethodBTY = 'L';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
+
+        % Bellhop parameters 
+        beam
+        bottom
+        ssp
+        receiverPos
+        % Output
+        spl
+        zt
+        rt
     end
 
-    properties (Dependent)
+    properties (Dependent, Hidden=true)
         rootSaveResult 
     end
 
@@ -73,7 +78,7 @@
     
     %% Set methods 
     methods 
-        function obj = set.marineMammal(obj, mMammal)
+        function set.marineMammal(obj, mMammal)
             if isa(mMammal, 'MarineMammal')
                     obj.marineMammal = mMammal;
                 else
@@ -81,7 +86,7 @@
             end
         end
 
-        function obj = set.mooring(obj, moor)
+        function set.mooring(obj, moor)
             if isa(moor, 'Mooring')
                 obj.mooring = moor;
             else
@@ -89,7 +94,7 @@
             end
         end
 
-        function obj = set.bathyEnvironment(obj, bathyEnv)
+        function set.bathyEnvironment(obj, bathyEnv)
             if isa(bathyEnv, 'BathyEnvironment')
                 obj.bathyEnvironment = bathyEnv;
             else
@@ -98,12 +103,16 @@
         end
     end
 
-    %% Get methods 
+    %% Set and Get methods 
     methods 
         function root = get.rootSaveResult(obj)
-            root = fullfile('C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Result', obj.mooring.mooringName);
+%             root = obj.rootSaveResult;
+            root = fullfile(obj.rootResult, obj.mooring.mooringName, datestr(now,'yyyymmdd_HHMM'));
         end
-
+        
+%         function set.rootSaveResult(obj, root)
+%             obj.rootSaveResult = 
+%         end
     end
 
     %% Simulation methods  

@@ -1,5 +1,6 @@
 classdef MarineMammal
     properties
+        name % name of the marine mammal
         signal % Signal object  
         rMax % Maximum detection range according to literature 
         livingDepth % Depth where the mammal is supposed to live 

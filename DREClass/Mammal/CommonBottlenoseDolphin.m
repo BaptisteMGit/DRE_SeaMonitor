@@ -19,6 +19,7 @@ classdef CommonBottlenoseDolphin < MarineMammal
             obj.rMax = 1500; % TODO: check literature (rMax is inherited from MarineMammal)
             obj.livingDepth = 25;
             obj.deltaLivingDepth = 100;
+            obj.name = 'Common bottlenose dolphin';
         end 
     end 
 end 

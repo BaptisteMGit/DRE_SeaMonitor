@@ -5,6 +5,7 @@ classdef CPOD < Detector
     
     methods
         function obj = CPOD()
+            obj.name = 'CPOD';
             obj.detectionThreshold = 10; 
         end
     end
