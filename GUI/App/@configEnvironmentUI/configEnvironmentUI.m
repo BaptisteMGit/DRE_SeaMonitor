@@ -112,13 +112,13 @@ classdef configEnvironmentUI < handle
             % Edit field
             % Bathy
             app.addEditField(app.Simulation.bathyEnvironment.bathyFile, 2, [4, 9], '', 'text') % Bathy file 
-            app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, [4, 5], [], 'numeric') % Bathy resolution 
+            app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, [4, 5], [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
             % Mooring
-            app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text') % Name
-            app.addEditField(app.Simulation.mooring.mooringPos(1), 7, 5, [], 'numeric') % X Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos(2), 7, 7, [], 'numeric') % Y Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos(3), 7, 9, [], 'numeric') % Z Pos 
-            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric') % Hydro depth
+            app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
+            app.addEditField(app.Simulation.mooring.mooringPos(1), 7, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos(2), 7, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos(3), 7, 9, [], 'numeric', {@app.editFieldChanged, 'ZPos'}) % Z Pos 
+            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             
             % Drop down 
             % Reference frame
@@ -177,11 +177,14 @@ classdef configEnvironmentUI < handle
             app.handleLabel = [app.handleLabel, label];
         end
 
-        function addEditField(app, val, nRow, nCol, placeHolder, style)
+        function addEditField(app, val, nRow, nCol, placeHolder, style, varargin)
             editField = uieditfield(app.GridLayout, style, ...
                         'Value', val);
             if isempty(val) && ~isempty(placeHolder)
                 editField.Placeholder = placeHolder;
+            end
+            if length(varargin) >= 1
+                editField.ValueChangedFcn = varargin{1};
             end
             % Set edit field position in grid layout 
             editField.Layout.Row = nRow;
@@ -286,6 +289,32 @@ classdef configEnvironmentUI < handle
         end
 
         function noiseLevelChanged(app, hObject, eventData)
+            switch get(app.handleDropDown(3), 'Value')
+                case 'CPOD'
+                    newDetector = CPOD;
+                case 'FPOD'
+                    newDetector = FPOD;
+               case 'SoundTrap'
+                    newDetector = SoundTrap;
+            end
+%             app.Simulation.noise
+        end
+
+        function editFieldChanged(app, hObject, eventData, type)
+            switch type 
+                case 'drBathy'
+                    app.Simulation.bathyEnvironment.drBathy = hObject.Value;
+                case 'mooringName'
+                    app.Simulation.mooring.mooringName = regexprep(hObject.Value, ' ', ''); % Remove blanks
+                case 'XPos'
+                    app.Simulation.mooring.mooringPos(1) = hObject.Value;
+                case 'YPos'
+                    app.Simulation.mooring.mooringPos(2) = hObject.Value;
+                case 'ZPos'
+                    app.Simulation.mooring.mooringPos(3) = hObject.Value;
+                case 'hydroDepth'
+                    app.Simulation.mooring.hydrophoneDepth = hObject.Value;
+            end
         end
 
         function editMarinneMammalProperties(app, hOject, eventData)
@@ -301,11 +330,13 @@ classdef configEnvironmentUI < handle
         end
 
         function advancedSettings(app, hObject, eventData)
-            % Open editUI
+            % Open advancedSettingsUI
+            advancedSettingsUI(app.Simulation)
         end
 
         function saveSettings(app, hObject, eventData)
             % Open editUI
+            close(app.Figure)
         end
     end
 
