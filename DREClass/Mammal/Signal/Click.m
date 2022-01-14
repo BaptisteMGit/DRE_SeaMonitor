@@ -5,8 +5,8 @@ classdef Click < Signal
     end
 
     methods
-        function obj = Click(cFreq, sEnergy, sLength, dIndex, sLevel, mean_ICI, pFreq)
-            obj = obj@Signal(cFreq, sEnergy, sLength, dIndex, sLevel)
+        function obj = Click(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel, mean_ICI, pFreq)
+            obj = obj@Signal(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel)
             obj.meanICI = mean_ICI;
             obj.peakFrequency = pFreq;
         end

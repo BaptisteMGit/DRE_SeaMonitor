@@ -3,7 +3,11 @@ classdef Porpoise < MarineMammal
     end
 
     properties
+        % Signal properties 
         centroidFrequency = 130 * 1e3; % Centroid frequency in Hz
+        bandWidth = 50 * 1e3; % Bandwidth of the signal 
+        
+        % Useless for the momment
         signalEnergy  = []; % Signal energy in Ws 
         signalLength = 65 * 1e-6; % Signal length in s
         directivityIndex = 22; % Directivity index in dB 
@@ -14,7 +18,7 @@ classdef Porpoise < MarineMammal
 
     methods
         function obj = Porpoise()
-            obj.signal = Click(obj.centroidFrequency, obj.signalEnergy, obj.signalLength,...
+            obj.signal = Click(obj.centroidFrequency, obj.bandWidth, obj.signalEnergy, obj.signalLength,...
                                 obj.directivityIndex, obj.sourceLevel, obj.meanICI, obj.peakFrequency);
 %             Estimating effective detection area of static passive acoustic 
 %             data loggers from playback experiments with cetacean 
@@ -26,6 +30,10 @@ classdef Porpoise < MarineMammal
 
         function obj = set.centroidFrequency(obj, f)
             obj.centroidFrequency = f * 1e3; % kHz in Hz 
+        end
+
+        function obj = set.bandWidth(obj, BW)
+            obj.bandWidth = BW * 1e3; % kHz in Hz 
         end
     end
 end
