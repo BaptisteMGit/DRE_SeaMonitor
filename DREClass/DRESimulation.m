@@ -242,7 +242,7 @@
 
         function setBeam(obj)
             % Beam 
-            obj.beam.RunType(1) = 'C'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
+            obj.beam.RunType(1) = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
             obj.beam.RunType(2) = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
             obj.beam.Nbeams = 5001; % Number of launching angles
             obj.beam.alpha = [-80, 80]; % Launching angles in degrees
