@@ -46,6 +46,7 @@ classdef TestCase1 < DRESimulation
             porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
+            porpoise.rMax = 5000;
 
             obj.marineMammal = porpoise;
 
@@ -57,7 +58,13 @@ classdef TestCase1 < DRESimulation
             obj.detector = CPOD();
             
             %% noiseLevel 
-            obj.noiseLevel = 30; % Noise level (to discuss);
+            obj.noiseLevel = 100; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
+
+%             obj.listAz = 0.1:10:360.1;
+            obj.listAz = [75.1];
+            obj.detector.detectionThreshold = 30;
+
+
         end
 
         

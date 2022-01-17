@@ -24,7 +24,7 @@ classdef Porpoise < MarineMammal
 %             data loggers from playback experiments with cetacean 
 %             vocalisations -> he maximum detection distance for the recorded porpoise séquence was 566 m (C-POD 4C) and the mean maximum distance for
 %             all the C-PODs was 248 m (95% CI: 181–316).
-            obj.rMax = 1000; % Detection distance depend on the environment (especially with modeling), 1000m is taken to be sure 
+            obj.rMax = 2000; % Detection distance depend on the environment (especially with modeling), 1000m is taken to be sure 
             obj.name = 'Porpoise';
         end 
 

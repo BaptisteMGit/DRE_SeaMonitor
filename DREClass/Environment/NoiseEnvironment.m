@@ -9,8 +9,8 @@ classdef NoiseEnvironment
     
     methods
         function obj = NoiseEnvironment(cMethod)
-            switch cMethod
-                case ''
+%             switch cMethod
+%                 case ''
         end
         
         function outputArg = method1(obj,inputArg)
