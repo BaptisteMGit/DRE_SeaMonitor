@@ -91,6 +91,10 @@ N_profile = r * sin(theta_rad);
 F = scatteredInterpolant(E, N, U);
 F.ExtrapolationMethod = 'none';
 Z_profile = F(E_profile, N_profile);
+
+%% Update 17/01/2022
+% Reverse profile for more precision 
+Z_profile = flip(Z_profile);
 % toc
 
 %% Save
