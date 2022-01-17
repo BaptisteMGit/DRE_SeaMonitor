@@ -20,7 +20,7 @@ signal = spl_r -  nl;
 
 %% Detection range: last point possible
 % First method: get the last range for which spl(r) - nl > dt 
-% 
+
 % idetected = signal > dt;
 % if ~isempty(idetected)
 %     detectedRange = rt(idetected);

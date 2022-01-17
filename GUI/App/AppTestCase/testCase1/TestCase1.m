@@ -35,7 +35,7 @@ classdef TestCase1 < DRESimulation
 %             Position used to compute ENU bathy 
             mooringPos = [0, 0, 0]; % [lon0, lat0, hgt0]
             mooringName = 'TestCase1';
-            hydroDepth = -1; % Negative hydroDepth = depth reference to the seafloor 
+            hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1 meter over the seafloor 
             
             obj.mooring = Mooring(mooringPos, mooringName, hydroDepth);
@@ -46,7 +46,7 @@ classdef TestCase1 < DRESimulation
             porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
-            porpoise.rMax = 5000;
+            porpoise.rMax = 1500;
 
             obj.marineMammal = porpoise;
 
@@ -58,11 +58,16 @@ classdef TestCase1 < DRESimulation
             obj.detector = CPOD();
             
             %% noiseLevel 
-            obj.noiseLevel = 100; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
+            obj.noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
 
-%             obj.listAz = 0.1:10:360.1;
-            obj.listAz = [75.1];
-            obj.detector.detectionThreshold = 30;
+            obj.listAz = 0.1:10:360.1;
+%             obj.listAz = [75.1];
+            obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
+                                                     % for small odontocetes (C-PODs)
+
+            % From ref paper: The average threshold level over the four positions was then used as the
+            % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
+            % peak-to-peak (pp) across the C-PODs used in the study.
 
 
         end

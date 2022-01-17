@@ -267,8 +267,8 @@
 
         function setSsp(obj, bathyProfile)
             % TODO: replace by importation function call to get SSP
-            Ssp.z = [0, 100, 200];
-            Ssp.c = [1500, 1542, 1512];
+            Ssp.z = [0, 200];
+            Ssp.c = [1500, 1500];
             if max(Ssp.z) < max(bathyProfile(:, 2)) % Check that bathy doesn't drop below lowest point in the sound speed profile
                 Ssp.z(end+1) = floor(max(bathyProfile(:, 2))) + 1;   
                 Ssp.c(end+1) = Ssp.c(end);          % Extend ssp 
@@ -332,7 +332,7 @@
             cd(obj.rootOutputFiles)
             plotshd( sprintf('%s.shd', nameProfile));
             a = colorbar;
-            a.Label.String = 'Transmission Loss (dB)';
+            a.Label.String = 'Transmission Loss (dB ref 1\muPa)';
 
             if bathyBool
                 plotbty( nameProfile );
@@ -354,6 +354,9 @@
             current = pwd;
             cd(obj.rootOutputFiles)
             plotspl(varSpl{:});
+            a = colorbar;
+            a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
+
             if bathyBool
                 plotbty( nameProfile );
             end
