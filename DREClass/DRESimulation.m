@@ -23,7 +23,7 @@
     
     properties (Hidden)
         topOption = 'SVW';
-        interpMethodBTY = 'L';  % 'L' Linear piecewise, 'C' Curvilinear  
+        interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
 
         % Bellhop parameters 
@@ -261,7 +261,7 @@
             obj.bottom.c = 1600; % Sound celerity in bottom half space 
             obj.bottom.ssc = 0.0; % Shear Sound Celerity in bottom half space 
             obj.bottom.rho = 1.8; % Density in bottom half space 
-            obj.bottom.cwa = 0.8; % Compression Wave Absorption in bottom half space 
+            obj.bottom.cwa = 0.8; % Compression Wave Absorption in bottom half space (unit depend on topOption(3), 'W' = dB/wavelength)
             obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
         end
 
@@ -269,6 +269,7 @@
             % TODO: replace by importation function call to get SSP
             Ssp.z = [0, 200];
             Ssp.c = [1500, 1500];
+            Ssp.
             if max(Ssp.z) < max(bathyProfile(:, 2)) % Check that bathy doesn't drop below lowest point in the sound speed profile
                 Ssp.z(end+1) = floor(max(bathyProfile(:, 2))) + 1;   
                 Ssp.c(end+1) = Ssp.c(end);          % Extend ssp 

@@ -26,8 +26,9 @@ RMax = getVararginValue(varargin, 'RMax', 100);% CHECK
 
 %% SSP 
 SSP.NMedia = 1;
-SSP.N = 51; % nmesh: unused parameter for BELLHOP (According to PDF: General description of
-% the BELLHOP ray tracing program) 
+SSP.N = 15; % nmesh: unused parameter for BELLHOP (According to paper: General description of
+% the BELLHOP ray tracing program)  -> Dummy parameter for compatibility
+% with KRAKEN model 
 SSP.sigma = 0.0; % sigmas: same thing
 SSP.raw(1).z = ssp.z; % Depth in water column 
 SSP.raw(1).c = ssp.c; % Sound celerity in water column 
