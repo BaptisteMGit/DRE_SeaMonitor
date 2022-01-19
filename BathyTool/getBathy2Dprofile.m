@@ -66,7 +66,7 @@ E = E(idx);
 N = N(idx);
 U = U(idx);
 
-rmax = sqrt(max(abs(E)).^2 + max(abs(N)).^2); % Maximum range in m not to go out from the map boundaries 
+rmax = sqrt(max(abs(E)).^2 + max(abs(N)).^2); % Maximum range (m) not to go out from the map boundaries 
 
 if rMax && (rmax > rMax)
     rmax = rMax;
@@ -84,10 +84,14 @@ N_profile = r * sin(theta_rad);
 % hold on 
 % scatter(0, 0, 50, 'filled', 'red') 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Gridddata is to slow %%%
 % [EGrid, NGrid] = meshgrid(E_profile, N_profile);
 % Z_profile = griddata(E, N, U, EGrid, NGrid);
 % tic
 % Z_profile = griddata(E, N, U, E_profile, N_profile);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 F = scatteredInterpolant(E, N, U);
 F.ExtrapolationMethod = 'none';
 Z_profile = F(E_profile, N_profile);
@@ -104,36 +108,5 @@ rootSave = sprintf('%s\\2DProfile\\%s', rootBathy, bathyFile(1:end-4));
 if ~exist(rootSave, 'dir'); mkdir(rootSave);end
 filename2D = sprintf('%s\\2DBathy_azimuth%2.1f.txt', rootSave, theta);
 writetable(T, filename2D,'Delimiter',' ', 'WriteVariableNames', 0) 
-
-%%% 
-%% CHANGE TO USE the function writebty from Acoustic Toolbox
-% %% Modify first row 
-% S = fileread(filename2D);
-% S = [sprintf('%d\n', height(T)), S];
-% fileID = fopen(filename2D,'w');
-% fprintf(fileID, S);
-% fclose(fileID);
-
-% %% Change file extension to bty
-% fileList = dir([rootSave, '\*.txt']); 
-% for i = 1:numel(fileList)
-%     file = fullfile(rootSave, fileList(i).name);
-%     [tempDir, tempFile] = fileparts(file); 
-%     status = copyfile(file, fullfile(tempDir, [tempFile, '.bty']));
-%     % Delete the .txt file;
-%     delete(file)  
-%%% 
-    
-%% Plot 2D profile 
-% figure;
-% plot(r, z)
-% set(gca, 'YDir','reverse')
-% ylim([0, max(z)])
-% xlabel('Range [m]')
-% ylabel('Depth [m]')
-% title(sprintf('Bathymetric 2D profile\nAzimuth = %2.1f°', theta))
-% % Save 2D plot
-% saveas(gcf, sprintf('%s\\2DBathy_azimuth%2.1f.png', rootSave, theta))
-% close()
 
 end
