@@ -1,5 +1,8 @@
 function getDataFromCMEMS(varargin)
 % GETDATAFROMCMEMS fetch data from CMEMS. 
+% Connection parameters 
+username = 'bmenetrier';
+password = 'Copernicus753!';
 
 dbName = getVararginValue(varargin, 'dbName', '');
 productName = getVararginValue(varargin, 'productName', '');
@@ -9,10 +12,6 @@ dBox = getVararginValue(varargin, 'dBox', []); % Depth box -> struct with field 
 variables = getVararginValue(varargin, 'variables', []); % variables to get 
 outputDir = getVararginValue(varargin, 'outputDir', '');
 outputFile = getVararginValue(varargin, 'outputFile', '');
-
-% Connection parameters 
-username = 'bmenetrier';
-password = 'Copernicus753!';
 
 % % Test 
 % dbName = 'INSITU_GLO_TS_OA_NRT_OBSERVATIONS_013_002_a-TDS';

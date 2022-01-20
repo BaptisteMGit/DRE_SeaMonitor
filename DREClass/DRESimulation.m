@@ -9,7 +9,7 @@
         % Detector 
         detector = CPOD; 
         % Env parameters
-        oceanEnvironment = OceanEnvironement; % Handle ocean parameters (Temperature, Salinity, pH) 
+        oceanEnvironment  % Handle ocean parameters (Temperature, Salinity, pH) 
         noiseLevel
         % Simulation
         drSimu = 0.01;                      % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
@@ -19,7 +19,9 @@
         % Output
         listDetectionRange
         % Folder to save the result 
-        rootResult = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Result'; % Default folder when executed from BM computer 
+        rootResult 
+        % Folder to save the inputs used to compute results 
+        rootInput 
     end
     
     properties (Hidden)
@@ -49,6 +51,7 @@
         rootOutputFiles
         rootOutputFigures
         
+        rootSaveInput
         cwa % Attenuation coef 
     end
 
@@ -117,8 +120,11 @@
     %% Get methods 
     methods 
         function root = get.rootSaveResult(obj)
-%             root = obj.rootSaveResult;
             root = fullfile(obj.rootResult, obj.mooring.mooringName, obj.launchDate);
+        end
+
+        function root = get.rootSaveInput(obj)
+            root = fullfile(obj.rootInput, obj.mooring.mooringName, obj.launchDate);
         end
         
         function root = get.rootOutputFiles(obj)
@@ -130,12 +136,16 @@
         end
 
         function CWA = get.cwa(obj)
+            % NOTE: cwa is computed using the median depth in the area around the mooring 
+            % - sign for positive depth toward bottom
+            medianDepth = -median(obj.dataBathy(:, 3)); 
             CWA = AbsorptionSoundSeaWaterFrancoisGarrison(...
                 obj.marineMammal.signal.centroidFrequency,...
                 obj.oceanEnvironment.temperatureC,...
-                obj.oceanEnvironment.Salinity,...
-                obj.oceanEnvironment.Depth,...
+                obj.oceanEnvironment.salinity,...
+                medianDepth,...
                 obj.oceanEnvironment.pH) ;
+            
         end
     end
 
@@ -143,11 +153,17 @@
     methods 
         function runSimulation(obj)
             d = uiprogressdlg(obj.appUIFigure,'Title','Please Wait',...
-                            'Message','Setting up the environment...', ...
+                            'Message','Querying T, S data from CMEMS...', ...
                             'Cancelable', 'on', ...
                             'ShowPercentage', 'on');
+
+            obj.oceanEnvironment = OceanEnvironement(obj.mooring); % setup ocean parameters by querying data from CMEMS 
+            
+            d.Message = 'Setting up the environment...';
+
             % Create result folders
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
+            if ~exist(obj.rootSaveInput, 'dir'); mkdir(obj.rootSaveInput);end
             if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
             if ~exist(obj.rootOutputFiles, 'dir'); mkdir(obj.rootOutputFiles);end
             if ~exist(obj.rootOutputFigures, 'dir'); mkdir(obj.rootOutputFigures);end
