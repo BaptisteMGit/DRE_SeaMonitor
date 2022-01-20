@@ -9,6 +9,7 @@
         % Detector 
         detector = CPOD; 
         % Env parameters
+        oceanEnvironment = OceanEnvironement; % Handle ocean parameters (Temperature, Salinity, pH) 
         noiseLevel
         % Simulation
         drSimu = 0.01;                      % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
@@ -47,6 +48,8 @@
         rootSaveResult 
         rootOutputFiles
         rootOutputFigures
+        
+        cwa % Attenuation coef 
     end
 
     %% Constructor 
@@ -111,7 +114,7 @@
         end
     end
 
-    %% Set and Get methods 
+    %% Get methods 
     methods 
         function root = get.rootSaveResult(obj)
 %             root = obj.rootSaveResult;
@@ -125,9 +128,15 @@
         function root = get.rootOutputFigures(obj)
             root = fullfile(obj.rootSaveResult, 'figures');
         end
-%         function set.rootSaveResult(obj, root)
-%             obj.rootSaveResult = 
-%         end
+
+        function CWA = get.cwa(obj)
+            CWA = AbsorptionSoundSeaWaterFrancoisGarrison(...
+                obj.marineMammal.signal.centroidFrequency,...
+                obj.oceanEnvironment.temperatureC,...
+                obj.oceanEnvironment.Salinity,...
+                obj.oceanEnvironment.Depth,...
+                obj.oceanEnvironment.pH) ;
+        end
     end
 
     %% Simulation methods  
@@ -269,7 +278,7 @@
             % TODO: replace by importation function call to get SSP
             Ssp.z = [0, 200];
             Ssp.c = [1500, 1500];
-            Ssp.
+            Ssp.cwa = repelem(obj.cwa, numel(Ssp.z)); 
             if max(Ssp.z) < max(bathyProfile(:, 2)) % Check that bathy doesn't drop below lowest point in the sound speed profile
                 Ssp.z(end+1) = floor(max(bathyProfile(:, 2))) + 1;   
                 Ssp.c(end+1) = Ssp.c(end);          % Extend ssp 

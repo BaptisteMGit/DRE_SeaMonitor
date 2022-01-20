@@ -32,10 +32,13 @@ SSP.N = 15; % nmesh: unused parameter for BELLHOP (According to paper: General d
 SSP.sigma = 0.0; % sigmas: same thing
 SSP.raw(1).z = ssp.z; % Depth in water column 
 SSP.raw(1).c = ssp.c; % Sound celerity in water column 
+
+SSP.raw(1).cwa = ssp.cwa; % Compression Wave Absorption in water column 
+
 SSP.raw(1).ssc = repelem(' ', length(ssp.z)); % Shear Sound Celerity in water column 
 SSP.raw(1).rho = repelem(' ', length(ssp.z)); % Density in water column 
-SSP.raw(1).cwa = repelem(' ', length(ssp.z)); % Compression Wave Absorption in water column 
 SSP.raw(1).swa = repelem(' ', length(ssp.z)); % Shear Wave Absorption in water column 
+
 SSP.depth = [0, max(ssp.z)]; % Depth of the different water layers (for the moment just 1 layer (Nmedia =1))  
 
 %% Boundary 
