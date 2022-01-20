@@ -244,12 +244,22 @@ classdef configEnvironmentUI < handle
         end
 
         function selectBathyFile(app, hObject, eventData)
-            [file,path,indx] = uigetfile({'*.csv;*.txt','Text File'; ...
-                                       '*.nc', 'NETCDF'; ...
-                                       '*.*',  'All Files (*.*)'}, ...
+            [file, path, indx] = uigetfile({'*.csv;*.txt','Text File'; ...
+                                       '*.nc', 'NETCDF'}, ...
                                        'Select a File');
-            app.Simulation.bathyEnvironment.rootBathy = path;
-            app.Simulation.bathyEnvironment.bathyFile = file;
+            if indx == 1 % File is a csv
+                app.Simulation.bathyEnvironment.rootBathy = path;
+                app.Simulation.bathyEnvironment.bathyFile = file;
+                
+            elseif indx == 2 % File is a netcdf
+                fNETCDF = fullfile(path, file);
+                fileCSV = [file(1:end-2), 'csv'];
+                fCSV = fullfile(path, fileCSV);
+                bathyNETCDFtoCSV(fNETCDF, fCSV)
+                app.Simulation.bathyEnvironment.rootBathy = path;
+                app.Simulation.bathyEnvironment.bathyFile = fCSV;
+            end 
+
             set(app.handleEditField(1), 'Value', file)
         end
         
