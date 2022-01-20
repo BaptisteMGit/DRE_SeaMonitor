@@ -33,7 +33,10 @@ classdef TestCase1 < DRESimulation
             %% Mooring 
 %             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %
 %             Position used to compute ENU bathy 
-            mooringPos = [0, 0, 0]; % [lon0, lat0, hgt0]
+            mooringPos.lat = 52.22;
+            mooringPos.lon = -4.37;
+            mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
+
             mooringName = 'TestCase1';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1 meter over the seafloor 

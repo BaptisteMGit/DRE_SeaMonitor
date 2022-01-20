@@ -122,7 +122,9 @@ classdef configEnvironmentUI < handle
             
             % Drop down 
             % Reference frame
-            app.addDropDown({'WGS84', 'ENU', 'UTM'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged)
+%             app.addDropDown({'WGS84', 'ENU', 'UTM'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged)
+            app.addDropDown({'WGS84'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
+
             % Specie
             app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 10, [4, 9], @app.specieChanged)
             % Hydrophone
@@ -317,11 +319,11 @@ classdef configEnvironmentUI < handle
                 case 'mooringName'
                     app.Simulation.mooring.mooringName = regexprep(hObject.Value, ' ', ''); % Remove blanks
                 case 'XPos'
-                    app.Simulation.mooring.mooringPos(1) = hObject.Value;
+                    app.Simulation.mooring.mooringPos.lat = hObject.Value;
                 case 'YPos'
-                    app.Simulation.mooring.mooringPos(2) = hObject.Value;
+                    app.Simulation.mooring.mooringPos.lon = hObject.Value;
                 case 'ZPos'
-                    app.Simulation.mooring.mooringPos(3) = hObject.Value;
+                    app.Simulation.mooring.mooringPos.hgt = hObject.Value;
                 case 'hydroDepth'
                     app.Simulation.mooring.hydrophoneDepth = hObject.Value;
             end

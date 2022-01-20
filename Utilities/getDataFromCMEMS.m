@@ -6,7 +6,7 @@ password = 'Copernicus753!';
 
 dbName = getVararginValue(varargin, 'dbName', '');
 productName = getVararginValue(varargin, 'productName', '');
-bBox = getVararginValue(varargin, 'bbox', []); % Boundary box -> struct with fields lon, lat (strucs with fields min, max)
+bBox = getVararginValue(varargin, 'bBox', []); % Boundary box -> struct with fields lon, lat (strucs with fields min, max)
 tBox = getVararginValue(varargin, 'tBox', []); % Time box for the query struct with fields startDate, stopdate with format 'yyyy-mm-dd hh:mm:ss'
 dBox = getVararginValue(varargin, 'dBox', []); % Depth box -> struct with field min, max
 variables = getVararginValue(varargin, 'variables', []); % variables to get 

@@ -2,17 +2,20 @@ classdef Mooring
     
     properties
         mooringName = 'DefaultMooringName';   % Name of the considered mooring
-        mooringPos = [0, 0, 0];   % Position of the mooring [lon0, lat0, hgt0]
+%         mooringPos = [0, 0, 0];   % Position of the mooring [lon0, lat0, hgt0]
+        mooringPos % Struct with fields lon, lat, hgt
         hydrophoneDepth = 5; % Depth of the hydrophone (for source position)
         deploymentDate % yyyy-mm-dd hh:mm:ss
     end
-    
+
     methods 
         function obj = Mooring(moorPos, moorName, hydroDepth, depDate)
             
             % mooringName 
             if nargin >= 1
                 obj.mooringName = moorName;
+            else
+                obj.mooringPos
             end
 
             % mooringPos

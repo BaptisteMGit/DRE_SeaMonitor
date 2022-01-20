@@ -152,15 +152,6 @@
     %% Simulation methods  
     methods 
         function runSimulation(obj)
-            d = uiprogressdlg(obj.appUIFigure,'Title','Please Wait',...
-                            'Message','Querying T, S data from CMEMS...', ...
-                            'Cancelable', 'on', ...
-                            'ShowPercentage', 'on');
-
-            obj.oceanEnvironment = OceanEnvironement(obj.mooring); % setup ocean parameters by querying data from CMEMS 
-            
-            d.Message = 'Setting up the environment...';
-
             % Create result folders
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if ~exist(obj.rootSaveInput, 'dir'); mkdir(obj.rootSaveInput);end
@@ -168,7 +159,20 @@
             if ~exist(obj.rootOutputFiles, 'dir'); mkdir(obj.rootOutputFiles);end
             if ~exist(obj.rootOutputFigures, 'dir'); mkdir(obj.rootOutputFigures);end
 
+            d = uiprogressdlg(obj.appUIFigure,'Title','Please Wait',...
+                            'Message','Loading bathymetry...', ...
+                            'Cancelable', 'on', ...
+                            'ShowPercentage', 'on');
+
             obj.getBathyData();
+
+            d.Message = 'Downloading T, S data from CMEMS...';
+            obj.oceanEnvironment = OceanEnvironement(obj.mooring, max(obj.dataBathy), obj.rootSaveInput); % setup ocean parameters by querying data from CMEMS 
+            
+            d.Message = 'Setting up the environment...';
+
+
+
             obj.setSource();
             obj.setBeam();
 
