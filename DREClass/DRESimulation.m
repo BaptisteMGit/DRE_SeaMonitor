@@ -25,7 +25,7 @@
     end
     
     properties (Hidden)
-        topOption = 'SVW';
+        topOption = 'SVM'; % M for attenuation in dB/m
         interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
 
@@ -142,12 +142,12 @@
             % - sign for positive depth toward bottom
             medianDepth = -median(obj.dataBathy(:, 3)); 
             CWA = AbsorptionSoundSeaWaterFrancoisGarrison(...
-                obj.marineMammal.signal.centroidFrequency,...
+                obj.marineMammal.signal.centroidFrequency / 1000,...
                 obj.oceanEnvironment.temperatureC,...
                 obj.oceanEnvironment.salinity,...
                 medianDepth,...
                 obj.oceanEnvironment.pH) ;
-            
+            CWA = CWA / 1000; % Convert to dB/m
         end
 
         function maxDepth = get.maxBathyDepth(obj)
@@ -307,6 +307,7 @@
             if max(Ssp.z) < max(bathyProfile(:, 2)) % Check that bathy doesn't drop below lowest point in the sound speed profile
                 Ssp.z(end+1) = floor(max(bathyProfile(:, 2))) + 1;   
                 Ssp.c(end+1) = Ssp.c(end);          % Extend ssp 
+                Ssp.cwa(end+1) = Ssp.cwa(end);
             end
             obj.ssp = Ssp;
         end

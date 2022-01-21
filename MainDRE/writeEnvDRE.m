@@ -35,9 +35,9 @@ SSP.raw(1).c = ssp.c; % Sound celerity in water column
 
 SSP.raw(1).cwa = ssp.cwa; % Compression Wave Absorption in water column 
 
-SSP.raw(1).ssc = repelem(' ', length(ssp.z)); % Shear Sound Celerity in water column 
-SSP.raw(1).rho = repelem(' ', length(ssp.z)); % Density in water column 
-SSP.raw(1).swa = repelem(' ', length(ssp.z)); % Shear Wave Absorption in water column 
+SSP.raw(1).ssc = repelem(0.00, length(ssp.z)); % Shear Sound Celerity in water column 
+SSP.raw(1).rho = repelem(0.00, length(ssp.z)); % Density in water column 
+SSP.raw(1).swa = repelem(0.00, length(ssp.z)); % Shear Wave Absorption in water column 
 
 SSP.depth = [0, max(ssp.z)]; % Depth of the different water layers (for the moment just 1 layer (Nmedia =1))  
 
@@ -96,8 +96,8 @@ for medium = 1 : SSP.NMedia
     
     fprintf( fid, '%5i %4.2f %6.2f \t ! N sigma depth \n', SSP.N( medium ), SSP.sigma( medium ), SSP.depth( medium+1 ) );
     for ii = 1 : length( SSP.raw( medium ).z )
-        fprintf( fid, '\t %6.2f %6.2f / \t ! Depth  Celerity  ShearSoundCelerity Rho CompressionWaveAbso ShearWaveAbso\n', ...
-            [ SSP.raw( medium ).z( ii ) SSP.raw( medium ).c( ii ) ] );
+        fprintf( fid, '\t %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f / \t ! Depth  Celerity  ShearSoundCelerity Rho CompressionWaveAbso ShearWaveAbso\n', ...
+            [ SSP.raw( medium ).z( ii ) SSP.raw( medium ).c( ii ) SSP.raw( medium ).ssc( ii ) SSP.raw( medium ).rho( ii ) SSP.raw( medium ).cwa( ii ) SSP.raw( medium ).swa( ii ) ] );
     end
 end
 
