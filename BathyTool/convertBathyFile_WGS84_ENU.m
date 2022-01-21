@@ -4,14 +4,22 @@ function [T, outputFile] = convertBathyFile_WGS84_ENU(rootBathy, bathyFile, lon0
 try 
     T = readtable(fullfile(rootBathy, bathyFile));
 catch
-    error('Input file must be a table.')
+    M = readmatrix(fullfile(rootBathy, bathyFile));
+    T = array2table(M);
+%     error('Input file must be a table.')
 end
 
 Lat = table2array(T(:,1));
 Lon = table2array(T(:,2));
-Dep = table2array(T(:,3));
+Hgt = table2array(T(:,3));
 
-[E, N, U] = geod2enu(lon0, lat0, hgt0, Lon, Lat, Dep);
+% tic 
+[E, N, U] = geod2enu(lon0, lat0, hgt0, Lon, Lat, Hgt);
+% toc 
+
+% tic
+% [E, N, U] = geodetic2enu(Lat,Lon,Hgt,lat0,lon0,hgt0,wgs84Ellipsoid);
+% toc
 T = table(E, N, U);
 
 % fileWithoutExtension = filename(1:end-4);

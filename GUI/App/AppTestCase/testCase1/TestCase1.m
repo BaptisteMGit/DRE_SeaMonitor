@@ -24,8 +24,10 @@ classdef TestCase1 < DRESimulation
         function obj = TestCase1
             %% Bathymetry 
             rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\GUI\App\AppTestCase\testCase1';
-            bathyFile = 'ENU_gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
-            inputSRC = 'ENU'; % SRC of the input bathyFile 
+%             bathyFile = 'ENU_gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
+%             inputSRC = 'ENU'; % SRC of the input bathyFile 
+            bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
+            inputSRC = 'WGS84'; % SRC of the input bathyFile 
             drBathy = 100; % Horizontal resolution for bathymetric profile 
             
             obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, drBathy);
@@ -36,12 +38,16 @@ classdef TestCase1 < DRESimulation
             mooringPos.lat = 52.22;
             mooringPos.lon = -4.37;
             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
-
+            
+            % yyyy-mm-dd hh:mm:ss
+            deploymentDate.startDate = '2022-01-01 12:00:00';
+            deploymentDate.stopDate = '2022-01-21 12:00:00';
+            
             mooringName = 'TestCase1';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1 meter over the seafloor 
             
-            obj.mooring = Mooring(mooringPos, mooringName, hydroDepth);
+            obj.mooring = Mooring(mooringPos, mooringName, hydroDepth, deploymentDate);
             
             %% Marine mammal 
             porpoise = Porpoise();

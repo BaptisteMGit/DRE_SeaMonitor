@@ -53,6 +53,8 @@
         
         rootSaveInput
         cwa % Attenuation coef 
+
+        maxBathyDepth
     end
 
     %% Constructor 
@@ -147,6 +149,12 @@
                 obj.oceanEnvironment.pH) ;
             
         end
+
+        function maxDepth = get.maxBathyDepth(obj)
+            depth = -obj.dataBathy(:, 3); % Positive depth toward the bottom 
+            bathyDepth = depth(depth > 0); % Remove topographic points to only keep bathymetry 
+            maxDepth = max(bathyDepth);
+        end
     end
 
     %% Simulation methods  
@@ -166,13 +174,10 @@
 
             obj.getBathyData();
 
-            d.Message = 'Downloading T, S data from CMEMS...';
-            obj.oceanEnvironment = OceanEnvironement(obj.mooring, max(obj.dataBathy), obj.rootSaveInput); % setup ocean parameters by querying data from CMEMS 
+            d.Message = 'Downloading T, S, pH data from CMEMS...';
+            obj.oceanEnvironment = OceanEnvironement(obj.mooring, obj.maxBathyDepth, obj.rootSaveInput); % setup ocean parameters by querying data from CMEMS 
             
             d.Message = 'Setting up the environment...';
-
-
-
             obj.setSource();
             obj.setBeam();
 

@@ -115,9 +115,9 @@ classdef configEnvironmentUI < handle
             app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, [4, 5], [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
             % Mooring
             app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            app.addEditField(app.Simulation.mooring.mooringPos(1), 7, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos(2), 7, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos(3), 7, 9, [], 'numeric', {@app.editFieldChanged, 'ZPos'}) % Z Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos.lon, 7, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos.lat, 7, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos.hgt, 7, 9, [], 'numeric', {@app.editFieldChanged, 'ZPos'}) % Z Pos 
             app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             
             % Drop down 
