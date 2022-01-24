@@ -17,7 +17,7 @@ classdef AppDRE
             end
             % Folder to store files 
             app.Simulation.rootResult = fullfile(pwd, 'Output');
-            app.Simulation.rootInput = fullfile(pwd, 'Input');
+%             app.Simulation.rootInput = fullfile(pwd, 'Input');
 
             app.mainWindow.Simulation = app.Simulation;
             % Pass figure to the simulation for progress bar interactivity 

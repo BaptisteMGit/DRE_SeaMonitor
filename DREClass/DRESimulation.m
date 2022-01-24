@@ -21,7 +21,7 @@
         % Folder to save the result 
         rootResult 
         % Folder to save the inputs used to compute results 
-        rootInput 
+%         rootInput 
     end
     
     properties (Hidden)
@@ -29,7 +29,6 @@
         interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
         
-
         % Bellhop parameters 
         beam
         bottom
@@ -55,6 +54,8 @@
         rootOutputFigures
         
         rootSaveInput
+        logFile % log File to save logs
+        resultFile % 
         cwa % Attenuation coef 
 
         maxBathyDepth
@@ -135,7 +136,7 @@
         end
 
         function root = get.rootSaveInput(obj)
-            root = fullfile(obj.rootInput, obj.mooring.mooringName, obj.launchDate);
+            root = fullfile(obj.rootSaveResult, 'inputFiles');
         end
         
         function root = get.rootOutputFiles(obj)
@@ -144,6 +145,14 @@
 
         function root = get.rootOutputFigures(obj)
             root = fullfile(obj.rootSaveResult, 'figures');
+        end
+
+        function logFile = get.logFile(obj)
+            logFile = fullfile(obj.rootSaveResult, 'log.txt');
+        end
+
+        function resultFile = get.resultFile(obj)
+            resultFile = fullfile(obj.rootSaveResult, 'result.txt');
         end
 
         function CWA = get.cwa(obj)
@@ -170,16 +179,11 @@
         end
 
         function bBoxENU = get.bBoxENU(obj)
-%             [eMin, nMax, ~] = geod2enu(obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt, ...
-%                                             obj.bBox.lon.min, obj.bBox.lat.max, obj.mooring.mooringPos.hgt);
-%             [eMax, nMin, ~] = geod2enu(obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt, ...
-%                                             obj.bBox.lon.max, obj.bBox.lat.min, obj.mooring.mooringPos.hgt);
             r = 2*obj.marineMammal.rMax;
             bBoxENU.E.min = -r;
             bBoxENU.E.max = +r;
             bBoxENU.N.min = -r;
             bBoxENU.N.max = +r;
-
         end
 
         function tBox = get.tBox(obj)
@@ -217,9 +221,7 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
-            
-%             obj.plotBathyENU()
-            
+                        
             flag = 1; % flag to ensure the all process as terminate without error 
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
@@ -246,6 +248,11 @@
                 obj.setBeambox(bathyProfile);
                 obj.setReceiverPos(bathyProfile);                
                 obj.writeEnvirnoment(nameProfile)
+
+                % Write log header 
+                if i_theta == 1
+                    obj.writeLogHeader
+                end
 
                 % Run
                 obj.runBellhop(nameProfile)
@@ -288,19 +295,22 @@
 
             fprintf('Loading bathymetry dataset');
             obj.dataBathy = loadBathy(obj.rootSaveInput, fileCSV, obj.bBoxENU, obj.mooring.mooringPos);
-%             if ~strcmp(inputSRC, 'ENU')
-%                 fprintf('Conversion of bathymetry data \n\tBathy file: %s \n\t%s -> %s ', bathyFile, inputSRC, 'ENU');
-%                 varConvertBathy = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC_source', inputSRC, ...
-%                     'SRC_dest', 'ENU', 'mooringPos', mooringPos};
-%                 [data, outputFile] = convertBathyFile(varConvertBathy{:});                        
-%                 obj.dataBathy = table2array(data);
-%                 obj.bathyEnvironment.bathyFile = outputFile;
-% 
-%             else
-%                 fprintf('Load existing bathymetry data \n\tBathy file: %s \n\tSRC: %s', bathyFile, 'ENU');
-%                 obj.dataBathy = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
-%             end
             fprintf('\n--> DONE <--\n');
+        end
+        
+        function writeLogHeader(obj)
+            fileID = fopen(obj.logFile,'w');
+            % Configuration 
+            fprintf(fileID,'Estimation of the detection range using BELLHOP\n');
+            fprintf(fileID, 'Equipment\n');
+            fprintf(fileID,'\tName: %s\n', obj.mooring.mooringName);
+            fprintf(fileID,'\tDeployment: %s to %s\n', obj.mooring.deploymentDate.startDate, obj.mooring.deploymentDate.stopDate);
+            fprintf(fileID,'\tPosition: lon %4.4f, lat %4.4f, hgt %4.4f\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
+            fprintf(fileID, '\n__________________________________________________________________________\n');
+            fprintf(fileID, 'Animal\n');
+            fprintf(fileID, '\t%s', obj.marineMammal.name);
+            fprintf(fileID,'Frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
+            fprintf(fileID, '\n__________________________________________________________________________\n');
         end
 
         %% Set environment 
