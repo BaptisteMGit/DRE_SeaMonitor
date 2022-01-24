@@ -246,22 +246,26 @@ classdef configEnvironmentUI < handle
         end
 
         function selectBathyFile(app, hObject, eventData)
-            [file, path, indx] = uigetfile({'*.csv;*.txt','Text File'; ...
-                                       '*.nc', 'NETCDF'}, ...
-                                       'Select a File');
+            [file, path, indx] = uigetfile({'*.nc', 'NETCDF'; ...
+                                            '*.csv;*.txt','Text File'}, ...
+                                            'Select a File');
             if indx == 1 % File is a csv
-                app.Simulation.bathyEnvironment.rootBathy = path;
-                app.Simulation.bathyEnvironment.bathyFile = file;
+                % Copy to input folder 
+%                 copy(fullfile(path, file), fullfile(app.Simulation.rootSaveInput, file))
+                app.Simulation.bathyFileType = 'CSV';
                 
             elseif indx == 2 % File is a netcdf
-                fNETCDF = fullfile(path, file);
-                fileCSV = [file(1:end-2), 'csv'];
-                fCSV = fullfile(path, fileCSV);
-                bathyNETCDFtoCSV(fNETCDF, fCSV)
-                app.Simulation.bathyEnvironment.rootBathy = path;
-                app.Simulation.bathyEnvironment.bathyFile = fCSV;
+%                 fNETCDF = fullfile(path, file);
+%                 fileCSV = [file(1:end-2), 'csv'];
+%                 fCSV = fullfile(app.Simulation.rootSaveInput, fileCSV);
+                % Convert file to csv and save it in the inout folder   
+%                 bathyNETCDFtoCSV(fNETCDF, fCSV)
+                app.Simulation.bathyFileType = 'NETCDF';
             end 
 
+            app.Simulation.bathyEnvironment.rootBathy = path;
+            app.Simulation.bathyEnvironment.bathyFile = file;
+            
             set(app.handleEditField(1), 'Value', file)
         end
         

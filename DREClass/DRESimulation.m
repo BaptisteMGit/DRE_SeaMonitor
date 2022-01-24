@@ -1,7 +1,7 @@
  classdef DRESimulation < handle
     properties
         % Bathymetry
-        bathyEnvironment = BathyEnvironment;
+        bathyEnvironment = BathyEnvironment;        
         % Mooring 
         mooring = Mooring;
         % Marine mammal to simulate 
@@ -28,6 +28,7 @@
         topOption = 'SVM'; % M for attenuation in dB/m
         interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
+        
 
         % Bellhop parameters 
         beam
@@ -272,26 +273,33 @@
         function getBathyData(obj)
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
-            inputSRC = obj.bathyEnvironment.inputSRC;
-            mooringPos = obj.mooring.mooringPos;
             
-            % If file is not ENU: convert to ENU
-            if ~strcmp(inputSRC, 'ENU')
-                fprintf('Conversion of bathymetry data \n\tBathy file: %s \n\t%s -> %s ', bathyFile, inputSRC, 'ENU');
-                varConvertBathy = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC_source', inputSRC, ...
-                    'SRC_dest', 'ENU', 'mooringPos', mooringPos};
-                [data, outputFile] = convertBathyFile(varConvertBathy{:});                        
-                obj.dataBathy = table2array(data);
-                obj.bathyEnvironment.bathyFile = outputFile;
+            fileCSV = 'Bathymetry.csv';
+            if strcmp(obj.bathyEnvironment.bathyFileType, 'CSV') % File is a csv
+                % Copy to input folder 
+                copyfile(fullfile(rootBathy, bathyFile), fullfile(obj.rootSaveInput, fileCSV))
+                
+            elseif strcmp(obj.bathyEnvironment.bathyFileType, 'NETCDF') % File is a netcdf
+                % Convert file to csv and save it in the input folder 
+                fNETCDF = fullfile(rootBathy, bathyFile);
+                fCSV = fullfile(obj.rootSaveInput, fileCSV);
+                bathyNETCDFtoCSV(fNETCDF, fCSV)
+            end 
 
-%             if ~exist(fullfile(rootBathy ,'ENU', bathyFile), 'file')
-%                 varConvBathy = {'bathyFile', bathyFile, 'SRC_source', inputSRC, 'SRC_dest', 'ENU', 'mooringPos', mooringPos};
-%                 data = convertBathyFile(varConvBathy{:});
-%                 data = table2array(data);
-            else
-                fprintf('Load existing bathymetry data \n\tBathy file: %s \n\tSRC: %s', bathyFile, 'ENU');
-                obj.dataBathy = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
-            end
+            fprintf('Loading bathymetry dataset');
+            obj.dataBathy = loadBathy(obj.rootSaveInput, fileCSV, obj.bBoxENU, obj.mooring.mooringPos);
+%             if ~strcmp(inputSRC, 'ENU')
+%                 fprintf('Conversion of bathymetry data \n\tBathy file: %s \n\t%s -> %s ', bathyFile, inputSRC, 'ENU');
+%                 varConvertBathy = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC_source', inputSRC, ...
+%                     'SRC_dest', 'ENU', 'mooringPos', mooringPos};
+%                 [data, outputFile] = convertBathyFile(varConvertBathy{:});                        
+%                 obj.dataBathy = table2array(data);
+%                 obj.bathyEnvironment.bathyFile = outputFile;
+% 
+%             else
+%                 fprintf('Load existing bathymetry data \n\tBathy file: %s \n\tSRC: %s', bathyFile, 'ENU');
+%                 obj.dataBathy = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter', ' ');
+%             end
             fprintf('\n--> DONE <--\n');
         end
 
@@ -462,20 +470,40 @@
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
             plot(xx, yy, 'k', 'LineWidth', 3)
-            xlim([obj.bBoxENU.E.min, obj.bBoxENU.E.max])
-            ylim([obj.bBoxENU.N.min, obj.bBoxENU.N.max])
+%             xlim([obj.bBoxENU.E.min, obj.bBoxENU.E.max])
+%             ylim([obj.bBoxENU.N.min, obj.bBoxENU.N.max])
 
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
         end
         
         function plotBathyENU(obj)
-            varPlotBathy = {'rootBathy', obj.bathyEnvironment.rootBathy, 'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
-            plotBathy(varPlotBathy{:})
+            E = obj.dataBathy(:,1);
+            N = obj.dataBathy(:,2);
+            U = obj.dataBathy(:,3);
+
+            pts = 1E+3;
+            xGrid = linspace(min(E), max(E), pts);
+            yGrid = linspace(min(N), max(N), pts);
+            [X,Y] = meshgrid(xGrid, yGrid);
+            zDep = griddata(E, N, U, X, Y);
+            
+            figure
+            contourf(X, Y, zDep)
+            c = colorbar;
+            c.Label.String = 'Elevation (m)';
+            hold on 
+            scatter(0, 0, 'filled', 'red') 
+            title('Bathymetry - frame ENU')
+            xlabel('E [m]')
+            ylabel('N [m]')
+
+%             varPlotBathy = {'rootBathy', obj.rootSaveInput, 'bathyFile', 'Bathymetry.csv', 'SRC', 'ENU'};
+%             plotBathy(varPlotBathy{:})
         end
 
         function plotSsp(obj)
-            figure;
+            figure('visible','off');
             plot(obj.ssp.c, obj.ssp.z)
             xlabel('Celerity (m.s-1)')
             ylabel('Depth (m)')

@@ -26,11 +26,12 @@ classdef TestCase1 < DRESimulation
             rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\GUI\App\AppTestCase\testCase1';
 %             bathyFile = 'ENU_gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
 %             inputSRC = 'ENU'; % SRC of the input bathyFile 
-            bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
+            bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.nc'; % Bathymetry file in WGS84
             inputSRC = 'WGS84'; % SRC of the input bathyFile 
+            bathyFileType = 'NETCDF';
             drBathy = 100; % Horizontal resolution for bathymetric profile 
             
-            obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, drBathy);
+            obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, bathyFileType, drBathy);
             
             %% Mooring 
 %             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %
