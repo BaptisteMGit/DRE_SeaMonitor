@@ -44,6 +44,8 @@
         
         % Figure for the app 
         appUIFigure 
+        %Ssp 
+        SoundCelerity
     end
 
     properties (Dependent, Hidden=true)
@@ -55,6 +57,12 @@
         cwa % Attenuation coef 
 
         maxBathyDepth
+
+        % Boxes 
+        bBox % Boundary box in WGS84 coordinates 
+        bBoxENU % Boundary box in ENU coordinates 
+        tBox % Time box
+        dBox % Depth box 
     end
 
     %% Constructor 
@@ -143,10 +151,10 @@
             medianDepth = -median(obj.dataBathy(:, 3)); 
             CWA = AbsorptionSoundSeaWaterFrancoisGarrison(...
                 obj.marineMammal.signal.centroidFrequency / 1000,...
-                obj.oceanEnvironment.temperatureC,...
-                obj.oceanEnvironment.salinity,...
+                mean(obj.oceanEnvironment.temperatureC, 'omitnan'),...
+                mean(obj.oceanEnvironment.salinity, 'omitnan'),...
                 medianDepth,...
-                obj.oceanEnvironment.pH) ;
+                mean(obj.oceanEnvironment.pH, 'omitnan')) ;
             CWA = CWA / 1000; % Convert to dB/m
         end
 
@@ -154,6 +162,31 @@
             depth = -obj.dataBathy(:, 3); % Positive depth toward the bottom 
             bathyDepth = depth(depth > 0); % Remove topographic points to only keep bathymetry 
             maxDepth = max(bathyDepth);
+        end
+
+        function bBox = get.bBox(obj)
+            bBox = setbBoxAroundMooring(obj.mooring.mooringPos);
+        end
+
+        function bBoxENU = get.bBoxENU(obj)
+%             [eMin, nMax, ~] = geod2enu(obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt, ...
+%                                             obj.bBox.lon.min, obj.bBox.lat.max, obj.mooring.mooringPos.hgt);
+%             [eMax, nMin, ~] = geod2enu(obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt, ...
+%                                             obj.bBox.lon.max, obj.bBox.lat.min, obj.mooring.mooringPos.hgt);
+            r = 2*obj.marineMammal.rMax;
+            bBoxENU.E.min = -r;
+            bBoxENU.E.max = +r;
+            bBoxENU.N.min = -r;
+            bBoxENU.N.max = +r;
+
+        end
+
+        function tBox = get.tBox(obj)
+            tBox = gettBox(obj.mooring.deploymentDate.startDate, obj.mooring.deploymentDate.stopDate);
+        end
+    
+        function dBox = get.dBox(obj)
+            dBox = getdBox(0, obj.maxBathyDepth);
         end
     end
 
@@ -175,7 +208,7 @@
             obj.getBathyData();
 
             d.Message = 'Downloading T, S, pH data from CMEMS...';
-            obj.oceanEnvironment = OceanEnvironement(obj.mooring, obj.maxBathyDepth, obj.rootSaveInput); % setup ocean parameters by querying data from CMEMS 
+            obj.oceanEnvironment = OceanEnvironement(obj.mooring, obj.rootSaveInput, obj.bBox, obj.tBox, obj.dBox); % setup ocean parameters by querying data from CMEMS 
             
             d.Message = 'Setting up the environment...';
             obj.setSource();
@@ -183,7 +216,7 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
-            %         
+            
 %             obj.plotBathyENU()
             
             flag = 1; % flag to ensure the all process as terminate without error 
@@ -208,7 +241,7 @@
 
                 % Env
                 obj.setBottom();
-                obj.setSsp(bathyProfile);
+                obj.setSsp(bathyProfile, i_theta);
                 obj.setBeambox(bathyProfile);
                 obj.setReceiverPos(bathyProfile);                
                 obj.writeEnvirnoment(nameProfile)
@@ -299,10 +332,18 @@
             obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
         end
 
-        function setSsp(obj, bathyProfile)
+        function setSsp(obj, bathyProfile, i_theta)
             % TODO: replace by importation function call to get SSP
-            Ssp.z = [0, 200];
-            Ssp.c = [1500, 1500];
+%             Ssp.z = 0:2:obj.maxBathyDepth;
+            Ssp.z = obj.oceanEnvironment.depth;
+
+            % Compute SoundCelerity at mooringPos (only one time to
+            % limit computing effort)
+            if i_theta == 1 
+                obj.SoundCelerity = MackenzieSoundSpeed(obj.oceanEnvironment.depth, obj.oceanEnvironment.salinity, obj.oceanEnvironment.temperatureC);
+            end
+
+            Ssp.c = obj.SoundCelerity;
             Ssp.cwa = repelem(obj.cwa, numel(Ssp.z)); 
             if max(Ssp.z) < max(bathyProfile(:, 2)) % Check that bathy doesn't drop below lowest point in the sound speed profile
                 Ssp.z(end+1) = floor(max(bathyProfile(:, 2))) + 1;   
@@ -310,6 +351,8 @@
                 Ssp.cwa(end+1) = Ssp.cwa(end);
             end
             obj.ssp = Ssp;
+
+            if i_theta == 1; obj.plotSsp; end
         end
         
         function setReceiverPos(obj, bathyProfile)
@@ -409,28 +452,37 @@
 
         function plotDR(obj)
             figure;
-            current = pwd;
-%             cd(obj.rootSaveResult)
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
+            ax = gca;
+            ax.RLim = [0, obj.marineMammal.rMax];
             % Save 
-            cd(obj.rootOutputFigures)
-            saveas(gcf, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName));
+            saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName)));
 
-%             figure;
             obj.plotBathyENU()
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
             plot(xx, yy, 'k', 'LineWidth', 3)
-            % Save 
-            cd(obj.rootOutputFigures)
-            saveas(gcf, sprintf('%s_DREstimate.png', obj.mooring.mooringName));
+            xlim([obj.bBoxENU.E.min, obj.bBoxENU.E.max])
+            ylim([obj.bBoxENU.N.min, obj.bBoxENU.N.max])
 
-            cd(current)
+            % Save 
+            saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
         end
         
         function plotBathyENU(obj)
             varPlotBathy = {'rootBathy', obj.bathyEnvironment.rootBathy, 'bathyFile', obj.bathyEnvironment.bathyFile, 'SRC', 'ENU'};
             plotBathy(varPlotBathy{:})
+        end
+
+        function plotSsp(obj)
+            figure;
+            plot(obj.ssp.c, obj.ssp.z)
+            xlabel('Celerity (m.s-1)')
+            ylabel('Depth (m)')
+            title({'Celerity profile at the mooring position', 'Derived with Mackenzie equation'})
+            set(gca, 'YDir', 'reverse')
+            saveas(gcf, fullfile(obj.rootSaveInput, 'CelerityProfile.png'))
+            close(gcf)
         end
 
         function addDetectionRange(obj, nameProfile)

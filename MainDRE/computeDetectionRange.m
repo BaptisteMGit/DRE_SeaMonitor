@@ -16,8 +16,9 @@ end
 
 % Median
 spl_r = median(spl);
-signal = spl_r -  nl;
-
+SNR = spl_r -  nl;
+idPos = SNR > 0;
+SNR = SNR(idPos);
 %% Detection range: last point possible
 % First method: get the last range for which spl(r) - nl > dt 
 
@@ -32,9 +33,10 @@ signal = spl_r -  nl;
 %% Second approach: first range with spl - nl < dt 
 % Second method: get the first range for which spl(r) - nl < dt 
 % Skip first meter to avoid artefacts close to the source
-idxToKeep = rt > 10;
-signal = signal(idxToKeep);
-iundetected = signal < dt;
+
+% idxToKeep = rt > 50;
+% SNR = SNR(idxToKeep);
+iundetected = SNR < dt;
 if ~isempty(iundetected)
     if isempty(find(iundetected, 1))
         detectionRange = max(rt);

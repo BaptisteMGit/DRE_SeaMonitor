@@ -1,11 +1,13 @@
-function pH = getPH(mooring, maxDepth, rootSaveInput)
+function pH = getPH(mooring, rootSaveInput,  bBox, tBox, dBox)
 %% Query pH data from CMEMS
 motuPath = 'https://nrt.cmems-du.eu/motu-web/Motu';
 dbName = 'GLOBAL_ANALYSIS_FORECAST_BIO_001_028-TDS';
 productName = 'global-analysis-forecast-bio-001-028-daily';
-bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
-tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box
-dBox = getdBox(0, maxDepth); % Depth box 
+
+% bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
+% tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box
+% dBox = getdBox(0, maxDepth); % Depth box 
+
 variables = {'ph'}; % pH
 outputDir = rootSaveInput; % Dir to save the profile used 
 outputFile = sprintf('pH_%s_%s.nc', tBox.startDate(1:10), tBox.stopDate(1:10));

@@ -67,10 +67,10 @@ classdef TestCase1 < DRESimulation
             obj.detector = CPOD();
             
             %% noiseLevel 
-            obj.noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
-
-            obj.listAz = 0.1:10:360.1;
-%             obj.listAz = [75.1];
+%             obj.noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
+            obj.noiseLevel = (30 + 46)/2; 
+%             obj.listAz = 0.1:10:360.1;
+            obj.listAz = [75.1];
             obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
                                                      % for small odontocetes (C-PODs)
 

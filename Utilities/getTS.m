@@ -1,11 +1,13 @@
-function [T, S] = getTS(mooring, maxDepth, rootSaveInput)
+function [T, S, D] = getTS(mooring, rootSaveInput, bBox, tBox, dBox)
 %% Query T, S data from CMEMS
 motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu';
 dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
 productName = 'global-analysis-forecast-phy-001-024';
-bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
-tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box
-dBox = getdBox(0, maxDepth); % Depth box 
+
+% bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
+% tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box
+% dBox = getdBox(0, maxDepth); % Depth box 
+
 variables = {'thetao', 'so'}; % T, S
 outputDir = rootSaveInput; % Dir to save the profile used 
 outputFile = sprintf('TempSalinity_%s_%s.nc', tBox.startDate(1:10), tBox.stopDate(1:10));
@@ -22,8 +24,9 @@ fileNETCDF = fullfile(outputDir, outputFile);
 data = getDataFromNETCDF(fileNETCDF);
 
 % For the moment T and S are mean value in the area of interest 
-T = mean(data.thetao, 'all', 'omitnan');
-S = mean(data.so, 'all', 'omitnan');
+T = mean(data.thetao, [1, 2, 4], 'omitnan');
+S = mean(data.so, [1, 2, 4], 'omitnan');
+D = data.depth;
 
 %% Spatial evolution 
 % % Visualize mean temperature in the bBox 

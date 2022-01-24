@@ -5,10 +5,10 @@ function [E, N, U] = geod2enu(lon0, lat0, hgt0, lon, lat, hgt)
 % longitude [deg], latitude [deg], height [m] 
 %     % lon0: Longitude du centre du repère local
 %     % lat0: Latitude du centre du repère local
-%     % hgt0: Hauteur du centre du repère local
+%     % hgt0: Hauteur ellipsoidal du centre du repère local
 %     % lon: Longitude du point considéré
 %     % lat: Latitude du point considéré
-%     % hgt: Hauteur du point considéré
+%     % hgt: Hauteur ellipsoidal du point considéré
 %     % return: E, N, U
 
 [x0, y0, z0] = geod2ecef(lon0, lat0, hgt0);
