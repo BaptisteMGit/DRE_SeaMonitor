@@ -55,13 +55,13 @@ classdef mainUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 350;
-        Height = 400;
+        Width = 400;
+        Height = 450;
         % Define font style
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 4;
+        nbButton = 5;
         currButtonID = 0;
         
         % Label Heigth
@@ -71,6 +71,7 @@ classdef mainUI < handle
         childWindow
         configEnvironmentWindow
         plottingToolsWindow
+        recomputeWindow
     end
     
     %% Constructor of the class 
@@ -99,7 +100,7 @@ classdef mainUI < handle
             % Buttons
             app.addButton('Configure Environment',  @app.configEnvironmentButtonPushed)
             app.addButton('Run DRE', @app.runDREButtonPushed)
-            app.addButton('Recompute detection range(new NL/DT)', @app.recomputeDTButtonPushed)
+            app.addButton('Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
             app.addButton('Plotting Tools', @app.plottingToolsButtonPushed)
             app.addButton('Exit App', {@app.exitAppButtonPushed})
             
@@ -133,7 +134,6 @@ classdef mainUI < handle
 
         function configEnvironmentButtonPushed(app, hObject, eventData)
             app.configEnvironmentWindow = configEnvironmentUI(app.Simulation);
-%             app.configEnvironmentWindow.Simulation = app.Simulation;
             app.childWindow = [app.childWindow, app.configEnvironmentWindow];
         end
 
@@ -147,9 +147,8 @@ classdef mainUI < handle
             app.Simulation.runSimulation
         end
         
-        function recomputeDTButtonPushed(app, hObject, eventData)
+        function recomputeDRButtonPushed(app, hObject, eventData)
             app.recomputeWindow = recomputeUI(app.Simulation);
-%             app.configEnvironmentWindow.Simulation = app.Simulation;
             app.childWindow = [app.childWindow, app.configEnvironmentWindow];
         end
 
@@ -159,7 +158,6 @@ classdef mainUI < handle
             app.Height = currentPos(4);
             pause(0.01) % To avoid freeze ending in visuals bugs           
             app.updateLabel
-%             app.updateButtonGroup
             app.updateButtons
         end
 
