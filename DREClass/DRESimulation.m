@@ -20,8 +20,8 @@
         listDetectionRange
         % Folder to save the result 
         rootResult 
-        % Folder to save the inputs used to compute results 
-%         rootInput 
+        % CPU time 
+        CPUtime
     end
     
     properties (Hidden)
@@ -65,6 +65,10 @@
         bBoxENU % Boundary box in ENU coordinates 
         tBox % Time box
         dBox % Depth box 
+
+        % Bellhop
+        runTypeName
+        beamTypeName
     end
 
     %% Constructor 
@@ -193,11 +197,33 @@
         function dBox = get.dBox(obj)
             dBox = getdBox(0, obj.maxBathyDepth);
         end
+
+        function runTypeName = get.runTypeName(obj)
+            switch obj.beam.RunType(1) 
+                case 'C'
+                    runTypeName = 'Coherent';
+                case 'S'
+                    runTypeName = 'Semi coherent';
+                case 'I'
+                    runTypeName = 'Incoherent';
+            end
+        end
+
+        function beamTypeName = get.beamTypeName(obj)
+            switch obj.beam.RunType(2) 
+                case 'G'
+                    beamTypeName = 'Geometric rays';
+                case 'B'
+                    beamTypeName = 'Gaussian beam bundles';
+            end
+        end
     end
 
     %% Simulation methods  
     methods 
         function runSimulation(obj)
+            % Start time 
+            tStart = tic;
             % Create result folders
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if ~exist(obj.rootSaveInput, 'dir'); mkdir(obj.rootSaveInput);end
@@ -266,7 +292,6 @@
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
                 obj.addDetectionRange(nameProfile);
-
             end   
             
             close(d)
@@ -274,7 +299,8 @@
                 % Plot detection range (polar plot and map) 
                 obj.plotDR()
             end
-
+            obj.CPUtime = toc(tStart);
+            obj.writeLogEnd
         end
 
         function getBathyData(obj)
@@ -298,20 +324,49 @@
             fprintf('\n--> DONE <--\n');
         end
         
+        %% Log
         function writeLogHeader(obj)
             fileID = fopen(obj.logFile,'w');
             % Configuration 
-            fprintf(fileID,'Estimation of the detection range using BELLHOP\n');
-            fprintf(fileID, 'Equipment\n');
+            fprintf(fileID,'Estimation of the detection range using BELLHOP\n\n');
+            fprintf(fileID, 'Equipment\n\n');
             fprintf(fileID,'\tName: %s\n', obj.mooring.mooringName);
             fprintf(fileID,'\tDeployment: %s to %s\n', obj.mooring.deploymentDate.startDate, obj.mooring.deploymentDate.stopDate);
-            fprintf(fileID,'\tPosition: lon %4.4f, lat %4.4f, hgt %4.4f\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
-            fprintf(fileID, '\n__________________________________________________________________________\n');
-            fprintf(fileID, 'Animal\n');
-            fprintf(fileID, '\t%s', obj.marineMammal.name);
-            fprintf(fileID,'Frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
-            fprintf(fileID, '\n__________________________________________________________________________\n');
+            fprintf(fileID,'\tPosition: lon %4.4f°, lat %4.4f°, hgt %4.4f°\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
+            fprintf(fileID,'\tHydrophone: %s\n', obj.detector.name);
+            fprintf(fileID, '\tDetection threshold = %3.2f dB\n', obj.detector.detectionThreshold);
+            fprintf(fileID, '__________________________________________________________________________\n\n');
+            fprintf(fileID, 'Animal\n\n');
+            fprintf(fileID, '\t%s emitting %s\n', obj.marineMammal.name, obj.marineMammal.signal.name);
+            fprintf(fileID,'\tCentroid frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
+            fprintf(fileID, '__________________________________________________________________________\n\n');
+            fprintf(fileID, 'BELLHOP parameters\n\n');
+            fprintf(fileID, '\tNumber of beams = %d\n', obj.beam.Nbeams);
+            fprintf(fileID, '\tTL = %s\n', obj.runTypeName);
+            fprintf(fileID, '\tBeam type = %s\n', obj.beamTypeName);
+            fprintf(fileID, '\tTop option = %s\n', obj.topOption);
+            fprintf(fileID, '__________________________________________________________________________\n\n');
+            fprintf(fileID, 'Environment\n\n');
+            fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseLevel);
+            fprintf(fileID, '\tCompression wave attenuation = %3.2f dB/m\n', obj.cwa);
+            fprintf(fileID, '__________________________________________________________________________\n\n');
+            fprintf(fileID, 'Estimating detection range\n\n');
+            fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
+            close(fileID)   
         end
+
+        function writeDRtoLogFile(obj, theta, DT)
+            fileID = fopen(obj.logFile, 'a');
+            fprintf(fileID, '\t%3.2f\t%6.2f\n', theta, DT);
+            close(fileID)
+        end
+
+        function writeLogEnd(obj)
+            fileID = fopen(obj.logFile, 'a');
+            fprintf(fileID, '\tCPU Time = %6.2f s', obj.CPUtime);
+            close(fileID)
+        end
+
 
         %% Set environment 
         function setSource(obj)
@@ -480,8 +535,6 @@
             xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
             yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
             plot(xx, yy, 'k', 'LineWidth', 3)
-%             xlim([obj.bBoxENU.E.min, obj.bBoxENU.E.max])
-%             ylim([obj.bBoxENU.N.min, obj.bBoxENU.N.max])
 
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
@@ -507,9 +560,6 @@
             title('Bathymetry - frame ENU')
             xlabel('E [m]')
             ylabel('N [m]')
-
-%             varPlotBathy = {'rootBathy', obj.rootSaveInput, 'bathyFile', 'Bathymetry.csv', 'SRC', 'ENU'};
-%             plotBathy(varPlotBathy{:})
         end
 
         function plotSsp(obj)
@@ -534,6 +584,7 @@
 
             i = find(~obj.listDetectionRange, 1, 'first');
             obj.listDetectionRange(i) = detectionRange;
+            obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
             cd(current)
         end
     end

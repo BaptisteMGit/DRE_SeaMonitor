@@ -9,6 +9,7 @@ classdef Click < Signal
             obj = obj@Signal(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel)
             obj.meanICI = mean_ICI;
             obj.peakFrequency = pFreq;
+            obj.name = 'Click';
         end
     end
 end

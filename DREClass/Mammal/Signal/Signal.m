@@ -6,6 +6,7 @@ classdef Signal
         signalLength % Signal length in s
         directivityIndex % Directivity index in dB 
         sourceLevel % Source level in dB 
+        name
     end
 
     methods

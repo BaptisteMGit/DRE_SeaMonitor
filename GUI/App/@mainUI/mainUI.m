@@ -99,6 +99,7 @@ classdef mainUI < handle
             % Buttons
             app.addButton('Configure Environment',  @app.configEnvironmentButtonPushed)
             app.addButton('Run DRE', @app.runDREButtonPushed)
+            app.addButton('Recompute detection range(new NL/DT)', @app.recomputeDTButtonPushed)
             app.addButton('Plotting Tools', @app.plottingToolsButtonPushed)
             app.addButton('Exit App', {@app.exitAppButtonPushed})
             
@@ -146,6 +147,12 @@ classdef mainUI < handle
             app.Simulation.runSimulation
         end
         
+        function recomputeDTButtonPushed(app, hObject, eventData)
+            app.recomputeWindow = recomputeUI(app.Simulation);
+%             app.configEnvironmentWindow.Simulation = app.Simulation;
+            app.childWindow = [app.childWindow, app.configEnvironmentWindow];
+        end
+
         function resizeWindow(app, hObject, eventData)
             currentPos = get(app.Figure, 'Position');
             app.Width = currentPos(3);
