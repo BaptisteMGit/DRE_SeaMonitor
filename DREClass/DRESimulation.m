@@ -46,6 +46,7 @@
         appUIFigure 
         %Ssp 
         SoundCelerity
+
     end
 
     properties (Dependent, Hidden=true)
@@ -221,7 +222,7 @@
 
     %% Simulation methods  
     methods 
-        function runSimulation(obj)
+        function flag = runSimulation(obj)
             % Start time 
             tStart = tic;
             % Create result folders
@@ -248,13 +249,12 @@
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
                         
-            flag = 1; % flag to ensure the all process as terminate without error 
+            flag = 0; % flag to ensure the all process as terminate without error 
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
 
                 % Check for Cancel button press
                 if d.CancelRequested
-                    flag = 0;
                     break
                 end
 
@@ -292,15 +292,25 @@
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
                 obj.addDetectionRange(nameProfile);
+
+                % Switch flag when the all process is over with no problem 
+                if i_theta == length(obj.listAz); flag = ~flag; end 
+
             end   
             
             close(d)
             if flag
                 % Plot detection range (polar plot and map) 
                 obj.plotDR()
+                % Write CPU time to the log file 
+                obj.CPUtime = toc(tStart);
+                obj.writeLogEnd
+            else
+                % Write error message to log file  
+                obj.writeLogError
             end
-            obj.CPUtime = toc(tStart);
-            obj.writeLogEnd
+            
+
         end
 
         function recomputeDRE(obj)
@@ -308,10 +318,6 @@
             tStart = tic;
             
             oldRootSaveResult = obj.rootSaveResult;
-%             oldRootSaveInput = obj.rootSaveInput;
-%             oldRootOutputFiles = obj.rootOutputFiles;
-%             oldRootOutputFigures = obj.rootOutputFigures;
-%             oldLogFile = obj.logFile;
 
             % Create new result folder
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
@@ -319,10 +325,6 @@
 
             % Copy all files to the new folder 
             copyfile(oldRootSaveResult, obj.rootSaveResult)
-%             copyfile(oldRootSaveInput, obj.rootSaveResult)
-%             copyfile(oldRootOutputFiles, obj.rootSaveResult)
-%             copyfile(oldRootOutputFigures, obj.rootSaveResult)
-%             copyfile(oldLogFile, obj.rootSaveResult)
 
             d = uiprogressdlg(obj.appUIFigure,'Title','Please Wait',...
                             'Message','Recomputing detection range with new parameters...', ...
@@ -416,19 +418,25 @@
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Estimating detection range\n\n');
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
-            close(fileID)   
+            fclose(fileID);   
+        end
+        
+        function writeLogError(obj)
+            fileID = fopen(obj.logFile, 'a');
+            fprintf(fileID, '!!! Execution as failed !!!');
+            fclose(fileID);
         end
 
         function writeDRtoLogFile(obj, theta, DT)
             fileID = fopen(obj.logFile, 'a');
             fprintf(fileID, '\t%3.2f\t%6.2f\n', theta, DT);
-            close(fileID)
+            fclose(fileID);
         end
 
         function writeLogEnd(obj)
             fileID = fopen(obj.logFile, 'a');
             fprintf(fileID, '\tCPU Time = %6.2f s', obj.CPUtime);
-            close(fileID)
+            fclose(fileID);
         end
 
 

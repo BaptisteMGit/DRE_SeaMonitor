@@ -15,12 +15,19 @@ classdef Mooring
             if nargin >= 1
                 obj.mooringName = moorName;
             else
-                obj.mooringPos
+                obj.mooringPos % TODO: check the purpose of this line 
             end
 
             % mooringPos
             if nargin >= 2
-                obj.mooringPos = moorPos;
+                obj.mooringPos.lon = moorPos.lon;
+                obj.mooringPos.lat = moorPos.lat;
+                % Hgt is the height of the projection of the mooring point
+                % at the surface of the ocean. Thus, as the ocean surface
+                % match the geoid, the ellipsoid height given by h = H + N 
+                % where N is the geoid height and H is the orthometric 
+                % height can be reduced to h = N (H = 0).  
+                obj.mooringPos.hgt = geoidheight(moorPos.lat, moorPos.lon);
             end
 
             % hydrophoneDepth

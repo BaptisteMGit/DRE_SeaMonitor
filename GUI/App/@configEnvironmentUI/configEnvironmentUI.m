@@ -250,16 +250,8 @@ classdef configEnvironmentUI < handle
                                             '*.csv;*.txt','Text File'}, ...
                                             'Select a File');
             if indx == 1 % File is a csv
-                % Copy to input folder 
-%                 copy(fullfile(path, file), fullfile(app.Simulation.rootSaveInput, file))
-                app.Simulation.bathyFileType = 'CSV';
-                
+                app.Simulation.bathyFileType = 'CSV';                
             elseif indx == 2 % File is a netcdf
-%                 fNETCDF = fullfile(path, file);
-%                 fileCSV = [file(1:end-2), 'csv'];
-%                 fCSV = fullfile(app.Simulation.rootSaveInput, fileCSV);
-                % Convert file to csv and save it in the inout folder   
-%                 bathyNETCDFtoCSV(fNETCDF, fCSV)
                 app.Simulation.bathyFileType = 'NETCDF';
             end 
 

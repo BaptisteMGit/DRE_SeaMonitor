@@ -24,8 +24,6 @@ classdef TestCase1 < DRESimulation
         function obj = TestCase1
             %% Bathymetry 
             rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\GUI\App\AppTestCase\testCase1';
-%             bathyFile = 'ENU_gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.csv'; % Bathymetric file in WGS84
-%             inputSRC = 'ENU'; % SRC of the input bathyFile 
             bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.nc'; % Bathymetry file in WGS84
             inputSRC = 'WGS84'; % SRC of the input bathyFile 
             bathyFileType = 'NETCDF';
@@ -38,7 +36,8 @@ classdef TestCase1 < DRESimulation
 %             Position used to compute ENU bathy 
             mooringPos.lat = 52.22;
             mooringPos.lon = -4.37;
-            mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
+            % Since 25/01/2022 geoid height (= ellipsoid height) is computed using geoidheigth function   
+%             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
             
             % yyyy-mm-dd hh:mm:ss
             deploymentDate.startDate = '2022-01-01 12:00:00';
@@ -70,8 +69,8 @@ classdef TestCase1 < DRESimulation
             %% noiseLevel 
 %             obj.noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
             obj.noiseLevel = (30 + 46)/2; 
-%             obj.listAz = 0.1:10:360.1;
-            obj.listAz = [75.1];
+            obj.listAz = 0.1:5:360.1;
+%             obj.listAz = [75.1];
             obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
                                                      % for small odontocetes (C-PODs)
 

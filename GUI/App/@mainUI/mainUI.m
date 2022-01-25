@@ -72,6 +72,9 @@ classdef mainUI < handle
         configEnvironmentWindow
         plottingToolsWindow
         recomputeWindow
+
+        % Store previous simulations 
+        rootToPreviousSimulation
     end
     
     %% Constructor of the class 
@@ -144,12 +147,20 @@ classdef mainUI < handle
         end
         
         function runDREButtonPushed(app, hObject, eventData)
-            app.Simulation.runSimulation
+            flag = app.Simulation.runSimulation;
+            if flag
+                app.rootToPreviousSimulation = app.Simulation.rootSaveResult;
+            end
         end
         
         function recomputeDRButtonPushed(app, hObject, eventData)
-            app.recomputeWindow = recomputeUI(app.Simulation);
-            app.childWindow = [app.childWindow, app.configEnvironmentWindow];
+            if app.rootToPreviousSimulation
+                app.recomputeWindow = recomputeUI(app.Simulation);
+                app.childWindow = [app.childWindow, app.configEnvironmentWindow];
+            else
+                uialert(app.Figure, 'No previous simulation found !', 'Impossible to recompute');
+            end
+        
         end
 
         function resizeWindow(app, hObject, eventData)
