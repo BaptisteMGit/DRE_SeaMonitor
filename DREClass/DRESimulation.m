@@ -370,7 +370,16 @@
         end
 
         function getBathyData(obj)
-            
+            % Query subset data from GEBCO global frid 
+            if strcmp(obj.bathyEnvironment.source, 'auto')
+                bathyFile = extratBathybBoxFromGEBCOGlobal(obj.bBox, obj.rootSaveInput);
+                obj.bathyEnvironment.rootBathy = obj.rootSaveInput;
+                obj.bathyEnvironment.bathyFile = bathyFile;
+                obj.bathyEnvironment.bathyFileType = 'NETCDF';
+                obj.bathyEnvironment.inputSRC = 'WGS84';
+                obj.bathyEnvironment.drBathy = 100;
+            end
+
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             
@@ -424,7 +433,7 @@
         
         function writeLogError(obj)
             fileID = fopen(obj.logFile, 'a');
-            fprintf(fileID, '!!! Execution as failed !!!');
+            fprintf(fileID, '\nExecution as been interupted !');
             fclose(fileID);
         end
 

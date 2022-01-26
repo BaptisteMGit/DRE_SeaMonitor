@@ -27,10 +27,12 @@ classdef TestCase1 < DRESimulation
             bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.nc'; % Bathymetry file in WGS84
             inputSRC = 'WGS84'; % SRC of the input bathyFile 
             bathyFileType = 'NETCDF';
+            source = 'auto';
             drBathy = 100; % Horizontal resolution for bathymetric profile 
             
             obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, bathyFileType, drBathy);
-            
+            obj.bathyEnvironment.source = source; % Automatic query of bathy data from GEBCO global grid 
+
             %% Mooring 
 %             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %
 %             Position used to compute ENU bathy 
@@ -69,8 +71,8 @@ classdef TestCase1 < DRESimulation
             %% noiseLevel 
 %             obj.noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
             obj.noiseLevel = (30 + 46)/2; 
-            obj.listAz = 0.1:5:360.1;
-%             obj.listAz = [75.1];
+%             obj.listAz = 0.1:5:360.1;
+            obj.listAz = [75.1];
             obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
                                                      % for small odontocetes (C-PODs)
 
