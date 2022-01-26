@@ -371,12 +371,12 @@
 
         function getBathyData(obj)
             % Query subset data from GEBCO global frid 
-            if strcmp(obj.bathyEnvironment.source, 'auto')
+            if strcmp(obj.bathyEnvironment.source, 'GEBCO2021')
                 bathyFile = extratBathybBoxFromGEBCOGlobal(obj.bBox, obj.rootSaveInput);
                 obj.bathyEnvironment.rootBathy = obj.rootSaveInput;
                 obj.bathyEnvironment.bathyFile = bathyFile;
                 obj.bathyEnvironment.bathyFileType = 'NETCDF';
-                obj.bathyEnvironment.inputSRC = 'WGS84';
+                obj.bathyEnvironment.inputCRS = 'WGS84';
                 obj.bathyEnvironment.drBathy = 100;
             end
 
@@ -524,7 +524,7 @@
             rMax = obj.marineMammal.rMax;
             data = obj.dataBathy;
 
-            varGetProfile = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
+            varGetProfile = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'CRS', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
             bathyProfile = getBathy2Dprofile(varGetProfile{:});
             bathyProfile = table2array(bathyProfile);
             fprintf('\n--> DONE <--\n');

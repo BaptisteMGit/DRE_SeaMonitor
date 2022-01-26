@@ -41,6 +41,9 @@ classdef configEnvironmentUI < handle
         LabelFontSize_text = 14;
         LabelFontWeight_title = 'bold';
         LabelFontWeight_text = 'normal';
+        
+        % Subwindow open to kill when this window is closed 
+        subWindows
     end
     
     %% Constructor of the class 
@@ -58,7 +61,7 @@ classdef configEnvironmentUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -83,10 +86,10 @@ classdef configEnvironmentUI < handle
             % Labels 
             % Bathymetry 
             app.addLabel('Bathymetry', 1, [1, 2], 'title')
-            app.addLabel('File', 2, 2, 'text')
-            app.addLabel('Reference Frame', 3, 2, 'text')
-            app.addLabel('Resolution', 4, 2, 'text')
-            app.addLabel('m', 4, 6, 'text')
+            app.addLabel('Source', 2, 2, 'text')
+%             app.addLabel('Reference Frame', 3, 2, 'text')
+%             app.addLabel('Resolution', 4, 2, 'text')
+%             app.addLabel('m', 4, 6, 'text')
             % Mooring
             app.addLabel('Mooring', 5, [1, 2], 'title')
             app.addLabel('Name', 6, 2, 'text')
@@ -110,9 +113,6 @@ classdef configEnvironmentUI < handle
             app.addLabel('Computing model', 14, 2, 'text')
 
             % Edit field
-            % Bathy
-            app.addEditField(app.Simulation.bathyEnvironment.bathyFile, 2, [4, 9], '', 'text') % Bathy file 
-            app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, [4, 5], [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
             % Mooring
             app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
             app.addEditField(app.Simulation.mooring.mooringPos.lon, 7, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
@@ -121,9 +121,8 @@ classdef configEnvironmentUI < handle
             app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             
             % Drop down 
-            % Reference frame
-%             app.addDropDown({'WGS84', 'ENU', 'UTM'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged)
-            app.addDropDown({'WGS84'}, app.Simulation.bathyEnvironment.inputSRC, 3, [4, 7], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
+            % Bathymetry 
+            app.addDropDown({'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
 
             % Specie
             app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 10, [4, 9], @app.specieChanged)
@@ -133,8 +132,6 @@ classdef configEnvironmentUI < handle
             app.addDropDown({'Computed from data', 'basic model'}, 'basic model', 14, [4, 7], @app.noiseLevelChanged)
 
             % Buttons
-            % Bathy file
-            app.addButton('Select file', 2, 11, @app.selectBathyFile)
             % Edit specie 
             app.addButton('Edit properties', 10, 11, @app.editMarinneMammalProperties)
             % Edit hydrophone
@@ -261,17 +258,12 @@ classdef configEnvironmentUI < handle
             set(app.handleEditField(1), 'Value', file)
         end
         
-        function referenceFrameChanged(app, hObject, eventData)
-            newRefFrame =  get(app.handleDropDown(1), 'Value');
-            switch newRefFrame
-                case 'WGS84'
-                    app.MooringPosLabel = {'lat(DD)', 'lon(DD)', 'hgt(m)'};
-                case 'ENU'
-                    app.MooringPosLabel = {'E(m)', 'N(m)', 'U(m)'};
-                otherwise
-                    app.MooringPosLabel = {'X(m)', 'Y(m)', 'Z(m)'};
+        function bathySourceChanged(app, hObject, eventData)
+            newSource =  get(app.handleDropDown(1), 'Value');
+            app.Simulation.bathyEnvironment.source = newSource;
+            if strcmp(newSource, 'Userfile')
+                app.subWindows = [app.subWindows, bathyAdvancedSettingsUI(app.Simulation)];
             end
-            app.Simulation.bathyEnvironment.inputSRC = newRefFrame;
         end
 
         function specieChanged(app, hObject, eventData)
@@ -341,10 +333,15 @@ classdef configEnvironmentUI < handle
             % Open advancedSettingsUI
             advancedSettingsUI(app.Simulation)
         end
-
+        
+        function closeWindowCallback(app, hObject, eventData)
+            closeWindowCallback(app.subWindows, hObject, eventData)
+        end
+        
         function saveSettings(app, hObject, eventData)
             % Open editUI
             close(app.Figure)
+            delete(app.subWindows(:).Figure)
         end
     end
 
@@ -355,7 +352,7 @@ classdef configEnvironmentUI < handle
         end
 
         function moorPosLabels = get.MooringPosLabel(app)
-            switch app.Simulation.bathyEnvironment.inputSRC
+            switch app.Simulation.bathyEnvironment.inputCRS
                 case 'WGS84'
                     moorPosLabels = {'lat(DD)', 'lon(DD)', 'hgt(m)'};
                 case 'ENU'

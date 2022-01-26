@@ -4,7 +4,7 @@ function [T] = getBathy2Dprofile(varargin)
 rootBathy = getVararginValue(varargin, 'rootBathy', '');
 bathyFile = getVararginValue(varargin, 'bathyFile', '');
 D = getVararginValue(varargin, 'data', []);
-SRC = getVararginValue(varargin, 'SRC', 'ENU');
+CRS = getVararginValue(varargin, 'CRS', 'ENU');
 theta = getVararginValue(varargin, 'theta', []);
 dr = getVararginValue(varargin, 'dr', 100);
 rMax = getVararginValue(varargin, 'rMax', []);
@@ -48,7 +48,7 @@ dN = abs(max(diff(N))); % We assume regular grid
 dE = abs(max(diff(E))); 
 offset = max(dE, dN); 
 
-switch SRC
+switch CRS
     case 'ENU'
         if (theta >= 0) && (theta < 90)
            idx = (E > 0 - offset) & (N > 0 - offset);

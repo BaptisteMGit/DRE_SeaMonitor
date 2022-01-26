@@ -30,6 +30,9 @@ classdef advancedSettingsUI < handle
         LabelFontSize_text = 14;
         LabelFontWeight_title = 'bold';
         LabelFontWeight_text = 'normal';
+
+        % Sub-windows 
+        subWindows
     end
 
     properties (Dependent)
@@ -53,7 +56,7 @@ classdef advancedSettingsUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
 
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             
@@ -196,6 +199,10 @@ classdef advancedSettingsUI < handle
                 case 'hydroDepth'
                     app.Simulation.mooring.hydrophoneDepth = hObject.Value;
             end
+        end
+
+        function closeWindowCallback(app, hObject, eventData)
+            closeWindowCallback(app.childWindows, hObject, eventData)
         end
     end
 end

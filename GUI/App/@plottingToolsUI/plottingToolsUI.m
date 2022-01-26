@@ -57,6 +57,9 @@ classdef plottingToolsUI < handle
         % Number of buttons to display in main window
         nbButton = 7;
         currButtonID = 0;
+
+        % Sub-windows 
+        subWindows
     end
     
     %% Constructor
@@ -72,7 +75,7 @@ classdef plottingToolsUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
             % Resize function must be defined after Figure is define 
             app.Figure.SizeChangedFcn = @app.resizeWindow;
 
@@ -129,6 +132,10 @@ classdef plottingToolsUI < handle
                 app.currButtonID = i_b-1;
                 set(button, 'Position', app.bPosition)
             end
+        end
+
+        function closeWindowCallback(app, hObject, eventData)
+            closeWindowCallback(app.subWindows, hObject, eventData)
         end
 
     end

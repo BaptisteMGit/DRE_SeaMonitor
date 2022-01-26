@@ -68,7 +68,7 @@ classdef mainUI < handle
         lHeight = 40;
         
         % Sub-windows 
-        childWindow
+        subWindows
         configEnvironmentWindow
         plottingToolsWindow
         recomputeWindow
@@ -90,7 +90,7 @@ classdef mainUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
             % Resize function must be defined after Figure is define 
             app.Figure.SizeChangedFcn = @app.resizeWindow;
 
@@ -137,13 +137,13 @@ classdef mainUI < handle
 
         function configEnvironmentButtonPushed(app, hObject, eventData)
             app.configEnvironmentWindow = configEnvironmentUI(app.Simulation);
-            app.childWindow = [app.childWindow, app.configEnvironmentWindow];
+            app.subWindows = [app.subWindows, app.configEnvironmentWindow];
         end
 
         function plottingToolsButtonPushed(app, hObject, eventData)
             app.plottingToolsWindow = plottingToolsUI;
             app.plottingToolsWindow.Simulation = app.Simulation;
-            app.childWindow = [app.childWindow, app.plottingToolsWindow];
+            app.subWindows = [app.subWindows, app.plottingToolsWindow];
         end
         
         function runDREButtonPushed(app, hObject, eventData)
@@ -156,7 +156,7 @@ classdef mainUI < handle
         function recomputeDRButtonPushed(app, hObject, eventData)
             if app.rootToPreviousSimulation
                 app.recomputeWindow = recomputeUI(app.Simulation);
-                app.childWindow = [app.childWindow, app.configEnvironmentWindow];
+                app.subWindows = [app.subWindows, app.configEnvironmentWindow];
             else
                 uialert(app.Figure, 'No previous simulation found !', 'Impossible to recompute');
             end
@@ -172,10 +172,6 @@ classdef mainUI < handle
             app.updateButtons
         end
 
-%         function updateButtonGroup(app)
-%             app.ButtonGroup.Position = app.bgPosition;
-%         end
-
         function updateButtons(app)
             for i_b = 1:length(app.handleButtons)
                 button = app.handleButtons(i_b);
@@ -187,6 +183,10 @@ classdef mainUI < handle
 
         function updateLabel(app)
             app.Label.Position = app.lPosition;
+        end
+
+        function closeWindowCallback(app, hObject, eventData)
+            closeWindowCallback(app.subWindows, hObject, eventData)
         end
     end
 

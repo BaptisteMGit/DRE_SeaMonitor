@@ -23,15 +23,20 @@ classdef TestCase1 < DRESimulation
     methods
         function obj = TestCase1
             %% Bathymetry 
-            rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\GUI\App\AppTestCase\testCase1';
-            bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.nc'; % Bathymetry file in WGS84
-            inputSRC = 'WGS84'; % SRC of the input bathyFile 
-            bathyFileType = 'NETCDF';
-            source = 'auto';
-            drBathy = 100; % Horizontal resolution for bathymetric profile 
-            
-            obj.bathyEnvironment = BathyEnvironment(rootBathy, bathyFile, inputSRC, bathyFileType, drBathy);
-            obj.bathyEnvironment.source = source; % Automatic query of bathy data from GEBCO global grid 
+%             Old way to instanciate the object BathyEnvironement (before
+%             26/01/2022) 
+%             rootBathy = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\GUI\App\AppTestCase\testCase1';
+%             bathyFile = 'gebco_2021_n52.3_s52.2_w-4.45001220703125_e-4.3.nc'; % Bathymetry file in WGS84
+%             inputCRS = 'WGS84'; % CRS of the input bathyFile 
+%             bathyFileType = 'NETCDF';
+%             drBathy = 100; % Horizontal resolution for bathymetric profile 
+%             Now for Userfile source (ie the user wants to use is own
+%             bathy file) create the object as below
+%             obj.bathyEnvironment = BathyEnvironment('Userfile', rootBathy, bathyFile, inputCRS, bathyFileType, drBathy);
+
+            % New version 26/01/2022 -> auto loaded bathymetry 
+            source = 'GEBCO2021'; % Automatic query of bathy data from GEBCO global grid            
+            obj.bathyEnvironment = BathyEnvironment(source);
 
             %% Mooring 
 %             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %

@@ -44,6 +44,9 @@ classdef recomputeUI < handle
         LabelFontSize_text = 16;
         LabelFontWeight_title = 'bold';
         LabelFontWeight_text = 'normal';
+        
+        % Sub-windows 
+        subWindows
     end
     
     %% Constructor of the class 
@@ -61,7 +64,7 @@ classdef recomputeUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -187,6 +190,10 @@ classdef recomputeUI < handle
 
         function recomputeButtonPushed(app, hObject, eventData)
             app.Simulation.recomputeDRE
+        end
+
+        function closeWindowCallback(app, hObject, eventData)
+            closeWindowCallback(app.subWindows, hObject, eventData)
         end
     end
 
