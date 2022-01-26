@@ -1,5 +1,6 @@
 classdef BathyEnvironment  
     properties
+        source % 'auto' for auto loaded bathy data from GEBCO global model and 'perso' for personal bathy data set 
         rootBathy = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry';
         bathyFile = '2008 HI1240 Runabay Head to Tuns.csv'; % Bathymetric file in WGS84
         inputSRC = 'WGS84';                 % SRC of the input bathyFile 
@@ -8,6 +9,7 @@ classdef BathyEnvironment
     end
     methods
         function obj = BathyEnvironment(root, file, src, type, dr)
+
            % rootBathy 
             if nargin >= 1
                 obj.rootBathy = root;

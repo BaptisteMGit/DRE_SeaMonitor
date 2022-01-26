@@ -370,6 +370,7 @@
         end
 
         function getBathyData(obj)
+            
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             
@@ -398,7 +399,7 @@
             fprintf(fileID, 'Equipment\n\n');
             fprintf(fileID,'\tName: %s\n', obj.mooring.mooringName);
             fprintf(fileID,'\tDeployment: %s to %s\n', obj.mooring.deploymentDate.startDate, obj.mooring.deploymentDate.stopDate);
-            fprintf(fileID,'\tPosition: lon %4.4f°, lat %4.4f°, hgt %4.4f°\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
+            fprintf(fileID,'\tPosition: lon %4.4f°, lat %4.4f°, hgt %4.4fm\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
             fprintf(fileID,'\tHydrophone: %s\n', obj.detector.name);
             fprintf(fileID, '\tDetection threshold = %3.2f dB\n', obj.detector.detectionThreshold);
             fprintf(fileID, '__________________________________________________________________________\n\n');
