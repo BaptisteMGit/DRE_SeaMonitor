@@ -46,7 +46,7 @@ classdef recomputeUI < handle
         LabelFontWeight_text = 'normal';
         
         % Sub-windows 
-        subWindows
+        subWindows = {};
     end
     
     %% Constructor of the class 
@@ -63,7 +63,7 @@ classdef recomputeUI < handle
                             'MenuBar', 'none', ...
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
-                            'WindowStyle', 'normal', ...
+                            'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             

@@ -59,12 +59,12 @@ classdef plottingToolsUI < handle
         currButtonID = 0;
 
         % Sub-windows 
-        subWindows
+        subWindows = {};
     end
     
     %% Constructor
     methods
-        function app = plottingToolsUI            
+        function app = plottingToolsUI(simulation)            
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Visible', 'on', ...
@@ -113,8 +113,8 @@ classdef plottingToolsUI < handle
     %% Callback functions 
     methods 
         function goBackToMainUI(app, hObject, eventData)
-            hObject = app.Figure;
-            closeWindowCallback(hObject, eventData)
+            % Close UI
+            close(app.Figure)
         end
 
         function resizeWindow(app, hObject, eventData)

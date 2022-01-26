@@ -32,7 +32,7 @@ classdef advancedSettingsUI < handle
         LabelFontWeight_text = 'normal';
 
         % Sub-windows 
-        subWindows
+        subWindows = {};
     end
 
     properties (Dependent)
@@ -55,7 +55,7 @@ classdef advancedSettingsUI < handle
                             'MenuBar', 'none', ...
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
-                            'WindowStyle', 'normal', ...
+                            'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @closeWindowCallback);
 
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);

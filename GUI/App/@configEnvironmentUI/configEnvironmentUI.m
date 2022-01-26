@@ -43,7 +43,8 @@ classdef configEnvironmentUI < handle
         LabelFontWeight_text = 'normal';
         
         % Subwindow open to kill when this window is closed 
-        subWindows
+        subWindows = {};
+
     end
     
     %% Constructor of the class 
@@ -60,7 +61,7 @@ classdef configEnvironmentUI < handle
                             'MenuBar', 'none', ...
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
-                            'WindowStyle', 'normal', ...
+                            'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
@@ -257,7 +258,7 @@ classdef configEnvironmentUI < handle
             newSource =  get(app.handleDropDown(1), 'Value');
             app.Simulation.bathyEnvironment.source = newSource;
             if strcmp(newSource, 'Userfile')
-                app.subWindows = [app.subWindows, bathyAdvancedSettingsUI(app.Simulation)];
+                app.subWindows{end+1} = bathyAdvancedSettingsUI(app.Simulation);
             end
         end
 
@@ -326,7 +327,7 @@ classdef configEnvironmentUI < handle
 
         function advancedSettings(app, hObject, eventData)
             % Open advancedSettingsUI
-            advancedSettingsUI(app.Simulation)
+            app.subWindows{end+1} = advancedSettingsUI(app.Simulation);
         end
         
         function closeWindow(app, hObject, eventData)
@@ -334,7 +335,7 @@ classdef configEnvironmentUI < handle
         end
         
         function saveSettings(app, hObject, eventData)
-            % Open editUI
+            % Close UI
             close(app.Figure)
         end
     end

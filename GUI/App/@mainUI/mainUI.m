@@ -68,7 +68,7 @@ classdef mainUI < handle
         lHeight = 40;
         
         % Sub-windows 
-        subWindows
+        subWindows = {};
         configEnvironmentWindow
         plottingToolsWindow
         recomputeWindow
@@ -131,19 +131,18 @@ classdef mainUI < handle
     %% Callback functions 
     methods 
         function exitAppButtonPushed(app, hObject, eventData)
-%             hObject = app.Figure;
-            app.closeWindowCallback(hObject, eventData)
+            hObject = app.Figure;
+            closeWindowCallback(hObject, eventData)
         end
 
         function configEnvironmentButtonPushed(app, hObject, eventData)
             app.configEnvironmentWindow = configEnvironmentUI(app.Simulation);
-            app.subWindows = [app.subWindows, app.configEnvironmentWindow];
+            app.subWindows{end+1} = app.configEnvironmentWindow;
         end
 
         function plottingToolsButtonPushed(app, hObject, eventData)
-            app.plottingToolsWindow = plottingToolsUI;
-            app.plottingToolsWindow.Simulation = app.Simulation;
-            app.subWindows = [app.subWindows, app.plottingToolsWindow];
+            app.plottingToolsWindow = plottingToolsUI(app.Simulation);
+            app.subWindows{end+1} = app.plottingToolsWindow;
         end
         
         function runDREButtonPushed(app, hObject, eventData)
@@ -156,7 +155,7 @@ classdef mainUI < handle
         function recomputeDRButtonPushed(app, hObject, eventData)
             if app.rootToPreviousSimulation
                 app.recomputeWindow = recomputeUI(app.Simulation);
-                app.subWindows = [app.subWindows, app.configEnvironmentWindow];
+                app.subWindows{end+1} = app.configEnvironmentWindow;
             else
                 uialert(app.Figure, 'No previous simulation found !', 'Impossible to recompute');
             end
@@ -185,9 +184,16 @@ classdef mainUI < handle
             app.Label.Position = app.lPosition;
         end
 
-        function closeWindowCallback(app, hObject, eventData)
-            closeWindowCallback(app.subWindows, hObject, eventData)
-        end
+%         function MainUICloseRequest(app, hObject, eventData)
+% %             app.closeSubWindows
+%             closeWindowCallback(hObject, eventData)
+%         end
+
+%         function closeSubWindows(app)
+%             for i = 1:numel(app.subWindows)
+%                 delete(app.subWindows{i})
+%             end
+%         end
     end
 
     %% Get methods for dependent properties 
