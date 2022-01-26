@@ -90,7 +90,7 @@ classdef mainUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @closeWindowCallback);
             % Resize function must be defined after Figure is define 
             app.Figure.SizeChangedFcn = @app.resizeWindow;
 
@@ -131,8 +131,8 @@ classdef mainUI < handle
     %% Callback functions 
     methods 
         function exitAppButtonPushed(app, hObject, eventData)
-            hObject = app.Figure;
-            closeWindowCallback(hObject, eventData)
+%             hObject = app.Figure;
+            app.closeWindowCallback(hObject, eventData)
         end
 
         function configEnvironmentButtonPushed(app, hObject, eventData)

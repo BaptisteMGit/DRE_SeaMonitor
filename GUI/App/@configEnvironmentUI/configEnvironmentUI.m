@@ -61,7 +61,7 @@ classdef configEnvironmentUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -212,11 +212,6 @@ classdef configEnvironmentUI < handle
             app.handleButton = [app.handleButton, button];
         end
 
-        function RFChanged()
-            % Update mooring position labels 
-            % if WGS84 -> lon, lat, hgt 
-            % elseif ENU -> X, Y, Z
-        end
     end
 
     %% Callback functions 
@@ -334,14 +329,13 @@ classdef configEnvironmentUI < handle
             advancedSettingsUI(app.Simulation)
         end
         
-        function closeWindowCallback(app, hObject, eventData)
-            closeWindowCallback(app.subWindows, hObject, eventData)
+        function closeWindow(app, hObject, eventData)
+            closeWindowCallback(app, hObject, eventData)
         end
         
         function saveSettings(app, hObject, eventData)
             % Open editUI
             close(app.Figure)
-            delete(app.subWindows(:).Figure)
         end
     end
 
