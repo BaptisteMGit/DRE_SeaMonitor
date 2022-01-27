@@ -13,9 +13,9 @@
         noiseLevel        % Handle ambient noise level parameters (value and computation methods)          
         % Simulation
         bellhopEnvironment
-        drSimu            % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
-        dzSimu            % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
-        % Bellhop parameters 
+%         drSimu            % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
+%         dzSimu            % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
+        % Azimuths 
         listAz
         % Output
         listDetectionRange
@@ -26,12 +26,9 @@
     end
     
     properties (Hidden)
-        SspOption = 'SVM'; % M for attenuation in dB/m
-        interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
         
         % Bellhop parameters 
-        beam
         bottom
         ssp
         receiverPos
@@ -47,7 +44,6 @@
         appUIFigure 
         %Ssp 
         SoundCelerity
-
     end
 
     properties (Dependent, Hidden=true)
@@ -67,21 +63,13 @@
         bBoxENU % Boundary box in ENU coordinates 
         tBox % Time box
         dBox % Depth box 
-
-        % Bellhop
-        SspInterpMethodLabel
-        SurfaceTypeLabel
-        AttenuationUnitLabel
-        runTypeLabel
-        beamTypeLabel
     end
 
     %% Constructor 
     methods
-        function obj = DRESimulation(bathyEnv, moor, mammal, det, dr, dz)
+        function obj = DRESimulation(bathyEnv, moor, mammal, det, bellhopEnv)
 
             obj.setDefault() 
-            obj.setBeam()
 
             % Bathy env 
             if nargin >= 1
@@ -102,16 +90,12 @@
             if nargin >= 4
                 obj.detector = det;
             end
-                        
-            % drSimu
-            if nargin >= 5
-                obj.drSimu = dr;
-            end
 
-            % dzSimu
-            if nargin >= 6
-                obj.dzSimu = dz;
+            % Bellhop env
+            if nargin >= 5
+                obj.bellhopEnvironment  = bellhopEnv;
             end
+                       
         end
     end 
     
@@ -121,8 +105,7 @@
             obj.mooring = Mooring;
             obj.marineMammal = Porpoise;
             obj.detector = CPOD; 
-            obj.drSimu = 0.01;                      
-            obj.dzSimu = 0.5;  
+            obj.bellhopEnvironment = BellhopEnvironment;
             obj.listAz = 0.1:10:360.1;            
         end
     end 
@@ -151,6 +134,16 @@
                 error('Bathymetry environment should be an object from class BathyEnvironment !')
             end
         end
+
+        function set.bellhopEnvironment(obj, bellhopEnv)
+            if isa(bellhopEnv, 'BellhopEnvironment')
+                obj.bellhopEnvironment = bellhopEnv;
+            else
+                error('Bellhop environment should be an object from class BellhopEnvironment !')
+            end
+        end
+
+        % TODO: introduce bellhopEnv check 
     end
 
     %% Get methods 
@@ -216,57 +209,6 @@
     
         function dBox = get.dBox(obj)
             dBox = getdBox(0, obj.maxBathyDepth);
-        end
-
-        function runTypeName = get.runTypeLabel(obj)
-            switch obj.beam.RunType(1) 
-                case 'C'
-                    runTypeName = 'Coherent';
-                case 'S'
-                    runTypeName = 'Semi coherent';
-                case 'I'
-                    runTypeName = 'Incoherent';
-            end
-        end
-
-        function beamTypeName = get.beamTypeLabel(obj)
-            switch obj.beam.RunType(2) 
-                case 'G'
-                    beamTypeName = 'Geometric rays';
-                case 'B'
-                    beamTypeName = 'Gaussian beams';
-            end
-        end
-
-        function intMethod = get.SspInterpMethodLabel(app)
-            switch app.SspOption(1)
-                case 'S'
-                    intMethod = 'Cubic spline';
-                case 'C' 
-                    intMethod = 'C-linear';
-                case 'N' 
-                    intMethod = 'N-2-linear';
-                case 'Q'
-                    intMethod = 'Quadratic';
-            end
-        end
-
-        function sType = get.SurfaceTypeLabel(app)
-            switch app.SspOption(2)
-                case 'V'
-                    sType = 'Vacuum above surface';
-                case 'R' 
-                    sType = 'Perfectly rigid media above surface';
-                case 'A' 
-                    sType = 'Acoustic half-space';
-            end
-        end
-
-        function attUnit = get.AttenuationUnitLabel(app)
-            switch app.SspOption(3)
-                case 'M'
-                    attUnit = 'db/m';
-            end
         end
 
     end
@@ -484,10 +426,10 @@
             fprintf(fileID,'\tCentroid frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'BELLHOP parameters\n\n');
-            fprintf(fileID, '\tNumber of beams = %d\n', obj.beam.Nbeams);
-            fprintf(fileID, '\tTL = %s\n', obj.runTypeLabel);
-            fprintf(fileID, '\tBeam type = %s\n', obj.beamTypeLabel);
-            fprintf(fileID, '\tSsp option = %s\n', obj.SspOption);
+            fprintf(fileID, '\tNumber of beams = %d\n', obj.bellhopEnvironment.beam.Nbeams);
+            fprintf(fileID, '\tTL = %s\n', obj.bellhopEnvironment.runTypeLabel);
+            fprintf(fileID, '\tBeam type = %s\n', obj.bellhopEnvironment.beamTypeLabel);
+            fprintf(fileID, '\tSsp option = %s\n', obj.bellhopEnvironment.SspOption);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Environment\n\n');
             fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseLevel);
@@ -534,19 +476,19 @@
                 obj.receiverPos.s.z = obj.mooring.hydrophoneDepth; % TODO: check 
             end
         end
-
-        function setBeam(obj)
-            % Beam 
-            obj.beam.RunType(1) = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
-            obj.beam.RunType(2) = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
-            obj.beam.Nbeams = 5001; % Number of launching angles
-            obj.beam.alpha = [-80, 80]; % Launching angles in degrees
-            obj.beam.deltas = 0; % Ray-step (m) used in the integration of the ray and dynamic equations, 0 let bellhop choose 
-        end
+% 
+%         function setBeam(obj)
+%             % Beam 
+%             obj.beam.RunType(1) = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
+%             obj.beam.RunType(2) = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
+%             obj.beam.Nbeams = 5001; % Number of launching angles
+%             obj.beam.alpha = [-80, 80]; % Launching angles in degrees
+%             obj.beam.deltas = 0; % Ray-step (m) used in the integration of the ray and dynamic equations, 0 let bellhop choose 
+%         end
 
         function obj = setBeambox(obj, bathyProfile)
-            obj.beam.Box.z = max(obj.ssp.z) + 10; % zmax (m), larger than SSP max depth to avoid problems  
-            obj.beam.Box.r = max(bathyProfile(:, 1)) + 0.1; % rmax (km), larger than bathy max range to avoid problems
+            obj.bellhopEnvironment.beam.Box.z = max(obj.ssp.z) + 10; % zmax (m), larger than SSP max depth to avoid problems  
+            obj.bellhopEnvironment.beam.Box.r = max(bathyProfile(:, 1)) + 0.1; % rmax (km), larger than bathy max range to avoid problems
         end
 
         function setBottom(obj)
@@ -585,8 +527,8 @@
         
         function setReceiverPos(obj, bathyProfile)
                 % Receivers
-                obj.receiverPos.r.range = 0:obj.drSimu:max(bathyProfile(:, 1)); % Receiver ranges (km)
-                obj.receiverPos.r.z = 0:obj.dzSimu:max(bathyProfile(:, 2)); % Receiver depths (m)  
+                obj.receiverPos.r.range = 0:obj.bellhopEnvironment.drSimu:max(bathyProfile(:, 1)); % Receiver ranges (km)
+                obj.receiverPos.r.z = 0:obj.bellhopEnvironment.dzSimu:max(bathyProfile(:, 2)); % Receiver depths (m)  
         end
 
         function bathyProfile = getBathyProfile(obj, theta)
@@ -608,7 +550,7 @@
 %             nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
             BTYfilename = sprintf('%s.bty', nameProfile);
             fprintf('Creation of bty file \n\tfilename = %s', BTYfilename);
-            writebdry(fullfile(obj.rootOutputFiles, BTYfilename), obj.interpMethodBTY, bathyProfile)
+            writebdry(fullfile(obj.rootOutputFiles, BTYfilename), obj.bellhopEnvironment.interpMethodBTY, bathyProfile)
             fprintf('\n--> DONE <--\n');
         end
 
@@ -618,7 +560,7 @@
 
             freq = obj.marineMammal.signal.centroidFrequency;
             varEnv = {'envfil', envfile, 'freq', freq, 'SSP', obj.ssp, 'Pos', obj.receiverPos,...
-                'Beam', obj.beam, 'BOTTOM', obj.bottom, 'SspOption', obj.SspOption, 'TitleEnv', nameProfile};
+                'Beam', obj.bellhopEnvironment.beam, 'BOTTOM', obj.bottom, 'SspOption', obj.bellhopEnvironment.SspOption, 'TitleEnv', nameProfile};
             writeEnvDRE(varEnv{:})
             fprintf('\n--> DONE <--\n');
         end

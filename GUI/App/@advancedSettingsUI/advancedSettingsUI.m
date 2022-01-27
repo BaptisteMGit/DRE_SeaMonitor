@@ -67,24 +67,24 @@ classdef advancedSettingsUI < handle
             app.addLabel('Bellhop parameters', 1, [1, 2], 'title')
 
             app.addLabel('Horizontal resolution', 2, 2, 'text')
-            app.addEditField(app.Simulation.drSimu, 2, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dr'})
+            app.addEditField(app.Simulation.bellhopEnvironment.drSimu, 2, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dr'})
             app.addLabel('km', 2, 6, 'text')
 
             app.addLabel('Vertical resolution', 3, 2, 'text')
-            app.addEditField(app.Simulation.dzSimu, 3, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dz'})
+            app.addEditField(app.Simulation.bellhopEnvironment.dzSimu, 3, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dz'})
             app.addLabel('m', 3, 6, 'text')
 
             app.addLabel('SSP interpolation method', 4, 2, 'text')
-            app.addDropDown({'Cubic spline', 'C-linear', 'N-2-linear', 'Quadratic'}, app.Simulation.SspInterpMethodLabel, 4, [4, 7], @app.interpMethodChanged)
+            app.addDropDown({'Cubic spline', 'C-linear', 'N-2-linear', 'Quadratic'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, [4, 7], @app.interpMethodChanged)
             
             app.addLabel('Type of surface', 5, 2, 'text')
-            app.addDropDown({'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.SurfaceTypeLabel, 5, [4, 7], @app.surfaceTypeChanged)
+            app.addDropDown({'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, [4, 7], @app.surfaceTypeChanged)
 
             app.addLabel('Attenuation in the bottom', 6, 2, 'text')
-            app.addDropDown({'db/m'}, app.Simulation.AttenuationUnitLabel, 6, [4, 7], @app.attenuationUnitChanged)
+            app.addDropDown({'db/m'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, [4, 7], @app.attenuationUnitChanged)
 
             app.addLabel('Beam type', 7, 2, 'text')
-            app.addDropDown({'Gaussian beams', 'Geometric rays'}, app.Simulation.beamTypeLabel, 7, [4, 7], @app.beamTypeChanged)
+            app.addDropDown({'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, [4, 7], @app.beamTypeChanged)
         
 
         end
@@ -182,9 +182,9 @@ classdef advancedSettingsUI < handle
         function editFieldChanged(app, hObject, eventData, type)
             switch type 
                 case 'dr'
-                    app.Simulation.drSimu = hObject.Value;
+                    app.Simulation.bellhopEnvironment.drSimu = hObject.Value;
                 case 'dz'
-                    app.Simulation.dzSimu = hObject.Value;
+                    app.Simulation.bellhopEnvironment.dzSimu = hObject.Value;
             end
         end
 

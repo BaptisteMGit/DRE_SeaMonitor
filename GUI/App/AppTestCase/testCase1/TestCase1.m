@@ -39,8 +39,6 @@ classdef TestCase1 < DRESimulation
             obj.bathyEnvironment = BathyEnvironment(source);
 
             %% Mooring 
-%             mooringPos = [-4.37, 52.22, 0]; % [lon0, lat0, hgt0] %
-%             Position used to compute ENU bathy 
             mooringPos.lat = 52.22;
             mooringPos.lon = -4.37;
             % Since 25/01/2022 geoid height (= ellipsoid height) is computed using geoidheigth function   
@@ -52,7 +50,7 @@ classdef TestCase1 < DRESimulation
             
             mooringName = 'TestCase1';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
-            % -> hydrophone 1 meter over the seafloor 
+            % -> hydrophone 1.5 meter over the seafloor 
             
             obj.mooring = Mooring(mooringPos, mooringName, hydroDepth, deploymentDate);
             
@@ -67,8 +65,9 @@ classdef TestCase1 < DRESimulation
             obj.marineMammal = porpoise;
 
             %% Simulation parameters 
-            obj.drSimu = 0.001;
-            obj.dzSimu = 0.1;
+            obj.bellhopEnvironment = BellhopEnvironment;
+            obj.bellhopEnvironment.drSimu = 0.001;
+            obj.bellhopEnvironment.dzSimu = 0.1;
             
             %% Detector 
             obj.detector = CPOD();
