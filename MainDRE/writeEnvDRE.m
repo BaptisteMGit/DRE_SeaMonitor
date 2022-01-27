@@ -10,7 +10,7 @@ ssp = getVararginValue(varargin, 'SSP', []);% CHECK
 bott = getVararginValue(varargin, 'BOTTOM', []);% CHECK
 Pos = getVararginValue(varargin, 'Pos', '');% CHECK
 Beam = getVararginValue(varargin, 'Beam', '');% CHECK
-topOption = getVararginValue(varargin, 'topOption', 'SVW');% CHECK
+SspOption = getVararginValue(varargin, 'SspOption', 'SVW');% CHECK
 
 cInt = getVararginValue(varargin, 'cInt', '');% CHECK
 RMax = getVararginValue(varargin, 'RMax', 100);% CHECK
@@ -43,7 +43,7 @@ SSP.depth = [0, max(ssp.z)]; % Depth of the different water layers (for the mome
 
 %% Boundary 
 % Top 
-Bdry.Top.Opt = topOption;
+Bdry.Top.Opt = SspOption;
 % Bottom
 Bdry.Bot.Opt = 'A*'; % 'A': acoustic half space, '*' : use of bathymetry file with format '.bty' 
 Bdry.Bot.HS.c = bott.c; % Sound celerity in bottom half space 

@@ -10,7 +10,7 @@ classdef Mooring < handle
 
     properties (Hidden)
         mooringNameDefault ='SeaMonitor';
-        mooringPosDefault = [-6.9, 55.5]; % SeaMonitor position 
+        mooringPosDefault = struct('lon', -6.9, 'lat', 55.5); % SeaMonitor position 
         hydrophoneDepthDefault = -10;
         deploymentDateDefault = struct('startDate', '2021-01-01 12:00:00', 'stopDate', '2021-01-10 12:00:00');
     end

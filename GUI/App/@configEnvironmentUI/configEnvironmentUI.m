@@ -122,7 +122,7 @@ classdef configEnvironmentUI < handle
             app.addDropDown({'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
 
             % Specie
-            app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 8, [4, 7], @app.specieChanged)
+            app.addDropDown({'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 8, [4, 7], @app.specieChanged)
             % Hydrophone
             app.addDropDown({'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 10, [4, 7], @app.detectorChanged)
             % Noise level model
@@ -232,22 +232,6 @@ classdef configEnvironmentUI < handle
 
         function updateLabel(app)
             app.Label.Position = app.lPosition;
-        end
-
-        function selectBathyFile(app, hObject, eventData)
-            [file, path, indx] = uigetfile({'*.nc', 'NETCDF'; ...
-                                            '*.csv;*.txt','Text File'}, ...
-                                            'Select a File');
-            if indx == 1 % File is a csv
-                app.Simulation.bathyFileType = 'CSV';                
-            elseif indx == 2 % File is a netcdf
-                app.Simulation.bathyFileType = 'NETCDF';
-            end 
-
-            app.Simulation.bathyEnvironment.rootBathy = path;
-            app.Simulation.bathyEnvironment.bathyFile = file;
-            
-            set(app.handleEditField(1), 'Value', file)
         end
         
         function bathySourceChanged(app, hObject, eventData)
@@ -364,18 +348,9 @@ classdef configEnvironmentUI < handle
     % Functions to ensure all parameters are fitting with the program
     % expectations 
     methods
-        function assertDialogBox(app, cond, message, title, icon)
-            % icon = 'error', 'warning', 'info'
-            if ~cond
-                for msg = message
-                    uialert(app.Figure, message, title, 'Icon', icon);
-                end
-            end
-        end
-
         function checkBathyEnvironment(app)
             [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
-            app.assertDialogBox(bool, msg, 'Bathymetry environment warning', 'warning')
+            assertDialogBox(app, bool, msg, 'Bathymetry environment warning', 'warning')
         end
 
         function checkNoiseEnvironment(app)
@@ -386,7 +361,7 @@ classdef configEnvironmentUI < handle
 
         function checkMooring(app)
             [bool, msg] = app.Simulation.mooring.checkParametersValidity;
-            app.assertDialogBox(bool, msg, 'Mooring environment warning', 'warning')
+            assertDialogBox(app, bool, msg, 'Mooring environment warning', 'warning')
         end
 
 
@@ -401,7 +376,8 @@ classdef configEnvironmentUI < handle
 
         
         function checkBellhopParameters(app)
-            
+            [bool, msg] = app.Simulation.mooring.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Mooring environment warning', 'warning')
         end
 
         function checkAll(app)

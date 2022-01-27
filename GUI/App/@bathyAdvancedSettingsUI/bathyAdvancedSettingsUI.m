@@ -257,6 +257,11 @@ classdef bathyAdvancedSettingsUI < handle
             % Close UI
             close(app.Figure)
         end
+
+        function checkBathyEnvironment(app)
+            [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Bathymetry environment warning', 'warning')
+        end
     end
 
     %% Get methods for dependent properties 

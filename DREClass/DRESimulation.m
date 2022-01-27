@@ -12,6 +12,7 @@
         oceanEnvironment  % Handle ocean parameters (Temperature, Salinity, pH) 
         noiseLevel        % Handle ambient noise level parameters (value and computation methods)          
         % Simulation
+        bellhopEnvironment
         drSimu            % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
         dzSimu            % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
         % Bellhop parameters 
@@ -25,7 +26,7 @@
     end
     
     properties (Hidden)
-        topOption = 'SVM'; % M for attenuation in dB/m
+        SspOption = 'SVM'; % M for attenuation in dB/m
         interpMethodBTY = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         dataBathy
         
@@ -68,15 +69,19 @@
         dBox % Depth box 
 
         % Bellhop
-        runTypeName
-        beamTypeName
+        SspInterpMethodLabel
+        SurfaceTypeLabel
+        AttenuationUnitLabel
+        runTypeLabel
+        beamTypeLabel
     end
 
     %% Constructor 
     methods
         function obj = DRESimulation(bathyEnv, moor, mammal, det, dr, dz)
 
-            obj.setDefault 
+            obj.setDefault() 
+            obj.setBeam()
 
             % Bathy env 
             if nargin >= 1
@@ -213,7 +218,7 @@
             dBox = getdBox(0, obj.maxBathyDepth);
         end
 
-        function runTypeName = get.runTypeName(obj)
+        function runTypeName = get.runTypeLabel(obj)
             switch obj.beam.RunType(1) 
                 case 'C'
                     runTypeName = 'Coherent';
@@ -224,14 +229,46 @@
             end
         end
 
-        function beamTypeName = get.beamTypeName(obj)
+        function beamTypeName = get.beamTypeLabel(obj)
             switch obj.beam.RunType(2) 
                 case 'G'
                     beamTypeName = 'Geometric rays';
                 case 'B'
-                    beamTypeName = 'Gaussian beam bundles';
+                    beamTypeName = 'Gaussian beams';
             end
         end
+
+        function intMethod = get.SspInterpMethodLabel(app)
+            switch app.SspOption(1)
+                case 'S'
+                    intMethod = 'Cubic spline';
+                case 'C' 
+                    intMethod = 'C-linear';
+                case 'N' 
+                    intMethod = 'N-2-linear';
+                case 'Q'
+                    intMethod = 'Quadratic';
+            end
+        end
+
+        function sType = get.SurfaceTypeLabel(app)
+            switch app.SspOption(2)
+                case 'V'
+                    sType = 'Vacuum above surface';
+                case 'R' 
+                    sType = 'Perfectly rigid media above surface';
+                case 'A' 
+                    sType = 'Acoustic half-space';
+            end
+        end
+
+        function attUnit = get.AttenuationUnitLabel(app)
+            switch app.SspOption(3)
+                case 'M'
+                    attUnit = 'db/m';
+            end
+        end
+
     end
 
     %% Simulation methods  
@@ -258,7 +295,6 @@
             
             d.Message = 'Setting up the environment...';
             obj.setSource();
-            obj.setBeam();
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
@@ -449,9 +485,9 @@
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'BELLHOP parameters\n\n');
             fprintf(fileID, '\tNumber of beams = %d\n', obj.beam.Nbeams);
-            fprintf(fileID, '\tTL = %s\n', obj.runTypeName);
-            fprintf(fileID, '\tBeam type = %s\n', obj.beamTypeName);
-            fprintf(fileID, '\tTop option = %s\n', obj.topOption);
+            fprintf(fileID, '\tTL = %s\n', obj.runTypeLabel);
+            fprintf(fileID, '\tBeam type = %s\n', obj.beamTypeLabel);
+            fprintf(fileID, '\tSsp option = %s\n', obj.SspOption);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Environment\n\n');
             fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseLevel);
@@ -582,7 +618,7 @@
 
             freq = obj.marineMammal.signal.centroidFrequency;
             varEnv = {'envfil', envfile, 'freq', freq, 'SSP', obj.ssp, 'Pos', obj.receiverPos,...
-                'Beam', obj.beam, 'BOTTOM', obj.bottom, 'topOption', obj.topOption, 'TitleEnv', nameProfile};
+                'Beam', obj.beam, 'BOTTOM', obj.bottom, 'SspOption', obj.SspOption, 'TitleEnv', nameProfile};
             writeEnvDRE(varEnv{:})
             fprintf('\n--> DONE <--\n');
         end

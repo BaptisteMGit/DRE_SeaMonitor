@@ -74,15 +74,18 @@ classdef advancedSettingsUI < handle
             app.addEditField(app.Simulation.dzSimu, 3, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dz'})
             app.addLabel('m', 3, 6, 'text')
 
-            app.addLabel('Interpolation methods', 4, 2, 'text')
-            app.addDropDown({'Cubic spline', 'C-linear', 'N-2-linear', 'Quadratic'}, app.InterpMethod, 4, [4, 7], @app.referenceFrameChanged)
+            app.addLabel('SSP interpolation method', 4, 2, 'text')
+            app.addDropDown({'Cubic spline', 'C-linear', 'N-2-linear', 'Quadratic'}, app.Simulation.SspInterpMethodLabel, 4, [4, 7], @app.interpMethodChanged)
             
             app.addLabel('Type of surface', 5, 2, 'text')
-            app.addDropDown({'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.SurfaceType, 5, [4, 7], @app.referenceFrameChanged)
+            app.addDropDown({'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.SurfaceTypeLabel, 5, [4, 7], @app.surfaceTypeChanged)
 
-            app.addLabel('Beam type', 6, 2, 'text')
-            app.addDropDown({'Gaussian beams', 'Geometric beams'}, app.BeamType, 6, [4, 7], @app.referenceFrameChanged)
+            app.addLabel('Attenuation in the bottom', 6, 2, 'text')
+            app.addDropDown({'db/m'}, app.Simulation.AttenuationUnitLabel, 6, [4, 7], @app.attenuationUnitChanged)
 
+            app.addLabel('Beam type', 7, 2, 'text')
+            app.addDropDown({'Gaussian beams', 'Geometric rays'}, app.Simulation.beamTypeLabel, 7, [4, 7], @app.beamTypeChanged)
+        
 
         end
     end
@@ -147,39 +150,31 @@ classdef advancedSettingsUI < handle
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
         end
+% 
+%         function intMethod = get.SspInterpMethod(app)
+%             switch app.Simulation.SspOption(1)
+%                 case 'S'
+%                     intMethod = 'Cubic spline';
+%                 case 'C' 
+%                     intMethod = 'C-linear';
+%                 case 'N' 
+%                     intMethod = 'N-2-linear';
+%                 case 'Q'
+%                     intMethod = 'Quadratic';
+%             end
+%         end
+% 
+%         function sType = get.SurfaceType(app)
+%             switch app.Simulation.SspOption(2)
+%                 case 'V'
+%                     sType = 'Vacuum above surface';
+%                 case 'R' 
+%                     sType = 'Perfectly rigid media above surface';
+%                 case 'A' 
+%                     sType = 'Acoustic half-space';
+%             end
+%         end
 
-        function intMethod = get.InterpMethod(app)
-            switch app.Simulation.topOption(1)
-                case 'S'
-                    intMethod = 'Cubic spline';
-                case 'C' 
-                    intMethod = 'C-linear';
-                case 'N' 
-                    intMethod = 'N-2-linear';
-                case 'Q'
-                    intMethod = 'Quadratic';
-            end
-        end
-
-        function sType = get.SurfaceType(app)
-            switch app.Simulation.topOption(2)
-                case 'V'
-                    sType = 'Vacuum above surface';
-                case 'R' 
-                    sType = 'Perfectly rigid media above surface';
-                case 'A' 
-                    sType = 'Acoustic half-space';
-            end
-        end
-
-        function bType = get.BeamType(app)
-            switch app.Simulation.beam.RunType(2)
-                case 'G'
-                    bType = 'Geometric beams';
-                case 'B' 
-                    bType = 'Gaussian beams';
-            end
-        end
     end
 
     methods
@@ -190,19 +185,21 @@ classdef advancedSettingsUI < handle
                     app.Simulation.drSimu = hObject.Value;
                 case 'dz'
                     app.Simulation.dzSimu = hObject.Value;
-                case 'XPos'
-                    app.Simulation.mooring.mooringPos(1) = hObject.Value;
-                case 'YPos'
-                    app.Simulation.mooring.mooringPos(2) = hObject.Value;
-                case 'ZPos'
-                    app.Simulation.mooring.mooringPos(3) = hObject.Value;
-                case 'hydroDepth'
-                    app.Simulation.mooring.hydrophoneDepth = hObject.Value;
             end
         end
 
         function closeWindowCallback(app, hObject, eventData)
             closeWindowCallback(app.childWindows, hObject, eventData)
+        end
+
+        function interpMethodChanged(app)
+            
+        end
+
+        function beamTypeChanged(app)
+        end
+        
+        function surfaceTypeChanged(app)
         end
     end
 end
