@@ -1,21 +1,28 @@
-classdef Mooring
+classdef Mooring < handle
     
     properties
-        mooringName = 'DefaultMooringName';   % Name of the considered mooring
+        mooringName  % Name of the considered mooring
 %         mooringPos = [0, 0, 0];   % Position of the mooring [lon0, lat0, hgt0]
         mooringPos % Struct with fields lon, lat, hgt
-        hydrophoneDepth = 5; % Depth of the hydrophone (for source position)
+        hydrophoneDepth % Depth of the hydrophone (for source position)
         deploymentDate % yyyy-mm-dd hh:mm:ss
+    end
+
+    properties (Hidden)
+        mooringNameDefault ='SeaMonitor';
+        mooringPosDefault = [-6.9, 55.5]; % SeaMonitor position 
+        hydrophoneDepthDefault = -10;
+        deploymentDateDefault = struct('startDate', '2021-01-01 12:00:00', 'stopDate', '2021-01-10 12:00:00');
     end
 
     methods 
         function obj = Mooring(moorPos, moorName, hydroDepth, depDate)
-            
+
+            obj.setDefault
+
             % mooringName 
             if nargin >= 1
                 obj.mooringName = moorName;
-            else
-                obj.mooringPos % TODO: check the purpose of this line 
             end
 
             % mooringPos
@@ -38,10 +45,36 @@ classdef Mooring
             % Deployement date 
             if nargin >= 4
                 obj.deploymentDate = depDate;
-            else
-                obj.deploymentDate.startDate = '2022-01-01 12:00:00';
-                obj.deploymentDate.stopDate = '2022-01-01 12:00:00';
             end
         end
-    end         
+    end    
+
+    methods 
+
+        function setDefault(obj)
+            obj.mooringName = obj.mooringNameDefault;
+            obj.mooringPos = obj.mooringPosDefault;
+            obj.hydrophoneDepth = obj.hydrophoneDepthDefault;
+            obj.deploymentDate = obj.deploymentDateDefault;
+        end
+
+        function [bool, msg] = checkParametersValidity(obj)
+            bool = 1; 
+            msg = {};
+
+            d1 = obj.deploymentDate.startDate;
+            d2 = obj.deploymentDate.stopDate;
+            dStart = datetime(d1);
+            dStop = datetime(d2);
+
+            if dStop < dStart
+                bool = 0;
+                % Swaping dates 
+                obj.deploymentDate.startDate = d2;
+                obj.deploymentDate.stopDate = d1;
+                msg{end+1} = sprintf('Invalid dates, equipment recovery occurs before deployement! Dates have been inverted to avoid further problems.\nStart: %s, Stop: %s', ...
+                    obj.deploymentDate.startDate, obj.deploymentDate.stopDate);
+            end
+        end
+    end
 end  

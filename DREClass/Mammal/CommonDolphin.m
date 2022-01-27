@@ -1,4 +1,4 @@
-classdef CommonBottlenoseDolphin < MarineMammal
+classdef CommonDolphin < MarineMammal
     properties
     end
 
@@ -17,13 +17,13 @@ classdef CommonBottlenoseDolphin < MarineMammal
     end
 
     methods
-        function obj = CommonBottlenoseDolphin()
+        function obj = CommonDolphin()
             obj.signal = Click(obj.centroidFrequency, obj.bandWidth, obj.signalEnergy, obj.signalLength,...
                 obj.directivityIndex, obj.sourceLevel, obj.meanICI, obj.peakFrequency);
             obj.rMax = 1500; % TODO: check literature (rMax is inherited from MarineMammal)
             obj.livingDepth = 25;
             obj.deltaLivingDepth = 100;
-            obj.name = 'Common bottlenose dolphin';
+            obj.name = 'Common dolphin';
         end 
 
         function obj = set.centroidFrequency(obj, f)

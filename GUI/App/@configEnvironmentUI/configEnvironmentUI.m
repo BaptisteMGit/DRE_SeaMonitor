@@ -29,11 +29,11 @@ classdef configEnvironmentUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 700;
+        Width = 575;
         Height = 600;
         % Number of components 
-        glNRow = 18;
-        glNCol = 11;
+        glNRow = 16;
+        glNCol = 9;
         
         % Labels visual properties 
         LabelFontName = 'Arial';
@@ -74,15 +74,11 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{5} = 50;
             app.GridLayout.ColumnWidth{6} = 50;
             app.GridLayout.ColumnWidth{7} = 50;
-            app.GridLayout.ColumnWidth{8} = 50;
-            app.GridLayout.ColumnWidth{9} = 50;
-            app.GridLayout.ColumnWidth{10} = 5;
-            app.GridLayout.ColumnWidth{11} = 110;
+            app.GridLayout.ColumnWidth{8} = 5;
+            app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{15} = 5;
-            app.GridLayout.RowHeight{16} = 30;
-            app.GridLayout.RowHeight{17} = 5;
-            app.GridLayout.RowHeight{18} = 30;
+            app.GridLayout.RowHeight{15} = 30;
+
 
             % Labels 
             % Bathymetry 
@@ -92,58 +88,58 @@ classdef configEnvironmentUI < handle
 %             app.addLabel('Resolution', 4, 2, 'text')
 %             app.addLabel('m', 4, 6, 'text')
             % Mooring
-            app.addLabel('Mooring', 5, [1, 2], 'title')
-            app.addLabel('Name', 6, 2, 'text')
-            app.addLabel('Position', 7, 2, 'text')
-            app.addLabel('Hydrophone Depth', 8, 2, 'text')
+            app.addLabel('Mooring', 3, [1, 2], 'title')
+            app.addLabel('Name', 4, 2, 'text')
+            app.addLabel('Position', 5, 2, 'text')
+            app.addLabel('Hydrophone Depth', 6, 2, 'text')
             hydrophoneDepthTooltip = ['Hydrophone Depth is counted positive ',...
                                 'from surface toward bottom. You can also set ', ...
                                 'negative depth to reference an altitude over the seabed.'];
-            app.addLabel('m', 8, [6, 11], 'text', 'left', hydrophoneDepthTooltip)
-            app.addLabel(app.MooringPosLabel(1), 7, 4, 'text', 'right')
-            app.addLabel(app.MooringPosLabel(2), 7, 6, 'text', 'right')
-            app.addLabel(app.MooringPosLabel(3), 7, 8, 'text', 'right')
+            app.addLabel('m', 6, [6, 11], 'text', 'left', hydrophoneDepthTooltip)
+            app.addLabel(app.MooringPosLabel(1), 5, 4, 'text', 'right')
+            app.addLabel(app.MooringPosLabel(2), 5, 6, 'text', 'right')
             % Marine mammal 
-            app.addLabel('Marine mammal', 9, [1, 2], 'title')
-            app.addLabel('Specie', 10, 2, 'text')
+            app.addLabel('Marine mammal', 7, [1, 2], 'title')
+            app.addLabel('Specie', 8, 2, 'text')
             % Detector
-            app.addLabel('Equipment', 11, [1, 2], 'title')
-            app.addLabel('Hydrophone', 12, 2, 'text')
+            app.addLabel('Equipment', 9, [1, 2], 'title')
+            app.addLabel('Hydrophone', 10, 2, 'text')
             % Noise level 
-            app.addLabel('Noise level', 13, [1, 2], 'title')
-            app.addLabel('Computing model', 14, 2, 'text')
+            app.addLabel('Noise level', 11, [1, 2], 'title')
+            app.addLabel('Computing model', 12, 2, 'text')
+            % Bellhop 
+            app.addLabel('Bellhop parameters', 13, [1, 2], 'title')
 
             % Edit field
             % Mooring
-            app.addEditField(app.Simulation.mooring.mooringName, 6, [4, 9], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            app.addEditField(app.Simulation.mooring.mooringPos.lon, 7, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos.lat, 7, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos.hgt, 7, 9, [], 'numeric', {@app.editFieldChanged, 'ZPos'}) % Z Pos 
-            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 8, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
+            app.addEditField(app.Simulation.mooring.mooringName, 4, [4, 7], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
+            app.addEditField(app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
+            app.addEditField(app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
+            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             
             % Drop down 
             % Bathymetry 
             app.addDropDown({'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
 
             % Specie
-            app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 10, [4, 9], @app.specieChanged)
+            app.addDropDown({'Common bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 8, [4, 7], @app.specieChanged)
             % Hydrophone
-            app.addDropDown({'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 12, [4, 7], @app.detectorChanged)
+            app.addDropDown({'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 10, [4, 7], @app.detectorChanged)
             % Noise level model
-            app.addDropDown({'Computed from data', 'basic model'}, 'basic model', 14, [4, 7], @app.noiseLevelChanged)
+            app.addDropDown({'Measure from recording', 'Model', 'Input value'}, 'Measure from recording', 12, [4, 7], @app.noiseLevelChanged)
 
             % Buttons
             % Edit specie 
-            app.addButton('Edit properties', 10, 11, @app.editMarinneMammalProperties)
+            app.addButton('Edit properties', 8, 9, @app.editMarinneMammalProperties)
             % Edit hydrophone
-            app.addButton('Edit properties', 12, 11, @app.editDetectorProperties)
+            app.addButton('Edit properties', 10, 9, @app.editDetectorProperties)
             % Edit noise level 
-            app.addButton('Edit properties', 14, 11, @app.editNoiseLevelPorperties)
+            app.addButton('Edit properties', 12, 9, @app.editNoiseLevelPorperties)
             
             % Advanced settings 
-            app.addButton('Advanced simulation settings', 16, [9, 11], @app.advancedSettings)
+            app.addButton('Advanced simulation settings', 14, [4, 9], @app.advancedSettings)
             % Save settings 
-            app.addButton('Save settings', 18, [5, 8], @app.saveSettings)
+            app.addButton('Save settings', 16, [5, 8], @app.saveSettings)
         end
     end
     
@@ -265,7 +261,7 @@ classdef configEnvironmentUI < handle
         function specieChanged(app, hObject, eventData)
             switch get(app.handleDropDown(2), 'Value')
                 case 'Common bottlenose dolphin'
-                    newSpecie = CommonBottlenoseDolphin;
+                    newSpecie = CommonDolphin;
                 case 'Porpoise'
                     newSpecie = Porpoise;
             end
@@ -286,28 +282,23 @@ classdef configEnvironmentUI < handle
 
         function noiseLevelChanged(app, hObject, eventData)
             switch get(app.handleDropDown(3), 'Value')
-                case 'CPOD'
-                    newDetector = CPOD;
-                case 'FPOD'
-                    newDetector = FPOD;
-               case 'SoundTrap'
-                    newDetector = SoundTrap;
+                case 'Measure from recording'
+                    % TODO: open recording window to select the file 
+                case 'Model'
+                    % TODO: compute with model 
+               case 'Input value'
+                    % TODO: open window to input value 
             end
-%             app.Simulation.noise
         end
 
         function editFieldChanged(app, hObject, eventData, type)
             switch type 
-                case 'drBathy'
-                    app.Simulation.bathyEnvironment.drBathy = hObject.Value;
                 case 'mooringName'
                     app.Simulation.mooring.mooringName = regexprep(hObject.Value, ' ', ''); % Remove blanks
                 case 'XPos'
                     app.Simulation.mooring.mooringPos.lat = hObject.Value;
                 case 'YPos'
                     app.Simulation.mooring.mooringPos.lon = hObject.Value;
-                case 'ZPos'
-                    app.Simulation.mooring.mooringPos.hgt = hObject.Value;
                 case 'hydroDepth'
                     app.Simulation.mooring.hydrophoneDepth = hObject.Value;
             end
@@ -335,6 +326,8 @@ classdef configEnvironmentUI < handle
         end
         
         function saveSettings(app, hObject, eventData)
+            % Check user choices 
+            app.checkAll
             % Close UI
             close(app.Figure)
         end
@@ -366,4 +359,59 @@ classdef configEnvironmentUI < handle
             set(app.handleLabel(13), 'Text', moorPosLabels(3))
         end
     end
+
+    %% Check functions 
+    % Functions to ensure all parameters are fitting with the program
+    % expectations 
+    methods
+        function assertDialogBox(app, cond, message, title, icon)
+            % icon = 'error', 'warning', 'info'
+            if ~cond
+                for msg = message
+                    uialert(app.Figure, message, title, 'Icon', icon);
+                end
+            end
+        end
+
+        function checkBathyEnvironment(app)
+            [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
+            app.assertDialogBox(bool, msg, 'Bathymetry environment warning', 'warning')
+        end
+
+        function checkNoiseEnvironment(app)
+%             [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
+%             app.assertDialogBox(bool, msg, 'Bathymetry environment failed', 'warning')
+        end
+
+
+        function checkMooring(app)
+            [bool, msg] = app.Simulation.mooring.checkParametersValidity;
+            app.assertDialogBox(bool, msg, 'Mooring environment warning', 'warning')
+        end
+
+
+        function checkDetector(app)
+            
+        end
+
+
+        function checkMarineMammal(app)
+            
+        end
+
+        
+        function checkBellhopParameters(app)
+            
+        end
+
+        function checkAll(app)
+            app.checkBathyEnvironment
+            app.checkNoiseEnvironment
+            app.checkMooring
+            app.checkDetector
+            app.checkMarineMammal
+            app.checkBellhopParameters
+        end
+    end
+    
 end

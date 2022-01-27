@@ -1,21 +1,21 @@
  classdef DRESimulation < handle
     properties
         % Bathymetry
-        bathyEnvironment = BathyEnvironment;        
+        bathyEnvironment      
         % Mooring 
-        mooring = Mooring;
+        mooring 
         % Marine mammal to simulate 
-        marineMammal = CommonBottlenoseDolphin;
+        marineMammal
         % Detector 
-        detector = CPOD; 
+        detector
         % Env parameters
         oceanEnvironment  % Handle ocean parameters (Temperature, Salinity, pH) 
-        noiseLevel
+        noiseLevel        % Handle ambient noise level parameters (value and computation methods)          
         % Simulation
-        drSimu = 0.01;                      % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
-        dzSimu = 0.5;                       % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
+        drSimu            % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
+        dzSimu            % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
         % Bellhop parameters 
-        listAz = 0.1:10:360.1;
+        listAz
         % Output
         listDetectionRange
         % Folder to save the result 
@@ -75,6 +75,9 @@
     %% Constructor 
     methods
         function obj = DRESimulation(bathyEnv, moor, mammal, det, dr, dz)
+
+            obj.setDefault 
+
             % Bathy env 
             if nargin >= 1
                 obj.bathyEnvironment = bathyEnv;
@@ -107,6 +110,17 @@
         end
     end 
     
+    methods 
+        function setDefault(obj)
+            obj.bathyEnvironment = BathyEnvironment;
+            obj.mooring = Mooring;
+            obj.marineMammal = Porpoise;
+            obj.detector = CPOD; 
+            obj.drSimu = 0.01;                      
+            obj.dzSimu = 0.5;  
+            obj.listAz = 0.1:10:360.1;            
+        end
+    end 
     %% Set methods 
     methods 
         function set.marineMammal(obj, mMammal)
@@ -249,12 +263,15 @@
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
                         
-            flag = 0; % flag to ensure the all process as terminate without error 
+            flag = 0; % flag to ensure the all process as terminate without error
+            flagBreak = 0; % flag to write msg in log file when user cancel the simulation
+
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
 
                 % Check for Cancel button press
                 if d.CancelRequested
+                    flagBreak = ~flagBreak;
                     break
                 end
 
@@ -276,9 +293,7 @@
                 obj.writeEnvirnoment(nameProfile)
 
                 % Write log header 
-                if i_theta == 1
-                    obj.writeLogHeader
-                end
+                if i_theta == 1; obj.writeLogHeader; end
 
                 % Run
                 obj.runBellhop(nameProfile)
@@ -298,19 +313,22 @@
 
             end   
             
-            close(d)
-            if flag
+            close(d) 
+            
+            if flag % The all process terminated without any error 
                 % Plot detection range (polar plot and map) 
                 obj.plotDR()
                 % Write CPU time to the log file 
                 obj.CPUtime = toc(tStart);
                 obj.writeLogEnd
-            else
+
+            elseif flagBreak % The process has been interrupted by the user clicking cancel 
+                obj.writeLogCancel
+
+            else % The process stoped because of an internal error 
                 % Write error message to log file  
                 obj.writeLogError
             end
-            
-
         end
 
         function recomputeDRE(obj)
@@ -333,14 +351,16 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
-                        
-            flag = 1; % flag to ensure the all process as terminate without error 
+
+            flag = 0; % flag to ensure the all process as terminate without error
+            flagBreak = 0; % flag to write msg in log file when user cancel the simulation
+
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
 
                 % Check for Cancel button press
                 if d.CancelRequested
-                    flag = 0;
+                    flagBreak = ~flagBreak;
                     break
                 end
 
@@ -358,19 +378,30 @@
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
                 obj.addDetectionRange(nameProfile);
+
+                % Switch flag when the all process is over with no problem 
+                if i_theta == length(obj.listAz); flag = ~flag; end 
             end   
             
             close(d)
-            if flag
+            if flag % The all process terminated without any error 
                 % Plot detection range (polar plot and map) 
                 obj.plotDR()
+                % Write CPU time to the log file 
+                obj.CPUtime = toc(tStart);
+                obj.writeLogEnd
+
+            elseif flagBreak % The process has been interrupted by the user clicking cancel 
+                obj.writeLogCancel
+
+            else % The process stoped because of an internal error 
+                % Write error message to log file  
+                obj.writeLogError
             end
-            obj.CPUtime = toc(tStart);
-            obj.writeLogEnd
         end
 
         function getBathyData(obj)
-            % Query subset data from GEBCO global frid 
+            % Query subset data from GEBCO global grid 
             if strcmp(obj.bathyEnvironment.source, 'GEBCO2021')
                 bathyFile = extratBathybBoxFromGEBCOGlobal(obj.bBox, obj.rootSaveInput);
                 obj.bathyEnvironment.rootBathy = obj.rootSaveInput;
@@ -433,7 +464,13 @@
         
         function writeLogError(obj)
             fileID = fopen(obj.logFile, 'a');
-            fprintf(fileID, '\nExecution as been interupted !');
+            fprintf(fileID, '\nExecution has failed.');
+            fclose(fileID);
+        end
+
+        function writeLogCancel(obj)
+            fileID = fopen(obj.logFile, 'a');
+            fprintf(fileID, '\nExecution has been canceled by user.');
             fclose(fileID);
         end
 

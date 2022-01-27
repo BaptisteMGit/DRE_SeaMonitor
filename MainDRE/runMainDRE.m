@@ -19,7 +19,7 @@ bathyEnv = BathyEnvironment(rootBathy, bathyFile, inputSRC, drBathy);
 hydroDepth = 10;
 mooring = Mooring(mooringPos, mooringName, hydroDepth);
 
-dolphin = CommonBottlenoseDolphin();
+dolphin = CommonDolphin();
 
 detector = CPOD();
 
