@@ -84,77 +84,21 @@ classdef recomputeUI < handle
             app.GridLayout.RowHeight{6} = 30;
 
             % Labels 
-            app.addLabel('Noise level', 2, 2, 'text')
-            app.addLabel('dB', 2, 4, 'text')
-            app.addLabel('Detection range', 4, 2, 'text')
-            app.addLabel('dB', 4, 4, 'text')
+            addLabel(app, 'Noise level', 2, 2, 'text')
+            addLabel(app, 'dB', 2, 4, 'text')
+            addLabel(app, 'Detection range', 4, 2, 'text')
+            addLabel(app, 'dB', 4, 4, 'text')
 
             % Edit field
-            app.addEditField(app.Simulation.noiseLevel, 2, 3, [], 'numeric', {@app.editFieldChanged, 'NL'}) 
-            app.addEditField(app.Simulation.detector.detectionThreshold, 4, 3, [], 'numeric', {@app.editFieldChanged, 'DR'}) % Bathy resolution 
+            addEditField(app, app.Simulation.noiseLevel, 2, 3, [], 'numeric', {@app.editFieldChanged, 'NL'}) 
+            addEditField(app, app.Simulation.detector.detectionThreshold, 4, 3, [], 'numeric', {@app.editFieldChanged, 'DR'}) % Bathy resolution 
             
             % Button
-            app.addButton('Recompute', 6, [2, 4], @app.recomputeButtonPushed)
+            addButton(app, 'Recompute', 6, [2, 4], @app.recomputeButtonPushed)
 
         end
     end
     
-    %% Set up methods 
-    methods
-        function addLabel(app, txt, nRow, nCol, labelType, varargin)
-            % Create label 
-            label = uilabel(app.GridLayout, ...
-                        'Text', txt, ...
-                        'HorizontalAlignment', 'left', ...
-                        'FontName', app.LabelFontName, ...
-                        'VerticalAlignment', 'center');
-            if length(varargin) >= 1
-                label.HorizontalAlignment = varargin{1};
-            end
-            if length(varargin) >= 2
-                label.Tooltip = varargin{2};
-            end
-            % Set label position in grid layout 
-            label.Layout.Row = nRow;
-            label.Layout.Column = nCol;
-            % Set Font parameters depending of type 
-            if strcmp(labelType, 'title')
-                label.FontSize = app.LabelFontSize_title;
-                label.FontWeight = app.LabelFontWeight_title;
-            elseif strcmp(labelType, 'text')
-                label.FontWeight = app.LabelFontWeight_text;
-                label.FontSize = app.LabelFontSize_text;
-            end
-            % Store handle to created label
-            app.handleLabel = [app.handleLabel, label];
-        end
-
-        function addEditField(app, val, nRow, nCol, placeHolder, style, varargin)
-            editField = uieditfield(app.GridLayout, style, ...
-                        'Value', val);
-            if isempty(val) && ~isempty(placeHolder)
-                editField.Placeholder = placeHolder;
-            end
-            if length(varargin) >= 1
-                editField.ValueChangedFcn = varargin{1};
-            end
-            % Set edit field position in grid layout 
-            editField.Layout.Row = nRow;
-            editField.Layout.Column = nCol;
-            app.handleEditField = [app.handleEditField, editField];
-        end
-
-       function addButton(app, name, nRow, nCol, callbackFunction)
-            button = uibutton(app.GridLayout, ...
-                        'Text', name, ...
-                        'ButtonPushedFcn', callbackFunction);
-            % Set edit field position in grid layout 
-            button.Layout.Row = nRow;
-            button.Layout.Column = nCol;
-            app.handleButton = [app.handleButton, button];
-        end
-
-    end
 
     %% Callback functions 
     methods

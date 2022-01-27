@@ -8,13 +8,12 @@
         marineMammal
         % Detector 
         detector
-        % Env parameters
+        % Ocean
         oceanEnvironment  % Handle ocean parameters (Temperature, Salinity, pH) 
-        noiseLevel        % Handle ambient noise level parameters (value and computation methods)          
+        % Ambient noise
+        noiseEnvironment        % Handle ambient noise level parameters (value, computation methods, frequency, BW, soundFile)          
         % Simulation
         bellhopEnvironment
-%         drSimu            % Range step (km) between receivers: more receivers increase accuracy but also increase CPU time 
-%         dzSimu            % Depth step (m) between receivers: more receivers increase accuracy but also increase CPU time
         % Azimuths 
         listAz
         % Output
@@ -432,7 +431,7 @@
             fprintf(fileID, '\tSsp option = %s\n', obj.bellhopEnvironment.SspOption);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Environment\n\n');
-            fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseLevel);
+            fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
             fprintf(fileID, '\tCompression wave attenuation = %3.4f dB/m\n', obj.cwa);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Estimating detection range\n\n');
@@ -675,7 +674,7 @@
             cd(obj.rootOutputFiles)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSpl(varSpl{:});
-            computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseLevel,...
+            computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
             detectionRange = computeDetectionRange(computeArgin{:});
 

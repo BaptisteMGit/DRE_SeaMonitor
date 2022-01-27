@@ -82,135 +82,66 @@ classdef configEnvironmentUI < handle
 
             % Labels 
             % Bathymetry 
-            app.addLabel('Bathymetry', 1, [1, 2], 'title')
-            app.addLabel('Source', 2, 2, 'text')
-%             app.addLabel('Reference Frame', 3, 2, 'text')
-%             app.addLabel('Resolution', 4, 2, 'text')
-%             app.addLabel('m', 4, 6, 'text')
+            addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
+            addLabel(app, 'Source', 2, 2, 'text')
+%             addLabel(app, 'Reference Frame', 3, 2, 'text')
+%             addLabel(app, 'Resolution', 4, 2, 'text')
+%             addLabel(app, 'm', 4, 6, 'text')
             % Mooring
-            app.addLabel('Mooring', 3, [1, 2], 'title')
-            app.addLabel('Name', 4, 2, 'text')
-            app.addLabel('Position', 5, 2, 'text')
-            app.addLabel('Hydrophone Depth', 6, 2, 'text')
-            hydrophoneDepthTooltip = ['Hydrophone Depth is counted positive ',...
+            addLabel(app, 'Equipment', 3, [1, 2], 'title')
+            addLabel(app, 'Name of the study', 4, 2, 'text')
+            addLabel(app, 'Position', 5, 2, 'text')
+            addLabel(app, 'Hydrophone depth', 6, 2, 'text')
+            hydrophoneDepthTooltip = ['Hydrophone depth is counted positive ',...
                                 'from surface toward bottom. You can also set ', ...
                                 'negative depth to reference an altitude over the seabed.'];
-            app.addLabel('m', 6, [6, 11], 'text', 'left', hydrophoneDepthTooltip)
-            app.addLabel(app.MooringPosLabel(1), 5, 4, 'text', 'right')
-            app.addLabel(app.MooringPosLabel(2), 5, 6, 'text', 'right')
+            addLabel(app, 'm', 6, [6, 11], 'text', 'left', hydrophoneDepthTooltip)
+            addLabel(app, app.MooringPosLabel(1), 5, 4, 'text', 'right')
+            addLabel(app, app.MooringPosLabel(2), 5, 6, 'text', 'right')
             % Marine mammal 
-            app.addLabel('Marine mammal', 7, [1, 2], 'title')
-            app.addLabel('Specie', 8, 2, 'text')
+            addLabel(app, 'Marine mammal', 8, [1, 2], 'title')
+            addLabel(app, 'Specie', 9, 2, 'text')
             % Detector
-            app.addLabel('Equipment', 9, [1, 2], 'title')
-            app.addLabel('Hydrophone', 10, 2, 'text')
+%             addLabel(app, 'Equipment', 9, [1, 2], 'title')
+            addLabel(app, 'Hydrophone', 7, 2, 'text')
             % Noise level 
-            app.addLabel('Noise level', 11, [1, 2], 'title')
-            app.addLabel('Computing model', 12, 2, 'text')
+            addLabel(app, 'Ambient noise', 10, [1, 2], 'title')
+            addLabel(app, 'Option', 11, 2, 'text')
             % Bellhop 
-            app.addLabel('Bellhop parameters', 13, [1, 2], 'title')
+            addLabel(app, 'Bellhop parameters', 12, [1, 2], 'title')
 
             % Edit field
             % Mooring
-            app.addEditField(app.Simulation.mooring.mooringName, 4, [4, 7], 'Mooring name (name of the simulation)', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            app.addEditField(app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
-            app.addEditField(app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
-            app.addEditField(app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
+            addEditField(app, app.Simulation.mooring.mooringName, 4, [4, 7], 'Name of the simulation', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
+            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
+            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
+            addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             
             % Drop down 
             % Bathymetry 
-            app.addDropDown({'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
-
-            % Specie
-            app.addDropDown({'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 8, [4, 7], @app.specieChanged)
+            addDropDown(app, {'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
             % Hydrophone
-            app.addDropDown({'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 10, [4, 7], @app.detectorChanged)
+            addDropDown(app, {'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
+            % Specie
+            addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
             % Noise level model
-            app.addDropDown({'Measure from recording', 'Model', 'Input value'}, 'Measure from recording', 12, [4, 7], @app.noiseLevelChanged)
+            addDropDown(app, {'Measured from recording', 'Wenz model', 'Input value'}, 'Measured from recording', 11, [4, 7], @app.noiseOptionChanged)
 
             % Buttons
-            % Edit specie 
-            app.addButton('Edit properties', 8, 9, @app.editMarinneMammalProperties)
             % Edit hydrophone
-            app.addButton('Edit properties', 10, 9, @app.editDetectorProperties)
+            addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
+            % Edit specie 
+            addButton(app, 'Edit properties', 9, 9, @app.editMarinneMammalProperties)
             % Edit noise level 
-            app.addButton('Edit properties', 12, 9, @app.editNoiseLevelPorperties)
+            addButton(app, 'Edit properties', 11, 9, @app.editNoiseLevelPorperties)
             
             % Advanced settings 
-            app.addButton('Advanced simulation settings', 14, [4, 9], @app.advancedSettings)
+            addButton(app, 'Advanced simulation settings', 13, [4, 9], @app.advancedSettings)
             % Save settings 
-            app.addButton('Save settings', 16, [5, 8], @app.saveSettings)
+            addButton(app, 'Save settings', 16, [5, 8], @app.saveSettings)
         end
     end
     
-    %% Set up methods 
-    methods
-        function addLabel(app, txt, nRow, nCol, labelType, varargin)
-            % Create label 
-            label = uilabel(app.GridLayout, ...
-                        'Text', txt, ...
-                        'HorizontalAlignment', 'left', ...
-                        'FontName', app.LabelFontName, ...
-                        'VerticalAlignment', 'center');
-            if length(varargin) >= 1
-                label.HorizontalAlignment = varargin{1};
-            end
-            if length(varargin) >= 2
-                label.Tooltip = varargin{2};
-            end
-            % Set label position in grid layout 
-            label.Layout.Row = nRow;
-            label.Layout.Column = nCol;
-            % Set Font parameters depending of type 
-            if strcmp(labelType, 'title')
-                label.FontSize = app.LabelFontSize_title;
-                label.FontWeight = app.LabelFontWeight_title;
-            elseif strcmp(labelType, 'text')
-                label.FontWeight = app.LabelFontWeight_text;
-                label.FontSize = app.LabelFontSize_text;
-            end
-            % Store handle to created label
-            app.handleLabel = [app.handleLabel, label];
-        end
-
-        function addEditField(app, val, nRow, nCol, placeHolder, style, varargin)
-            editField = uieditfield(app.GridLayout, style, ...
-                        'Value', val);
-            if isempty(val) && ~isempty(placeHolder)
-                editField.Placeholder = placeHolder;
-            end
-            if length(varargin) >= 1
-                editField.ValueChangedFcn = varargin{1};
-            end
-            % Set edit field position in grid layout 
-            editField.Layout.Row = nRow;
-            editField.Layout.Column = nCol;
-            app.handleEditField = [app.handleEditField, editField];
-        end
-
-        function addDropDown(app, items, val, nRow, nCol, callbackFunction)
-            dropDown = uidropdown(app.GridLayout, ...
-                        'Items', items, ...
-                        'Value', val, ...
-                        'ValueChangedFcn', callbackFunction);
-            % Set dropdown position in grid layout 
-            dropDown.Layout.Row = nRow;
-            dropDown.Layout.Column = nCol;
-            app.handleDropDown = [app.handleDropDown, dropDown];
-        end
-
-       function addButton(app, name, nRow, nCol, callbackFunction)
-            button = uibutton(app.GridLayout, ...
-                        'Text', name, ...
-                        'ButtonPushedFcn', callbackFunction);
-            % Set edit field position in grid layout 
-            button.Layout.Row = nRow;
-            button.Layout.Column = nCol;
-            app.handleButton = [app.handleButton, button];
-        end
-
-    end
-
     %% Callback functions 
     methods
         function resizeWindow(app, hObject, eventData)
@@ -244,8 +175,10 @@ classdef configEnvironmentUI < handle
 
         function specieChanged(app, hObject, eventData)
             switch get(app.handleDropDown(2), 'Value')
-                case 'Common bottlenose dolphin'
+                case 'Common dolphin'
                     newSpecie = CommonDolphin;
+                case 'Bottlenose dolphin'
+                    newSpecie = BottlenoseDolphin;
                 case 'Porpoise'
                     newSpecie = Porpoise;
             end
@@ -264,10 +197,10 @@ classdef configEnvironmentUI < handle
             app.Simulation.detector = newDetector;
         end
 
-        function noiseLevelChanged(app, hObject, eventData)
-            switch get(app.handleDropDown(3), 'Value')
-                case 'Measure from recording'
-                    % TODO: open recording window to select the file 
+        function noiseOptionChanged(app, hObject, eventData)
+            switch get(app.handleDropDown(4), 'Value')
+                case 'Measured from recording'
+                    app.subWindows{end+1} = selectRecordingUI(app.Simulation);
                 case 'Model'
                     % TODO: compute with model 
                case 'Input value'
@@ -355,7 +288,7 @@ classdef configEnvironmentUI < handle
 
         function checkNoiseEnvironment(app)
 %             [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
-%             app.assertDialogBox(bool, msg, 'Bathymetry environment failed', 'warning')
+%             aassertDialogBox(app, bool, msg, 'Bathymetry environment failed', 'warning')
         end
 
 

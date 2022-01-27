@@ -78,125 +78,36 @@ classdef bathyAdvancedSettingsUI < handle
 
             % Labels 
             % Bathymetry 
-            app.addLabel('Bathymetry', 1, [1, 2], 'title')
-            app.addLabel('File', 2, 2, 'text')
-            app.addLabel('Coordinate Reference System', 3, 2, 'text')
-            app.addLabel('Resolution of interpolated profiles', 4, 2, 'text')
-            app.addLabel('m', 4, 5, 'text')
+            addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
+            addLabel(app, 'File', 2, 2, 'text')
+            addLabel(app, 'Coordinate Reference System', 3, 2, 'text')
+            addLabel(app, 'Resolution of interpolated profiles', 4, 2, 'text')
+            addLabel(app, 'm', 4, 5, 'text')
            
             % Edit field
             % Bathy
-            app.addEditField(app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], '', 'text') % Bathy file 
-            app.addEditField(app.Simulation.bathyEnvironment.drBathy, 4, 4, [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
+            addEditField(app, app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], '', 'text') % Bathy file 
+            addEditField(app, app.Simulation.bathyEnvironment.drBathy, 4, 4, [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
            
             % Drop down 
             % CRS
-            app.addDropDown({'WGS84'}, app.Simulation.bathyEnvironment.inputCRS, 3, [4, 5], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
+            addDropDown(app, {'WGS84'}, app.Simulation.bathyEnvironment.inputCRS, 3, [4, 5], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
 
             % Buttons
             % Bathy file
-            app.addButton('Select file', 2, 8, @app.selectBathyFile)
+            addButton(app, 'Select file', 2, 8, @app.selectBathyFile)
 
             % Save settings 
-            app.addButton('Save settings', 6, [4, 6], @app.saveSettings)
+            addButton(app, 'Save settings', 6, [4, 6], @app.saveSettings)
         end
-    end
-    
-    %% Set up methods 
-    methods
-        function addLabel(app, txt, nRow, nCol, labelType, varargin)
-            % Create label 
-            label = uilabel(app.GridLayout, ...
-                        'Text', txt, ...
-                        'HorizontalAlignment', 'left', ...
-                        'FontName', app.LabelFontName, ...
-                        'VerticalAlignment', 'center');
-            if length(varargin) >= 1
-                label.HorizontalAlignment = varargin{1};
-            end
-            if length(varargin) >= 2
-                label.Tooltip = varargin{2};
-            end
-            % Set label position in grid layout 
-            label.Layout.Row = nRow;
-            label.Layout.Column = nCol;
-            % Set Font parameters depending of type 
-            if strcmp(labelType, 'title')
-                label.FontSize = app.LabelFontSize_title;
-                label.FontWeight = app.LabelFontWeight_title;
-            elseif strcmp(labelType, 'text')
-                label.FontWeight = app.LabelFontWeight_text;
-                label.FontSize = app.LabelFontSize_text;
-            end
-            % Store handle to created label
-            app.handleLabel = [app.handleLabel, label];
-        end
-
-        function addEditField(app, val, nRow, nCol, placeHolder, style, varargin)
-            editField = uieditfield(app.GridLayout, style, ...
-                        'Value', val);
-            if isempty(val) && ~isempty(placeHolder)
-                editField.Placeholder = placeHolder;
-            end
-            if length(varargin) >= 1
-                editField.ValueChangedFcn = varargin{1};
-            end
-            % Set edit field position in grid layout 
-            editField.Layout.Row = nRow;
-            editField.Layout.Column = nCol;
-            app.handleEditField = [app.handleEditField, editField];
-        end
-
-        function addDropDown(app, items, val, nRow, nCol, callbackFunction)
-            dropDown = uidropdown(app.GridLayout, ...
-                        'Items', items, ...
-                        'Value', val, ...
-                        'ValueChangedFcn', callbackFunction);
-            % Set dropdown position in grid layout 
-            dropDown.Layout.Row = nRow;
-            dropDown.Layout.Column = nCol;
-            app.handleDropDown = [app.handleDropDown, dropDown];
-        end
-
-       function addButton(app, name, nRow, nCol, callbackFunction)
-            button = uibutton(app.GridLayout, ...
-                        'Text', name, ...
-                        'ButtonPushedFcn', callbackFunction);
-            % Set edit field position in grid layout 
-            button.Layout.Row = nRow;
-            button.Layout.Column = nCol;
-            app.handleButton = [app.handleButton, button];
-        end
-
     end
 
     %% Callback functions 
     methods
-        function resizeWindow(app, hObject, eventData)
-            currentPos = get(app.Figure, 'Position');
-            app.Width = currentPos(3);
-            app.Height = currentPos(4);
-            pause(0.01) % Little pause to avoid freeze ending in visuals bugs           
-            app.updateLabel
-            app.updateButtons
-        end
-
-        function updateButtons(app)
-            for i_b = 1:length(app.ListButtons)
-                button = app.ListButtons(i_b);
-                app.currButtonID = i_b-1;
-                set(button, 'Position', app.bPosition)
-            end
-        end
-
-        function updateLabel(app)
-            app.Label.Position = app.lPosition;
-        end
-
         function selectBathyFile(app, hObject, eventData)
             [file, path, indx] = uigetfile({'*.nc', 'NETCDF'; ...
                                             '*.csv;*.txt','Text File'}, ...
-                                            'Select a File');
+                                            'Select a file');
             if indx == 1 % File is a csv
                 app.Simulation.bathyEnvironment.bathyFileType = 'CSV';                
             elseif indx == 2 % File is a netcdf
@@ -226,29 +137,9 @@ classdef bathyAdvancedSettingsUI < handle
             switch type 
                 case 'drBathy'
                     app.Simulation.bathyEnvironment.drBathy = hObject.Value;
-                case 'mooringName'
-                    app.Simulation.mooring.mooringName = regexprep(hObject.Value, ' ', ''); % Remove blanks
-                case 'XPos'
-                    app.Simulation.mooring.mooringPos.lat = hObject.Value;
-                case 'YPos'
-                    app.Simulation.mooring.mooringPos.lon = hObject.Value;
-                case 'ZPos'
-                    app.Simulation.mooring.mooringPos.hgt = hObject.Value;
-                case 'hydroDepth'
-                    app.Simulation.mooring.hydrophoneDepth = hObject.Value;
             end
         end
 
-
-        function editDetectorProperties(app, hObject, eventData)
-            % Open editUI
-        end
-
-        function editNoiseLevelPorperties(app, hObject, eventData)
-            % Open editUI
-        end
-
-        
         function closeWindowCallback(app, hObject, eventData)
             closeWindowCallback(app.subWindows, hObject, eventData)
         end

@@ -85,16 +85,16 @@ classdef plottingToolsUI < handle
                                     'Units', 'normalized');
 
             % Buttons
-            app.addButton('Plot Bathymetry 1D',  @app.plotBathy1D)
-            app.addButton('Plot Bathymetry 2D',  @app.plotBathy2D)
+            addButton(app, 'Plot Bathymetry 1D',  @app.plotBathy1D)
+            addButton(app, 'Plot Bathymetry 2D',  @app.plotBathy2D)
 
-            app.addButton('Plot TL 1D', @app.plotTL1D)
-            app.addButton('Plot TL 2D', @app.plotTL2D)
+            addButton(app, 'Plot TL 1D', @app.plotTL1D)
+            addButton(app, 'Plot TL 2D', @app.plotTL2D)
 
-            app.addButton('Plot SPL 1D', @app.plotSPL1D)
-            app.addButton('Plot SPL 2D', @app.plotSPL2D)
+            addButton(app, 'Plot SPL 1D', @app.plotSPL1D)
+            addButton(app, 'Plot SPL 2D', @app.plotSPL2D)
 
-            app.addButton('Main menu', {@app.goBackToMainUI})
+            addButton(app, 'Main menu', {@app.goBackToMainUI})
         end
     end
 

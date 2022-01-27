@@ -101,11 +101,11 @@ classdef mainUI < handle
                                     'Units', 'normalized');
 
             % Buttons
-            app.addButton('Configure Environment',  @app.configEnvironmentButtonPushed)
-            app.addButton('Run DRE', @app.runDREButtonPushed)
-            app.addButton('Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
-            app.addButton('Plotting Tools', @app.plottingToolsButtonPushed)
-            app.addButton('Exit App', {@app.exitAppButtonPushed})
+            addButton(app, 'Configure Environment',  @app.configEnvironmentButtonPushed)
+            addButton(app, 'Run DRE', @app.runDREButtonPushed)
+            addButton(app, 'Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
+            addButton(app, 'Plotting Tools', @app.plottingToolsButtonPushed)
+            addButton(app, 'Exit App', {@app.exitAppButtonPushed})
             
             % Main label 
             app.Label = uilabel(app.Figure, ....
@@ -183,17 +183,6 @@ classdef mainUI < handle
         function updateLabel(app)
             app.Label.Position = app.lPosition;
         end
-
-%         function MainUICloseRequest(app, hObject, eventData)
-% %             app.closeSubWindows
-%             closeWindowCallback(hObject, eventData)
-%         end
-
-%         function closeSubWindows(app)
-%             for i = 1:numel(app.subWindows)
-%                 delete(app.subWindows{i})
-%             end
-%         end
     end
 
     %% Get methods for dependent properties 
