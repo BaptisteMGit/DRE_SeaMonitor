@@ -104,6 +104,7 @@
             obj.mooring = Mooring;
             obj.marineMammal = Porpoise;
             obj.detector = CPOD; 
+            obj.noiseEnvironment = NoiseEnvironment;
             obj.bellhopEnvironment = BellhopEnvironment;
             obj.listAz = 0.1:10:360.1;            
         end

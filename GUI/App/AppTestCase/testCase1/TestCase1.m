@@ -75,7 +75,7 @@ classdef TestCase1 < DRESimulation
             %% noiseLevel 
 %             noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
             noiseLevel = (30 + 46)/2; 
-            obj.noiseEnvironment = NoiseEnvironment('ValueInput', noiseLevel);
+            obj.noiseEnvironment = NoiseEnvironment('Input value', noiseLevel);
 
 %             obj.listAz = 0.1:5:360.1;
             obj.listAz = [75.1];

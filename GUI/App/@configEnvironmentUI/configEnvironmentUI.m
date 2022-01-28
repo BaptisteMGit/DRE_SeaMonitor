@@ -125,7 +125,7 @@ classdef configEnvironmentUI < handle
             % Specie
             addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
             % Noise level model
-            addDropDown(app, {'Measured from recording', 'Wenz model', 'Input value'}, 'Measured from recording', 11, [4, 7], @app.noiseOptionChanged)
+            addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
 
             % Buttons
             % Edit hydrophone
@@ -166,7 +166,7 @@ classdef configEnvironmentUI < handle
         end
         
         function bathySourceChanged(app, hObject, eventData)
-            newSource =  get(app.handleDropDown(1), 'Value');
+            newSource =  hObject.Value;
             app.Simulation.bathyEnvironment.source = newSource;
             if strcmp(newSource, 'Userfile')
                 app.subWindows{end+1} = bathyAdvancedSettingsUI(app.Simulation);
@@ -174,7 +174,7 @@ classdef configEnvironmentUI < handle
         end
 
         function specieChanged(app, hObject, eventData)
-            switch get(app.handleDropDown(2), 'Value')
+            switch hObject.Value
                 case 'Common dolphin'
                     newSpecie = CommonDolphin;
                 case 'Bottlenose dolphin'
@@ -186,7 +186,7 @@ classdef configEnvironmentUI < handle
         end
 
         function detectorChanged(app, hObject, eventData)
-            switch get(app.handleDropDown(3), 'Value')
+            switch hObject.Value
                 case 'CPOD'
                     newDetector = CPOD;
                 case 'FPOD'
@@ -198,10 +198,14 @@ classdef configEnvironmentUI < handle
         end
 
         function noiseOptionChanged(app, hObject, eventData)
-            switch get(app.handleDropDown(4), 'Value')
-                case 'Measured from recording'
+            app.Simulation.noiseEnvironment.computingMethod = hObject.Value;
+            switch hObject.Value
+                case 'Derived from recording'
+                    if isempty(app.Simulation.noiseEnvironment.recording)
+                        app.Simulation.noiseEnvironment.recording = Recording(app.Simulation.marineMammal.centroidFrequency); 
+                    end
                     app.subWindows{end+1} = selectRecordingUI(app.Simulation);
-                case 'Model'
+                case 'Derived from Wenz model'
                     % TODO: compute with model 
                case 'Input value'
                     % TODO: open window to input value 
@@ -230,6 +234,15 @@ classdef configEnvironmentUI < handle
         end
 
         function editNoiseLevelPorperties(app, hObject, eventData)
+            switch get(app.handleDropDown(4), 'Value')
+                case 'Derived from recording'
+                    if isempty(app.Simulation.noiseEnvironment.recording)
+                        app.Simulation.noiseEnvironment.recording = Recording(app.Simulation.marineMammal.centroidFrequency); 
+                    end
+                    app.subWindows{end+1} = selectRecordingUI(app.Simulation);
+                case 'Derived from Wenz model'
+                case 'Input value'
+            end
             % Open editUI
         end
 

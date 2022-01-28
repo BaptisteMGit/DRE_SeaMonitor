@@ -1,11 +1,8 @@
-function NL = getNLFromWavFile(filename, BW)
-% BW = '1/3 octave';  % Bandwidth : 
-% filename = 'C:\Users\33686\Desktop\SeaMonitor\ExFamille\RawData\1208512546.211002123419.wav';
-tic
-[y, fs] = audioread(filename);
+function NL = getNLFromWavFile_Power(filteredSignal, cal, Twindow)
 
-y = y(1:100000);
-cal = 173.3;
+y = filteredSignal.y;
+fs = filteredSignal.fs;
+
 cal = power (10, cal / 20); % convert calibration from dB into ratio
 y = y * cal; % multiply wav data by calibration to convert to units of uPa
 
@@ -13,13 +10,6 @@ y = y * cal; % multiply wav data by calibration to convert to units of uPa
 window = 500;
 noverlap = 300;
 nfft = 500;
-
-% N  = 8;           % Filter order
-% F0 = 10000;        % Center frequency (Hz)
-% Fs = fs;       % Sampling frequency (Hz)
-% of = octaveFilter('FilterOrder',N,'CenterFrequency',F0,  ...
-%                   'Bandwidth',BW,'SampleRate',Fs);
-% y = of(y);
 
 [pxx, f] = pwelch(y, window, noverlap, nfft, fs);
 
