@@ -107,8 +107,9 @@ classdef configEnvironmentUI < handle
             % Noise level 
             addLabel(app, 'Ambient noise', 10, [1, 2], 'title')
             addLabel(app, 'Option', 11, 2, 'text')
+            addLabel(app, 'Noise level', 12, 2, 'text')  
             % Bellhop 
-            addLabel(app, 'Bellhop parameters', 12, [1, 2], 'title')
+            addLabel(app, 'Bellhop parameters', 13, [1, 2], 'title')
 
             % Edit field
             % Mooring
@@ -116,7 +117,8 @@ classdef configEnvironmentUI < handle
             addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
             addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
             addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
-            
+            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 12, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
+
             % Drop down 
             % Bathymetry 
             addDropDown(app, {'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
@@ -136,7 +138,7 @@ classdef configEnvironmentUI < handle
             addButton(app, 'Edit properties', 11, 9, @app.editNoiseLevelPorperties)
             
             % Advanced settings 
-            addButton(app, 'Advanced simulation settings', 13, [4, 9], @app.advancedSettings)
+            addButton(app, 'Advanced simulation settings', 14, [4, 9], @app.advancedSettings)
             % Save settings 
             addButton(app, 'Save settings', 16, [5, 8], @app.saveSettings)
         end
@@ -204,12 +206,16 @@ classdef configEnvironmentUI < handle
                     if isempty(app.Simulation.noiseEnvironment.recording)
                         app.Simulation.noiseEnvironment.recording = Recording(app.Simulation.marineMammal.centroidFrequency); 
                     end
-                    app.subWindows{end+1} = selectRecordingUI(app.Simulation);
+                    app.subWindows{end+1} = selectRecordingUI(app.Simulation, app.handleEditField(5));
+                    bool = 0;
                 case 'Derived from Wenz model'
                     % TODO: compute with model 
+                    bool = 0;
                case 'Input value'
                     % TODO: open window to input value 
+                    bool = 1;
             end
+            set(app.handleEditField(5), 'Editable', bool)
         end
 
         function editFieldChanged(app, hObject, eventData, type)
@@ -239,7 +245,7 @@ classdef configEnvironmentUI < handle
                     if isempty(app.Simulation.noiseEnvironment.recording)
                         app.Simulation.noiseEnvironment.recording = Recording(app.Simulation.marineMammal.centroidFrequency); 
                     end
-                    app.subWindows{end+1} = selectRecordingUI(app.Simulation);
+                    app.subWindows{end+1} = selectRecordingUI(app.Simulation, app.handleEditField(5));
                 case 'Derived from Wenz model'
                 case 'Input value'
             end

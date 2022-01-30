@@ -44,14 +44,20 @@ classdef selectRecordingUI < handle
 
         % Sub-windows 
         subWindows = {};
-
+        
+        % Handle to the noiseLevel edit field of the
+        % configureEnvironementUI window to update the noise level value
+        % once newly computed 
+        nlEditFieldHandle
     end
     
     %% Constructor of the class 
     methods       
-        function app = selectRecordingUI(simulation)
+        function app = selectRecordingUI(simulation, nlEditFieldHandle)
             % Pass simulation handle 
             app.Simulation = simulation;
+            % Handle to the edit field 
+            app.nlEditFieldHandle = nlEditFieldHandle;
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Visible', 'on', ...
@@ -62,7 +68,7 @@ classdef selectRecordingUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -94,8 +100,6 @@ classdef selectRecordingUI < handle
             set(app.handleLabel(6), 'HorizontalAlignment', 'right')
 
             addLabel(app, 'Calibration coefficient', 7, 2, 'text')
-
-
 
             % Edit field
             % Recording
@@ -136,7 +140,9 @@ classdef selectRecordingUI < handle
         end
         
         function closeWindowCallback(app, hObject, eventData)
-            closeWindowCallback(app.subWindows, hObject, eventData)
+            % Update edit field with new value 
+            set(app.nlEditFieldHandle, 'Value', app.Simulation.noiseEnvironment.noiseLevel)
+            closeWindowCallback(hObject, eventData)
         end
         
 
@@ -176,6 +182,8 @@ classdef selectRecordingUI < handle
                 if strcmp(selection, 'Close window')
                     % Close UI
                     delete(app.Figure)
+                    % Update edit field with new value 
+                    set(app.nlEditFieldHandle, 'Value', app.Simulation.noiseEnvironment.noiseLevel)
                 end
             end
         end
