@@ -80,30 +80,27 @@ classdef configEnvironmentUI < handle
             app.GridLayout.RowHeight{15} = 30;
 
 
-            % Labels 
+            %%% Labels %%%
             % Bathymetry 
             addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
             addLabel(app, 'Source', 2, 2, 'text')
-%             addLabel(app, 'Reference Frame', 3, 2, 'text')
-%             addLabel(app, 'Resolution', 4, 2, 'text')
-%             addLabel(app, 'm', 4, 6, 'text')
+
             % Mooring
             addLabel(app, 'Equipment', 3, [1, 2], 'title')
             addLabel(app, 'Name of the study', 4, 2, 'text')
             addLabel(app, 'Position', 5, 2, 'text')
-            addLabel(app, 'Hydrophone depth', 6, 2, 'text')
             hydrophoneDepthTooltip = ['Hydrophone depth is counted positive ',...
-                                'from surface toward bottom. You can also set ', ...
-                                'negative depth to reference an altitude over the seabed.'];
-            addLabel(app, 'm', 6, [6, 11], 'text', 'left', hydrophoneDepthTooltip)
+                    'from surface toward bottom. You can also set ', ...
+                    'negative depth to reference an altitude over the seabed.'];
+            addLabel(app, 'Hydrophone depth', 6, 2, 'text', 'left', hydrophoneDepthTooltip)
             addLabel(app, app.MooringPosLabel(1), 5, 4, 'text', 'right')
-            addLabel(app, app.MooringPosLabel(2), 5, 6, 'text', 'right')
+            addLabel(app, app.MooringPosLabel(2), 5, 6, 'text', 'right')          
+            addLabel(app, 'Hydrophone', 7, 2, 'text') % Detector
+
             % Marine mammal 
             addLabel(app, 'Marine mammal', 8, [1, 2], 'title')
             addLabel(app, 'Specie', 9, 2, 'text')
-            % Detector
-%             addLabel(app, 'Equipment', 9, [1, 2], 'title')
-            addLabel(app, 'Hydrophone', 7, 2, 'text')
+
             % Noise level 
             addLabel(app, 'Ambient noise', 10, [1, 2], 'title')
             addLabel(app, 'Option', 11, 2, 'text')
@@ -111,15 +108,17 @@ classdef configEnvironmentUI < handle
             % Bellhop 
             addLabel(app, 'Bellhop parameters', 13, [1, 2], 'title')
 
-            % Edit field
+            %%% Edit field %%%
             % Mooring
             addEditField(app, app.Simulation.mooring.mooringName, 4, [4, 7], 'Name of the simulation', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
             addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
             addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
             addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
+            set(app.handleEditField(4), 'ValueDisplayFormat', '%.1f m') 
             addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 12, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
+            set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB') 
 
-            % Drop down 
+            %%% Drop down %%%
             % Bathymetry 
             addDropDown(app, {'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
             % Hydrophone
@@ -129,7 +128,7 @@ classdef configEnvironmentUI < handle
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
 
-            % Buttons
+            %%% Buttons %%%
             % Edit hydrophone
             addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
             % Edit specie 
@@ -210,6 +209,7 @@ classdef configEnvironmentUI < handle
                     bool = 0;
                 case 'Derived from Wenz model'
                     % TODO: compute with model 
+                    app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                     bool = 0;
                case 'Input value'
                     % TODO: open window to input value 

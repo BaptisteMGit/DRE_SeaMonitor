@@ -1,7 +1,6 @@
-classdef selectRecordingUI < handle
-% selectRecordingUI: App window to select a recording file from which to
-% derive the ambient noise level. The sound file must be provided as a .wav
-% file where there is no cues (signal from the studied marine mammal). 
+classdef selectWenzUI < handle
+% selectWenzUI: App window to select Wenz model parameters to
+% derive the ambient noise level.
 % Baptiste Menetrier    
 
     properties
@@ -15,7 +14,7 @@ classdef selectRecordingUI < handle
         handleDropDown
         handleButton
         % Name of the window 
-        Name = "Select recording";
+        Name = "Wenz parameters";
     end 
     
     properties (Dependent)
@@ -53,7 +52,7 @@ classdef selectRecordingUI < handle
     
     %% Constructor of the class 
     methods       
-        function app = selectRecordingUI(simulation, nlEditFieldHandle)
+        function app = selectWenzUI(simulation, nlEditFieldHandle)
             % Pass simulation handle 
             app.Simulation = simulation;
             % Handle to the edit field 
@@ -82,10 +81,7 @@ classdef selectRecordingUI < handle
             app.GridLayout.ColumnWidth{7} = 5;
             app.GridLayout.ColumnWidth{8} = 90;
 
-%             app.GridLayout.RowHeight{1} = 10;
-%             app.GridLayout.RowHeight{2} = 90;
             app.GridLayout.RowHeight{8} = 5;
-%             app.GridLayout.RowHeight{4} = 50;
 
             % Labels 
             addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
@@ -98,8 +94,6 @@ classdef selectRecordingUI < handle
             set(app.handleLabel(5), 'HorizontalAlignment', 'right')
             addLabel(app, 'fMax', 6, 2, 'text')
             set(app.handleLabel(6), 'HorizontalAlignment', 'right')
-
-            addLabel(app, 'Calibration coefficient', 7, 2, 'text')
 
             % Edit field
             % Recording
@@ -114,8 +108,6 @@ classdef selectRecordingUI < handle
             set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
             app.updateFrequencyRangeVisualAspect()
             
-            addEditField(app, app.Simulation.noiseEnvironment.recording.calibrationCoefficient, 7, 4, [], 'numeric', {@app.editFieldChanged, 'calCoeff'}) % fmax
-
             % Drop down 
             % Bandwidth
             addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.Simulation.noiseEnvironment.recording.bandwidthType, 4, [4, 6], @app.bandwidthTypeChanged) % Auto loaded bathy
@@ -215,17 +207,15 @@ classdef selectRecordingUI < handle
 
         function editFieldChanged(app, hObject, eventData, iD)
             switch iD
-                case 'filename'
-                    app.Simulation.noiseEnvironment.recording.recordingFile = regexprep(hObject.Value, ' ', ''); % Remove blanks
+                case 'wind'
+                    app.Simulation.noiseEnvironment.wenzModel.windStrength = regexprep(hObject.Value, ' ', ''); % Remove blanks
                 case 'centroidFrequency'
-                    app.Simulation.noiseEnvironment.recording.centroidFrequency = hObject.Value;
+                    app.Simulation.noiseEnvironment.wenzModel.centroidFrequency = hObject.Value;
                     app.updateFrequencyRange()
                 case 'fmin'
                     app.Simulation.noiseEnvironment.recording.frequencyRange.min = hObject.Value;
                 case 'fmax'
                     app.Simulation.noiseEnvironment.recording.frequencyRange.max = hObject.Value;    
-                case 'calCoeff'
-                    app.Simulation.noiseEnvironment.recording.calibrationCoefficient = hObject.Value;
             end
         end
     end
