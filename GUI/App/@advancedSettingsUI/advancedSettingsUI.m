@@ -18,11 +18,11 @@ classdef advancedSettingsUI < handle
     
     properties (Hidden=true)
         % Size of the main window 
-        Width = 700;
-        Height = 600;
+        Width = 500;
+        Height = 350;
         % Number of components 
-        glNRow = 18;
-        glNCol = 11;
+        glNRow = 9;
+        glNCol = 4;
         
         % Labels visual properties 
         LabelFontName = 'Arial';
@@ -61,30 +61,37 @@ classdef advancedSettingsUI < handle
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             
             app.GridLayout.ColumnWidth{1} = 10;
-            app.GridLayout.ColumnWidth{2} = 'fit';
+            app.GridLayout.ColumnWidth{2} = 200;
+            app.GridLayout.ColumnWidth{3} = 5;
+            app.GridLayout.ColumnWidth{4} = 200;
+
+            app.GridLayout.RowHeight{8} = 5;
 
             % Bellhop parameters 
             addLabel(app, 'Bellhop parameters', 1, [1, 2], 'title')
 
             addLabel(app, 'Horizontal resolution', 2, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dr'})
-            addLabel(app, 'km', 2, 6, 'text')
+            addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, 4, [], 'numeric', {@app.editFieldChanged, 'dr'})
+            set(app.handleEditField(1), 'ValueDisplayFormat', '%.4f km') 
 
             addLabel(app, 'Vertical resolution', 3, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, [4, 5], [], 'numeric', {@app.editFieldChanged, 'dz'})
-            addLabel(app, 'm', 3, 6, 'text')
+            addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, 4, [], 'numeric', {@app.editFieldChanged, 'dz'})
+            set(app.handleEditField(2), 'ValueDisplayFormat', '%.1f m')     
 
             addLabel(app, 'SSP interpolation method', 4, 2, 'text')
-            addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear', 'Quadratic'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, [4, 7], @app.interpMethodChanged)
+            addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, 4, @app.interpMethodChanged)
             
             addLabel(app, 'Type of surface', 5, 2, 'text')
-            addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, [4, 7], @app.surfaceTypeChanged)
+            addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, @app.surfaceTypeChanged)
 
             addLabel(app, 'Attenuation in the bottom', 6, 2, 'text')
-            addDropDown(app, {'db/m'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, [4, 7], @app.attenuationUnitChanged)
+            addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, @app.attenuationUnitChanged)
 
             addLabel(app, 'Beam type', 7, 2, 'text')
-            addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, [4, 7], @app.beamTypeChanged)
+            addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, 4, @app.beamTypeChanged)
+
+            % Save settings 
+            addButton(app, 'Save settings', 9, [2, 4], @app.saveSettings)
         
 
         end
@@ -150,30 +157,6 @@ classdef advancedSettingsUI < handle
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
         end
-% 
-%         function intMethod = get.SspInterpMethod(app)
-%             switch app.Simulation.SspOption(1)
-%                 case 'S'
-%                     intMethod = 'Cubic spline';
-%                 case 'C' 
-%                     intMethod = 'C-linear';
-%                 case 'N' 
-%                     intMethod = 'N-2-linear';
-%                 case 'Q'
-%                     intMethod = 'Quadratic';
-%             end
-%         end
-% 
-%         function sType = get.SurfaceType(app)
-%             switch app.Simulation.SspOption(2)
-%                 case 'V'
-%                     sType = 'Vacuum above surface';
-%                 case 'R' 
-%                     sType = 'Perfectly rigid media above surface';
-%                 case 'A' 
-%                     sType = 'Acoustic half-space';
-%             end
-%         end
 
     end
 
@@ -193,14 +176,47 @@ classdef advancedSettingsUI < handle
         end
 
         function interpMethodChanged(app)
-            
+            switch hOject.Value
+                case 'Cubic spline'
+                    app.Simulation.bellhopEnvironment.SspOption(1) = 'S';
+                case 'C-linear' 
+                    app.Simulation.bellhopEnvironment.SspOption(1) = 'C';
+                case 'N-2-linear' 
+                    app.Simulation.bellhopEnvironment.SspOption(1) = 'N';
+                    % Quadratic interpolation requires the creation of the
+                    % a *.ssp file containing the field. Not considered for
+                    % the moment dur to more complexity.
+%                 case 'Quadratic'
+%                     intMethod = 'Q';
+            end
         end
 
-        function beamTypeChanged(app)
+        function beamTypeChanged(app, hObject, eventData)
+            switch hOject.Value
+                case 'Gaussian beams'
+                    app.Simulation.bellhopEnvironment.beam.RunType(2) = 'B';
+                case 'Geometric rays'
+                    app.Simulation.bellhopEnvironment.beam.RunType(2) = 'G';
+            end
         end
         
         function surfaceTypeChanged(app)
+            % TODO: handle different type of surface ? 
+            % Is it really relevant to let the user choose ? 
         end
+
+        function attenuationUnitChanged(app, hOject, eventData)
+            switch hOject.Value
+                case 'db/m'
+                    app.Simulation.bellhopEnvironment.SspOption(3) = 'M';
+                case 'db/lambda'
+                    app.Simulation.bellhopEnvironment.SspOption(3) = 'W';
+            end
+        end
+
+        function saveSettings(app, hObject, eventData)
+            close(app.Figure)
+        end 
     end
 end
 

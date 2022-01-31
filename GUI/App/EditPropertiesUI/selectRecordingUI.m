@@ -71,7 +71,6 @@ classdef selectRecordingUI < handle
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @app.closeWindowCallback);
-%             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
@@ -84,10 +83,7 @@ classdef selectRecordingUI < handle
             app.GridLayout.ColumnWidth{7} = 5;
             app.GridLayout.ColumnWidth{8} = 90;
 
-%             app.GridLayout.RowHeight{1} = 10;
-%             app.GridLayout.RowHeight{2} = 90;
             app.GridLayout.RowHeight{8} = 5;
-%             app.GridLayout.RowHeight{4} = 50;
 
             % Labels 
             addLabel(app, 'Ambient noise', 1, [1, 2], 'title')

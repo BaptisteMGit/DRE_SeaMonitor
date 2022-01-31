@@ -32,7 +32,7 @@ classdef configEnvironmentUI < handle
         Width = 575;
         Height = 600;
         % Number of components 
-        glNRow = 16;
+        glNRow = 18;
         glNCol = 9;
         
         % Labels visual properties 
@@ -77,7 +77,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{15} = 30;
+            app.GridLayout.RowHeight{17} = 30;
 
 
             %%% Labels %%%
@@ -105,8 +105,13 @@ classdef configEnvironmentUI < handle
             addLabel(app, 'Ambient noise', 10, [1, 2], 'title')
             addLabel(app, 'Option', 11, 2, 'text')
             addLabel(app, 'Noise level', 12, 2, 'text')  
+            
+            % Seabed 
+            addLabel(app, 'Seabed', 13, [1, 2], 'title')
+            addLabel(app, 'Sediment', 14, [1, 2], 'text')
+
             % Bellhop 
-            addLabel(app, 'Bellhop parameters', 13, [1, 2], 'title')
+            addLabel(app, 'Bellhop parameters', 15, [1, 2], 'title')
 
             %%% Edit field %%%
             % Mooring
@@ -127,6 +132,8 @@ classdef configEnvironmentUI < handle
             addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
+             % Sediment
+            addDropDown(app, {'Boulders and bedrock', 'Coarse sediment', 'Mixed sediment', 'Muddy sand and sand', 'Mud and sandy mud'}, app.Simulation.seabedEnvironment.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
 
             %%% Buttons %%%
             % Edit hydrophone
@@ -135,11 +142,13 @@ classdef configEnvironmentUI < handle
             addButton(app, 'Edit properties', 9, 9, @app.editMarinneMammalProperties)
             % Edit noise level 
             addButton(app, 'Edit properties', 11, 9, @app.editNoiseLevelPorperties)
+            % Edit sediment
+            addButton(app, 'Edit properties', 14, 9, @app.editSedimentProperties)
             
             % Advanced settings 
-            addButton(app, 'Advanced simulation settings', 14, [4, 9], @app.advancedSettings)
+            addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Save settings', 16, [5, 8], @app.saveSettings)
+            addButton(app, 'Save settings', 18, [5, 8], @app.saveSettings)
         end
     end
     
@@ -219,6 +228,10 @@ classdef configEnvironmentUI < handle
             end
             set(app.handleEditField(5), 'Editable', bool)
         end
+        
+        function sedimentTypeChanged(app, hObject, eventData)
+            app.Simulation.seabedEnvironment.sedimentType = hObject.Value;
+        end 
 
         function editFieldChanged(app, hObject, eventData, type)
             switch type 

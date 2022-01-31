@@ -11,7 +11,9 @@
         % Ocean
         oceanEnvironment  % Handle ocean parameters (Temperature, Salinity, pH) 
         % Ambient noise
-        noiseEnvironment        % Handle ambient noise level parameters (value, computation methods, frequency, BW, soundFile)          
+        noiseEnvironment  % Handle ambient noise level parameters (value, computation methods, frequency, BW, soundFile)          
+        % Seabed
+        seabedEnvironment
         % Simulation
         bellhopEnvironment
         % Azimuths 
@@ -105,6 +107,7 @@
             obj.marineMammal = Porpoise;
             obj.detector = CPOD; 
             obj.noiseEnvironment = NoiseEnvironment;
+            obj.seabedEnvironment = SeabedEnvironment;
             obj.bellhopEnvironment = BellhopEnvironment;
             obj.listAz = 0.1:10:360.1;            
         end
@@ -172,17 +175,24 @@
             resultFile = fullfile(obj.rootSaveResult, 'result.txt');
         end
 
-        function CWA = get.cwa(obj)
+        function cwa = get.cwa(obj)
             % NOTE: cwa is computed using the median depth in the area around the mooring 
             % - sign for positive depth toward bottom
             medianDepth = -median(obj.dataBathy(:, 3)); 
-            CWA = AbsorptionSoundSeaWaterFrancoisGarrison(...
+            cwa = AbsorptionSoundSeaWaterFrancoisGarrison(...
                 obj.marineMammal.signal.centroidFrequency / 1000,...
                 mean(obj.oceanEnvironment.temperatureC, 'omitnan'),...
                 mean(obj.oceanEnvironment.salinity, 'omitnan'),...
                 medianDepth,...
                 mean(obj.oceanEnvironment.pH, 'omitnan')) ;
-            CWA = CWA / 1000; % Convert to dB/m
+            switch obj.bellhopEnvironment.SspOption(3)
+                case 'M'
+                    cwa = cwa / 1000; % Convert to dB/m
+                case 'W'
+                    cwa = cwa / 1000; % dB/m
+                    lambda = 1500 / obj.marineMammal.signal.centroidFrequency;
+                    cwa = lambda * cwa; % Convert to dB/lambda
+            end
         end
 
         function maxDepth = get.maxBathyDepth(obj)
@@ -476,15 +486,6 @@
                 obj.receiverPos.s.z = obj.mooring.hydrophoneDepth; % TODO: check 
             end
         end
-% 
-%         function setBeam(obj)
-%             % Beam 
-%             obj.beam.RunType(1) = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
-%             obj.beam.RunType(2) = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
-%             obj.beam.Nbeams = 5001; % Number of launching angles
-%             obj.beam.alpha = [-80, 80]; % Launching angles in degrees
-%             obj.beam.deltas = 0; % Ray-step (m) used in the integration of the ray and dynamic equations, 0 let bellhop choose 
-%         end
 
         function obj = setBeambox(obj, bathyProfile)
             obj.bellhopEnvironment.beam.Box.z = max(obj.ssp.z) + 10; % zmax (m), larger than SSP max depth to avoid problems  
@@ -493,13 +494,12 @@
 
         function setBottom(obj)
             % Bottom properties 
-            % TODO: replace by importation function call to get bottom properties
-            % from ascii file (Chris) 
-            obj.bottom.c = 1600; % Sound celerity in bottom half space 
-            obj.bottom.ssc = 0.0; % Shear Sound Celerity in bottom half space 
-            obj.bottom.rho = 1.8; % Density in bottom half space 
-            obj.bottom.cwa = 0.8; % Compression Wave Absorption in bottom half space (unit depend on topOption(3), 'W' = dB/wavelength)
-            obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
+            obj.bottom = obj.seabedEnvironment.bottom;
+%             obj.bottom.c = 1600; % Sound celerity in bottom half space 
+%             obj.bottom.ssc = 0.0; % Shear Sound Celerity in bottom half space 
+%             obj.bottom.rho = 1.8; % Density in bottom half space 
+%             obj.bottom.cwa = 0.8; % Compression Wave Absorption in bottom half space (unit depend on topOption(3), 'W' = dB/wavelength)
+%             obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
         end
 
         function setSsp(obj, bathyProfile, i_theta)

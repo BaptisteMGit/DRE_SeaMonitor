@@ -6,16 +6,6 @@ classdef TestCase1 < DRESimulation
     %   acoustic data loggers from playback experiments with
     %   cetacean vocalisations. Methods Ecol Evol. 2018;00:1–10. 
     %   https://doi.org/10.1111/2041-210X.1309
-    
-    %   Workflow:
-    
-    %   Bathymetry data have been downloaded from the website https://download.gebco.net/#
-    %   Grid version GEBCO 2021
-    %   Bounds N 52.3 W -4.45 S 52.2 E -4.3
-    %   File formats Grid: netCDF; TID grid: netCDF
-    
-    %   The bathymetric dataset has been converted into csv XYZ file using function
-    %   NETCDFtoCSV (in folder utilities)   
 
     properties
     end
@@ -85,7 +75,9 @@ classdef TestCase1 < DRESimulation
             % From ref paper: The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
             % peak-to-peak (pp) across the C-PODs used in the study.
+            
 
+            obj.seabedEnvironment = SeabedEnvironment('Coarse sediment');
 
         end
 

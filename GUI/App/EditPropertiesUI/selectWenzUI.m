@@ -61,6 +61,8 @@ classdef selectWenzUI < handle
             % Pass simulation handle 
             app.Simulation = simulation;
             app.centroidFrequency = app.Simulation.marineMammal.centroidFrequency;
+            % Initialise value 
+            app.Simulation.noiseEnvironment.wenzModel.frequencyRange = struct('min', app.fmin, 'max', app.fmax);
             % Handle to the edit field 
             app.nlEditFieldHandle = nlEditFieldHandle;
             % Figure 
@@ -74,7 +76,6 @@ classdef selectWenzUI < handle
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @app.closeWindowCallback);
-%             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
@@ -95,7 +96,6 @@ classdef selectWenzUI < handle
                 'This parameter contribute to noise background in the low to high frequency band (200Hz - 100kHz).'];
             addLabel(app, 'Wind speed', 3, 2, 'text', 'left', windSpeedTooltip)
             addLabel(app, 'Centroid frequency', 4, 2, 'text')
-%             addLabel(app, 'Hz', 3, 5, 'text')
 
             addLabel(app, 'Bandwidth', 5, 2, 'text')
             addLabel(app, 'fMin', 6, 2, 'text')
@@ -135,14 +135,12 @@ classdef selectWenzUI < handle
     
     %% Callback functions 
     methods
-        
         function closeWindowCallback(app, hObject, eventData)
             % Update edit field with new value 
             set(app.nlEditFieldHandle, 'Value', app.Simulation.noiseEnvironment.noiseLevel)
             closeWindowCallback(hObject, eventData)
         end
         
-
         function bool = checkWenz(app)
             % Blocking conditions 
             [bool, msg] = app.Simulation.noiseEnvironment.wenzModel.checkParametersValidity;
@@ -159,7 +157,6 @@ classdef selectWenzUI < handle
                 uialert(app.Figure, message, 'Centroid frequency info', 'Icon', 'info')
             end
         end
-
 
         function computeNoiseLevel(app, hObject, eventData)
             bool = app.checkWenz();

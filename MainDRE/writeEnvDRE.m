@@ -96,7 +96,7 @@ for medium = 1 : SSP.NMedia
     
     fprintf( fid, '%5i %4.2f %6.2f \t ! N sigma depth \n', SSP.N( medium ), SSP.sigma( medium ), SSP.depth( medium+1 ) );
     for ii = 1 : length( SSP.raw( medium ).z )
-        fprintf( fid, '\t %6.2f %6.2f %6.2f %6.2f %6.4f %6.2f / \t ! Depth  Celerity  ShearSoundCelerity Rho CompressionWaveAbso ShearWaveAbso\n', ...
+        fprintf( fid, '\t %6.2f %6.2f %6.2f %6.2f %6.6f %6.2f / \t ! Depth  Celerity  ShearSoundCelerity Rho CompressionWaveAbso ShearWaveAbso\n', ...
             [ SSP.raw( medium ).z( ii ) SSP.raw( medium ).c( ii ) SSP.raw( medium ).ssc( ii ) SSP.raw( medium ).rho( ii ) SSP.raw( medium ).cwa( ii ) SSP.raw( medium ).swa( ii ) ] );
     end
 end
@@ -105,7 +105,7 @@ end
 fprintf( fid, '''%s'' %6.2f  \t \t ! Bottom Option, sigma \n', Bdry.Bot.Opt, 0.0 ); % SSP.sigma( 2 ) );
 
 if ( Bdry.Bot.Opt( 1:1 ) == 'A' )
-    fprintf( fid, '    %6.2f %6.2f %6.2f %6.2g %6.2f %6.2f /  \t ! lower halfspace \n', SSP.depth( SSP.NMedia+1 ), ...
+    fprintf( fid, '    %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f /  \t ! lower halfspace \n', SSP.depth( SSP.NMedia+1 ), ...
         Bdry.Bot.HS.c, Bdry.Bot.HS.ssc, Bdry.Bot.HS.rho, Bdry.Bot.HS.cwa, Bdry.Bot.HS.swa );
 end
 

@@ -20,7 +20,8 @@ classdef BellhopEnvironment < handle
         drSimuDefault = 0.01;
         dzSimuDefault = 0.5;
         % Surface
-        SspOptionDefault = 'SVM'; % M for attenuation in dB/m
+%         SspOptionDefault = 'SVM'; % M for attenuation in dB/m
+        SspOptionDefault = 'SVW'; % W for attenuation in dB/lambda
         % Bathy 
         interpMethodBTYDefault = 'C';  % 'L' Linear piecewise, 'C' Curvilinear  
         % Beam
@@ -58,9 +59,9 @@ classdef BellhopEnvironment < handle
 
         function setBeamDefault(obj)
             % Beam 
-            obj.beam.RunType(1) = obj.runType1Default;
-            obj.beam.RunType(2) = obj.runType2Default;
-            obj.beam.Nbeams = obj.NbeamsDefault;
+            obj.beam.RunType(1) = obj.runType1Default; % Run type 
+            obj.beam.RunType(2) = obj.runType2Default; % Beam type 
+            obj.beam.Nbeams = obj.NbeamsDefault; % Number of beams used 
             obj.beam.alpha = obj.alphaDefault;
             obj.beam.deltas = obj.deltasDefault;
         end
@@ -119,7 +120,9 @@ classdef BellhopEnvironment < handle
         function attUnit = get.AttenuationUnitLabel(obj)
             switch obj.SspOption(3)
                 case 'M'
-                    attUnit = 'db/m';
+                    attUnit = 'dB/m';
+                case 'W'
+                    attUnit = 'dB/lambda';
             end
         end
     end 
