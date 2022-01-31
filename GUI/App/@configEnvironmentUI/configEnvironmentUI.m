@@ -208,7 +208,9 @@ classdef configEnvironmentUI < handle
                     app.subWindows{end+1} = selectRecordingUI(app.Simulation, app.handleEditField(5));
                     bool = 0;
                 case 'Derived from Wenz model'
-                    % TODO: compute with model 
+                    if isempty(app.Simulation.noiseEnvironment.wenzModel)
+                        app.Simulation.noiseEnvironment.wenzModel = WenzModel; 
+                    end
                     app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                     bool = 0;
                case 'Input value'
@@ -247,6 +249,10 @@ classdef configEnvironmentUI < handle
                     end
                     app.subWindows{end+1} = selectRecordingUI(app.Simulation, app.handleEditField(5));
                 case 'Derived from Wenz model'
+                    if isempty(app.Simulation.noiseEnvironment.wenzModel)
+                        app.Simulation.noiseEnvironment.wenzModel = WenzModel; 
+                    end
+                    app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                 case 'Input value'
             end
             % Open editUI

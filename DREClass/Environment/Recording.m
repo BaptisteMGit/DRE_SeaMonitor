@@ -14,11 +14,14 @@ classdef Recording < handle
     end
 
     properties (Hidden)
+        % Default values 
         bandwidthTypeDefault = '1 octave'; % Clik are large band signals 
         filterOrderDefault = 6; % Default value of the function octaveFilter
         temporalWindowDefault = 60;
-            calibrationCoefficientDefault = 173; 
-            signal
+        calibrationCoefficientDefault = 173; % TODO: check this value (SoundTrap)  
+        
+        % Signal to process 
+        signal
         filteredSignal
     end 
     

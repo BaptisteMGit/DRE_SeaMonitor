@@ -24,9 +24,6 @@ classdef NoiseEnvironment < handle
                 assert(isnumeric(varargin{1}), 'Value is not numeric. When directly trying to set a ambient noise level the value must be a numeric value (in dB).')
                 obj.noiseLevel = varargin{1};
             end
-
-%             assert(nargin>=1, 'The computing method must be specified when creating a NoiseEnvironment object.')
-%             obj.computingMethod = computingMethod;
         end
     end 
     
@@ -40,7 +37,7 @@ classdef NoiseEnvironment < handle
         function computeNoiseLevel(obj, d)
             switch obj.computingMethod
                 case 'Derived from Wenz model'
-                    obj.noiseLevel = obj.wenzModel.computeNoiseLevel(d);
+                    obj.noiseLevel = obj.wenzModel.computeNoiseLevel();
                 case 'Derived from recording'
                     cond = (~isempty(obj.recording) & ~isempty(obj.recording.recordingFile) & (ischar(obj.recording.recordingFile) | isstring(obj.recording.recordingFile)));
                     assert(cond, 'When trying to measure ambient noise level from a recording a .waw must be provided.')

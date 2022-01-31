@@ -1,32 +1,34 @@
-classdef WenzModel
+classdef WenzModel < handle
     %RECORDING Class to handle the estimation of the ambient noise level
     %using wenz model 
     %   Detailed explanation goes here
     
     properties
-        centroidFrequency
-        bandwidthType
-        bandwidth
-        userDesignedBandwidth
+        windSpeed % Wind speed in knots 
+        trafficIntensity % traffic intensity on a scale from 1 to 7 
+        frequencyRange % Bandwidth to integrate  
     end
 
     properties (Hidden)
-        modelMaxFrequency = 1e5;
+        % Default values 
+        windSpeedDefault = 10;
+        trafficIntensityDefault = 3;
+
+        % Limit of the model 
+        modelMaxFrequency = 2e5;
         modelMinFrequency = 1;
     end 
     
     methods
-        function obj = WenzModel(centroidFrequency, bandwidthType, userDesignedBandwidth)
-            obj.centroidFrequency = centroidFrequency;
-            obj.bandwidthType = bandwidthType;
-            obj.userDesignedBandwidth = userDesignedBandwidth;
+        function obj = WenzModel()
+            obj.setDefault()
         end
       
         function [bool, msg] = checkParametersValidity(obj)
             bool = 1;
             msg = {};
             
-            if (obj.bandwidth.max > obj.modelMaxFrequency) || (obj.bandwidth.max < obj.modelMinFrequency)
+            if (obj.frequencyRange.max > obj.modelMaxFrequency) || (obj.frequencyRange.max < obj.modelMinFrequency)
                 bool = 0;
                 msg{end+1} = sprintf(['Frequency is out of range for Wenz model.\n', ...
                                         'Wenz model is designed for frequency from %dHz to %dHz'], ...
@@ -35,7 +37,14 @@ classdef WenzModel
         end
 
         function noiseLevel = computeNoiseLevel(obj)
-%             noiseLevel = wenz()
+            wenzArgin = {'fMin', obj.frequencyRange.min, 'fMax', obj.frequencyRange.max, ...
+                'trafficIntensity', obj.trafficIntensity, 'windSpeed', obj.windSpeed};
+            noiseLevel = getNLFromWenzModel(wenzArgin{:});
+        end
+
+        function setDefault(obj)
+            obj.windSpeed = obj.windSpeedDefault;
+            obj.trafficIntensity = obj.trafficIntensityDefault;
         end
     end
 end

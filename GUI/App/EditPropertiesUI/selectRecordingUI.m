@@ -25,6 +25,8 @@ classdef selectRecordingUI < handle
         % frequency range
         fmin
         fmax
+        % round coeff for frequency 
+        roundCoeff
     end
 
     properties (Hidden=true)
@@ -76,9 +78,9 @@ classdef selectRecordingUI < handle
             app.GridLayout.ColumnWidth{1} = 10;
             app.GridLayout.ColumnWidth{2} = 140;
             app.GridLayout.ColumnWidth{3} = 5;
-            app.GridLayout.ColumnWidth{4} = 100;
-            app.GridLayout.ColumnWidth{5} = 150;
-            app.GridLayout.ColumnWidth{6} = 100;
+            app.GridLayout.ColumnWidth{4} = 125;
+            app.GridLayout.ColumnWidth{5} = 100;
+            app.GridLayout.ColumnWidth{6} = 125;
             app.GridLayout.ColumnWidth{7} = 5;
             app.GridLayout.ColumnWidth{8} = 90;
 
@@ -124,7 +126,7 @@ classdef selectRecordingUI < handle
             addButton(app, 'Select file', 2, 8, @app.selectRecording)
 
             % Save settings 
-            addButton(app, 'Compute noise level', 9, 5, @app.computeNoiseLevel)
+            addButton(app, 'Compute', 9, 5, @app.computeNoiseLevel)
         end
     end
     
@@ -156,7 +158,7 @@ classdef selectRecordingUI < handle
             if ~(app.Simulation.marineMammal.centroidFrequency == app.Simulation.noiseEnvironment.recording.centroidFrequency)
                 message = sprintf(['Usually one should be interested in estimating the ambient noise level in the frequency band of interest.', ...
                     'You have selected a centroid frequency different from the centroid frequency of %s emmited by %s.', ...
-                    'You should consider editing the centroid frequency either of for the estimation of ambient noise ', ...
+                    'You should consider editing the centroid frequency either for the estimation of ambient noise ', ...
                     'level or for the studied signal associated to the specie of interest.'], ...
                     app.Simulation.marineMammal.signal.name, app.Simulation.marineMammal.name);
                 uialert(app.Figure, message, 'Centroid frequency info', 'Icon', 'info')
@@ -196,7 +198,9 @@ classdef selectRecordingUI < handle
         end
 
         function updateFrequencyRange(app)
+            app.Simulation.noiseEnvironment.recording.frequencyRange.min = app.fmin;
             set(app.handleEditField(3), 'Value', app.fmin)
+            app.Simulation.noiseEnvironment.recording.frequencyRange.max = app.fmax;
             set(app.handleEditField(4), 'Value', app.fmax)
         end
 
@@ -246,7 +250,7 @@ classdef selectRecordingUI < handle
                 otherwise
                     fmin = app.Simulation.noiseEnvironment.recording.centroidFrequency / G^(1/2);
             end
-            fmin = round(fmin,-3);
+            fmin = round(fmin, app.roundCoeff);
         end
 
         function fmax = get.fmax(app)
@@ -259,7 +263,23 @@ classdef selectRecordingUI < handle
                 otherwise
                     fmax = app.Simulation.noiseEnvironment.recording.centroidFrequency * G^(1/2);
             end
-            fmax = round(fmax,-3);
+            fmax = round(fmax, app.roundCoeff);
+        end
+
+        function roundCoeff = get.roundCoeff(app)
+            if app.Simulation.noiseEnvironment.recording.centroidFrequency <= 10
+                roundCoeff = 2; 
+            elseif app.Simulation.noiseEnvironment.recording.centroidFrequency <= 100
+                roundCoeff = 1; 
+            elseif app.Simulation.noiseEnvironment.recording.centroidFrequency <= 1000
+                roundCoeff = 0; 
+            elseif app.Simulation.noiseEnvironment.recording.centroidFrequency <= 10000
+                roundCoeff = -1; 
+            elseif app.Simulation.noiseEnvironment.recording.centroidFrequency <= 100000
+                roundCoeff = -2; 
+            else 
+                roundCoeff = -3; 
+            end
         end
     end 
 end

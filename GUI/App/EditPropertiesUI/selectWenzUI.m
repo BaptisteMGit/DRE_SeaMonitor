@@ -15,6 +15,9 @@ classdef selectWenzUI < handle
         handleButton
         % Name of the window 
         Name = "Wenz parameters";
+
+        bandwidthType = '1 octave';
+        centroidFrequency
     end 
     
     properties (Dependent)
@@ -24,15 +27,17 @@ classdef selectWenzUI < handle
         % frequency range
         fmin
         fmax
+        % round coeff for frequency 
+        roundCoeff
     end
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 700;
+        Width = 410;
         Height = 300;
         % Number of components 
         glNRow = 9;
-        glNCol = 8;
+        glNCol = 5;
         
         % Labels visual properties 
         LabelFontName = 'Arial';
@@ -55,6 +60,7 @@ classdef selectWenzUI < handle
         function app = selectWenzUI(simulation, nlEditFieldHandle)
             % Pass simulation handle 
             app.Simulation = simulation;
+            app.centroidFrequency = app.Simulation.marineMammal.centroidFrequency;
             % Handle to the edit field 
             app.nlEditFieldHandle = nlEditFieldHandle;
             % Figure 
@@ -73,63 +79,62 @@ classdef selectWenzUI < handle
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             app.GridLayout.ColumnWidth{1} = 10;
-            app.GridLayout.ColumnWidth{2} = 140;
+            app.GridLayout.ColumnWidth{2} = 180;
             app.GridLayout.ColumnWidth{3} = 5;
-            app.GridLayout.ColumnWidth{4} = 100;
-            app.GridLayout.ColumnWidth{5} = 150;
-            app.GridLayout.ColumnWidth{6} = 100;
-            app.GridLayout.ColumnWidth{7} = 5;
-            app.GridLayout.ColumnWidth{8} = 90;
+            app.GridLayout.ColumnWidth{4} = 150;
+            app.GridLayout.ColumnWidth{5} = 5;
 
             app.GridLayout.RowHeight{8} = 5;
 
             % Labels 
             addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
-            addLabel(app, 'Recording', 2, 2, 'text')
-            addLabel(app, 'Centroid frequency', 3, 2, 'text')
+            trafficIntensityTooltip = ['Traffic intensity is evaluated on a scale from 1 to 7.', ...
+                'This parameter only contribute to noise background in the very low frequency band (10Hz - 500Hz).'];
+            addLabel(app, 'Traffic intensity (from 1 to 7)', 2, 2, 'text', 'left', trafficIntensityTooltip)
+            windSpeedTooltip = ['Wind speed in knots.', ...
+                'This parameter contribute to noise background in the low to high frequency band (200Hz - 100kHz).'];
+            addLabel(app, 'Wind speed', 3, 2, 'text', 'left', windSpeedTooltip)
+            addLabel(app, 'Centroid frequency', 4, 2, 'text')
 %             addLabel(app, 'Hz', 3, 5, 'text')
 
-            addLabel(app, 'Bandwidth', 4, 2, 'text')
-            addLabel(app, 'fMin', 5, 2, 'text')
-            set(app.handleLabel(5), 'HorizontalAlignment', 'right')
-            addLabel(app, 'fMax', 6, 2, 'text')
+            addLabel(app, 'Bandwidth', 5, 2, 'text')
+            addLabel(app, 'fMin', 6, 2, 'text')
             set(app.handleLabel(6), 'HorizontalAlignment', 'right')
+            addLabel(app, 'fMax', 7, 2, 'text')
+            set(app.handleLabel(7), 'HorizontalAlignment', 'right')
 
             % Edit field
             % Recording
-            addEditField(app, app.Simulation.noiseEnvironment.recording.recordingFile, 2, [4, 6], 'Filename.wav', 'text', {@app.editFieldChanged, 'filename'}) % recording file 
-            addEditField(app, app.Simulation.marineMammal.centroidFrequency, 3, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.trafficIntensity, 2, 4, 'Traffic intensity from 1 to 7', 'numeric', {@app.editFieldChanged, 'trafficIntensity'}) 
+            set(app.handleEditField(1), 'ValueDisplayFormat', '%d (/7)') 
 
-            addEditField(app, app.fmin, 5, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
+            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.windSpeed, 3, 4, 'Wind speed in knots', 'numeric', {@app.editFieldChanged, 'windSpeed'}) 
+            set(app.handleEditField(2), 'ValueDisplayFormat', '%d kts') 
+
+            addEditField(app, app.centroidFrequency, 4, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
             set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
 
-            addEditField(app, app.fmax, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
+            addEditField(app, app.fmin, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
+            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz')
+
+            addEditField(app, app.fmax, 7, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
+            set(app.handleEditField(5), 'ValueDisplayFormat', '%d Hz') 
+
+            % Set editable properties 
+            app.updateWindTrafficVisualAspect()
             app.updateFrequencyRangeVisualAspect()
             
             % Drop down 
             % Bandwidth
-            addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.Simulation.noiseEnvironment.recording.bandwidthType, 4, [4, 6], @app.bandwidthTypeChanged) % Auto loaded bathy
-
-            % Buttons
-            addButton(app, 'Select file', 2, 8, @app.selectRecording)
+            addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.bandwidthType, 5, 4, @app.bandwidthTypeChanged) % Auto loaded bathy
 
             % Save settings 
-            addButton(app, 'Compute noise level', 9, 5, @app.computeNoiseLevel)
+            addButton(app, 'Compute noise level', 9, [2, 4], @app.computeNoiseLevel)
         end
     end
     
     %% Callback functions 
     methods
-
-        function selectRecording(app, hObject, eventData)
-            [file, path, indx] = uigetfile({'*.wav', 'Sound file'}, ...
-                                            'Select a file');
- 
-            app.Simulation.noiseEnvironment.recording.recordingFile = fullfile(path, file);          
-            set(app.handleEditField(1), 'Value', file)
-        end
         
         function closeWindowCallback(app, hObject, eventData)
             % Update edit field with new value 
@@ -138,17 +143,17 @@ classdef selectWenzUI < handle
         end
         
 
-        function bool = checkRecording(app)
+        function bool = checkWenz(app)
             % Blocking conditions 
-            [bool, msg] = app.Simulation.noiseEnvironment.recording.checkParametersValidity;
-            assertDialogBox(app, bool, msg, 'Recording warning', 'warning')
+            [bool, msg] = app.Simulation.noiseEnvironment.wenzModel.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Wenz warning', 'warning')
             
             % Check if centroid frequency is the same as the marine mammal
             % one. 
-            if ~(app.Simulation.marineMammal.centroidFrequency == app.Simulation.noiseEnvironment.recording.centroidFrequency)
+            if ~(app.Simulation.marineMammal.centroidFrequency == app.centroidFrequency)
                 message = sprintf(['Usually one should be interested in estimating the ambient noise level in the frequency band of interest.', ...
                     'You have selected a centroid frequency different from the centroid frequency of %s emmited by %s.', ...
-                    'You should consider editing the centroid frequency either of for the estimation of ambient noise ', ...
+                    'You should consider editing the centroid frequency either for the estimation of ambient noise ', ...
                     'level or for the studied signal associated to the specie of interest.'], ...
                     app.Simulation.marineMammal.signal.name, app.Simulation.marineMammal.name);
                 uialert(app.Figure, message, 'Centroid frequency info', 'Icon', 'info')
@@ -157,7 +162,7 @@ classdef selectWenzUI < handle
 
 
         function computeNoiseLevel(app, hObject, eventData)
-            bool = app.checkRecording();
+            bool = app.checkWenz();
             if bool
                 d = uiprogressdlg(app.Figure,'Title','Please Wait',...
                                 'Message','Estimating ambient noise level...', ...
@@ -182,18 +187,21 @@ classdef selectWenzUI < handle
 
 
         function bandwidthTypeChanged(app, hObject, eventData)
-            app.Simulation.noiseEnvironment.recording.bandwidthType = hObject.Value;
+            app.bandwidthType = hObject.Value;
             app.updateFrequencyRange()
             app.updateFrequencyRangeVisualAspect()
         end
 
         function updateFrequencyRange(app)
-            set(app.handleEditField(3), 'Value', app.fmin)
-            set(app.handleEditField(4), 'Value', app.fmax)
+            app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min = app.fmin;
+            set(app.handleEditField(4), 'Value', app.fmin)
+            app.Simulation.noiseEnvironment.wenzModel.frequencyRange.max = app.fmax;
+            set(app.handleEditField(5), 'Value', app.fmax)
+            app.updateWindTrafficVisualAspect()
         end
 
         function updateFrequencyRangeVisualAspect(app)
-            switch app.Simulation.noiseEnvironment.recording.bandwidthType
+            switch app.bandwidthType
                 case '1 octave'
                     bool = 0;
                 case '1/3 octave'
@@ -201,21 +209,41 @@ classdef selectWenzUI < handle
                 case 'ManuallyDefined'
                     bool = 1;
             end
-            set(app.handleEditField(3), 'Editable', bool)
             set(app.handleEditField(4), 'Editable', bool)
+            set(app.handleEditField(5), 'Editable', bool)
         end
-
+        
+        function updateWindTrafficVisualAspect(app)
+            if app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min >= 500
+                boolTraffic = 0;
+            else 
+                boolTraffic = 1;
+            end
+            set(app.handleEditField(1), 'Editable', boolTraffic)
+            
+            if app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min >= 100000
+                boolWind = 0;
+            else 
+                boolWind = 1;
+            end
+            set(app.handleEditField(2), 'Editable', boolWind)
+        end
+       
         function editFieldChanged(app, hObject, eventData, iD)
             switch iD
-                case 'wind'
-                    app.Simulation.noiseEnvironment.wenzModel.windStrength = regexprep(hObject.Value, ' ', ''); % Remove blanks
+                case 'trafficIntensity'
+                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = hObject.Value;
+                case 'windSpeed'
+                    app.Simulation.noiseEnvironment.wenzModel.windSpeed = hObject.Value; 
                 case 'centroidFrequency'
-                    app.Simulation.noiseEnvironment.wenzModel.centroidFrequency = hObject.Value;
+                    app.centroidFrequency = hObject.Value;
                     app.updateFrequencyRange()
                 case 'fmin'
-                    app.Simulation.noiseEnvironment.recording.frequencyRange.min = hObject.Value;
+                    app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min = hObject.Value;
+                    app.updateWindTrafficVisualAspect()
                 case 'fmax'
-                    app.Simulation.noiseEnvironment.recording.frequencyRange.max = hObject.Value;    
+                    app.Simulation.noiseEnvironment.wenzModel.frequencyRange.max = hObject.Value;   
+                    app.updateWindTrafficVisualAspect()
             end
         end
     end
@@ -228,28 +256,44 @@ classdef selectWenzUI < handle
 
         function fmin = get.fmin(app)
             G = 10^(3/10); % Constant used by octaveFilter
-            switch app.Simulation.noiseEnvironment.recording.bandwidthType
+            switch app.bandwidthType
                 case '1 octave'
-                    fmin = app.Simulation.noiseEnvironment.recording.centroidFrequency / G^(1/2);
+                    fmin = app.centroidFrequency / G^(1/2);
                 case '1/3 octave'
-                    fmin = app.Simulation.noiseEnvironment.recording.centroidFrequency / G^(1/6);
+                    fmin = app.centroidFrequency / G^(1/6);
                 otherwise
-                    fmin = app.Simulation.noiseEnvironment.recording.centroidFrequency / G^(1/2);
+                    fmin = app.centroidFrequency / G^(1/2);
             end
-            fmin = round(fmin,-3);
+            fmin = round(fmin, app.roundCoeff);
         end
 
         function fmax = get.fmax(app)
             G = 10^(3/10); % Constant used by octaveFilter
-            switch app.Simulation.noiseEnvironment.recording.bandwidthType
+            switch app.bandwidthType
                 case '1 octave'
-                    fmax = app.Simulation.noiseEnvironment.recording.centroidFrequency * G^(1/2);
+                    fmax = app.centroidFrequency * G^(1/2);
                 case '1/3 octave'
-                    fmax = app.Simulation.noiseEnvironment.recording.centroidFrequency * G^(1/6);   
+                    fmax = app.centroidFrequency * G^(1/6);   
                 otherwise
-                    fmax = app.Simulation.noiseEnvironment.recording.centroidFrequency * G^(1/2);
+                    fmax = app.centroidFrequency * G^(1/2);
             end
-            fmax = round(fmax,-3);
+            fmax = round(fmax, app.roundCoeff);
+        end
+
+        function roundCoeff = get.roundCoeff(app)
+            if app.centroidFrequency <= 10
+                roundCoeff = 2; 
+            elseif app.centroidFrequency <= 100
+                roundCoeff = 1; 
+            elseif app.centroidFrequency <= 1000
+                roundCoeff = 0; 
+            elseif app.centroidFrequency <= 10000
+                roundCoeff = -1; 
+            elseif app.centroidFrequency <= 100000
+                roundCoeff = -2; 
+            else 
+                roundCoeff = -3; 
+            end
         end
     end 
 end
