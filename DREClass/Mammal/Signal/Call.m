@@ -4,9 +4,9 @@ classdef Call < Signal
     end
 
     methods
-        function obj = Call(cFreq, sEnergy, sLength, dIndex, sLevel, cPara)
-            obj = obj@Signal(cFreq, sEnergy, sLength, dIndex, sLevel)
-            obj.callPara = cPara;
+        function obj = Call(cFreq, sLevel, callPara)
+            obj = obj@Signal('Call', cFreq, sLevel)
+            if nargin >= 3; obj.callPara = callPara;end
         end
     end
 end

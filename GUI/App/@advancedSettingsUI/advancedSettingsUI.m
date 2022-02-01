@@ -83,6 +83,7 @@ classdef advancedSettingsUI < handle
             
             addLabel(app, 'Type of surface', 5, 2, 'text')
             addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, @app.surfaceTypeChanged)
+            set(app.handleDropDown(2), 'Enable', 'off') % Not editable for the moment 
 
             addLabel(app, 'Attenuation in the bottom', 6, 2, 'text')
             addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, @app.attenuationUnitChanged)
@@ -200,7 +201,7 @@ classdef advancedSettingsUI < handle
             end
         end
         
-        function surfaceTypeChanged(app)
+        function surfaceTypeChanged(app, hObject, eventData)
             % TODO: handle different type of surface ? 
             % Is it really relevant to let the user choose ? 
         end

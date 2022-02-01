@@ -129,7 +129,7 @@ classdef configEnvironmentUI < handle
             % Hydrophone
             addDropDown(app, {'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
             % Specie
-            addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
+            addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise', 'Other'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
              % Sediment
@@ -191,6 +191,8 @@ classdef configEnvironmentUI < handle
                     newSpecie = BottlenoseDolphin;
                 case 'Porpoise'
                     newSpecie = Porpoise;
+                case 'Other'
+                    app.editMarinneMammalProperties()
             end
             app.Simulation.marineMammal = newSpecie;
         end
@@ -247,7 +249,7 @@ classdef configEnvironmentUI < handle
         end
 
         function editMarinneMammalProperties(app, hOject, eventData)
-            % Open editUI
+            app.subWindows{end+1} = editMarineMammalUI(app.Simulation, app.handleDropDown(3));        
         end
 
         function editDetectorProperties(app, hObject, eventData)

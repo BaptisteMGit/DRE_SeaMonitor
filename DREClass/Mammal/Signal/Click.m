@@ -5,11 +5,10 @@ classdef Click < Signal
     end
 
     methods
-        function obj = Click(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel, mean_ICI, pFreq)
-            obj = obj@Signal(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel)
-            obj.meanICI = mean_ICI;
-            obj.peakFrequency = pFreq;
-            obj.name = 'Click';
+        function obj = Click(cFreq, sLevel, mean_ICI, pFreq)
+            obj = obj@Signal('Click', cFreq, sLevel)
+            if nargin >= 3; obj.meanICI = mean_ICI; end
+            if nargin >= 4; obj.peakFrequency = pFreq; end            
         end
     end
 end

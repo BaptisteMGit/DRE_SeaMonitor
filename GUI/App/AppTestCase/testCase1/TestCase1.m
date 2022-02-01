@@ -46,7 +46,7 @@ classdef TestCase1 < DRESimulation
             
             %% Marine mammal 
             porpoise = Porpoise();
-            porpoise.centroidFrequency = 130; % frequency in kHz
+            porpoise.centroidFrequency = 130 * 1e3; % frequency in Hz
             porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)

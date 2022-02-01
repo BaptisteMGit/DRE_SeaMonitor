@@ -1,14 +1,16 @@
 classdef MarineMammal
     properties
         name % name of the marine mammal
+
+        centroidFrequency % centroid frequency
+        sourceLevel % source level dB re 1uPa @ 1m 
+        signalName % signal name (click, whistle, etc..) 
         signal % Signal object  
+
         rMax % Maximum detection range according to literature 
         livingDepth % Depth where the mammal is supposed to live 
         deltaLivingDepth % Range around livingDepth where the mammal has a high probability to be encountered 
 
-%         minFrequency % Minimum emission frequency (Hz) 
-%         maxFrequency % Maximum emission frequency (Hz) 
-        
         %TODO: add directionnality later 
     end
 
@@ -16,7 +18,7 @@ classdef MarineMammal
         %TODO: Check in literature for relevent min and max sl to
         %trigger unconsistent sl values 
         slmin = 10; %dB
-        slmax = 200; %dB
+        slmax = 250; %dB
     end
 
 
@@ -49,6 +51,15 @@ classdef MarineMammal
         end 
     
         
+        function obj = setDefaultSignal(obj)      
+            obj.signal = Signal(obj.signalName, obj.centroidFrequency, obj.sourceLevel);
+        end
+
+        function updateSignal(obj)
+            obj.signal.name = obj.signalName;
+            obj.signal.centroidFrequency = obj.centroidFrequency;
+            obj.signal.sourceLevel = obj.sourceLevel;
+        end
 
         %% Set methods 
         function obj = set.rMax(obj, rmax)

@@ -1,22 +1,29 @@
 classdef Signal
     properties 
-        centroidFrequency % Centroid emission frequency (Hz) 
-        bandWidth % Signal Bandwidth 
-        signalEnergy % Signal energy in Ws 
-        signalLength % Signal length in s
-        directivityIndex % Directivity index in dB 
-        sourceLevel % Source level in dB 
         name
+        centroidFrequency % Centroid emission frequency (Hz) 
+        sourceLevel % Source level in dB 
+
+        % Useless for the moment 
+%         bandWidth % Signal Bandwidth 
+%         signalEnergy % Signal energy in Ws 
+%         signalLength % Signal length in s
+%         directivityIndex % Directivity index in dB 
     end
 
     methods
-        function obj = Signal(cFreq, bWidth, sEnergy, sLength, dIndex, sLevel)
+        function obj = Signal(name, cFreq, sLevel)
+            % Mandatory parameters 
+            obj.name = name; 
             obj.centroidFrequency = cFreq;
-            obj.bandWidth = bWidth;
-            obj.signalEnergy = sEnergy;
-            obj.signalLength = sLength;
-            obj.directivityIndex = dIndex;
             obj.sourceLevel = sLevel;
+
+            % Optional parameters 
+%             Signal(name, cFreq, sLevel, bWidth, sEnergy, sLength, dIndex)
+%             if nargin >= 3; obj.bandWidth = bWidth; end 
+%             if nargin >= 4; obj.signalEnergy = sEnergy;end
+%             if nargin >= 5; obj.signalLength = sLength;end
+%             if nargin >= 6; obj.directivityIndex = dIndex;end            
         end
     end
 end
