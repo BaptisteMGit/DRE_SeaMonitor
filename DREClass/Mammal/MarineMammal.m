@@ -19,12 +19,21 @@ classdef MarineMammal
         %trigger unconsistent sl values 
         slmin = 10; %dB
         slmax = 250; %dB
+
+        % Default values 
+        centroidFrequencyDefault = 100 * 1e3; % centroid frequency
+        sourceLevelDefault = 175;% source level dB re 1uPa @ 1m 
+        rMaxDefault = 1500; % Maximum detection range according to literature 
+        livingDepthDefault = 10; % Depth where the mammal is supposed to live 
+        deltaLivingDepthDefault = 5; % Range around livingDepth where the mammal has a high probability to be encountered 
+
     end
 
 
     methods
         %% Constructor 
         function obj = MarineMammal(sig, rmax, lDepth, deltaLDepth)
+            obj = obj.setDefault();
             % Signal  
             if nargin >= 1
                 if isa(sig, 'Signal')
@@ -59,6 +68,15 @@ classdef MarineMammal
             obj.signal.name = obj.signalName;
             obj.signal.centroidFrequency = obj.centroidFrequency;
             obj.signal.sourceLevel = obj.sourceLevel;
+        end
+
+        function obj = setDefault(obj)
+            obj.name = 'DefaultMammal';
+            obj.centroidFrequency =  obj.centroidFrequencyDefault;
+            obj.sourceLevel = obj.sourceLevelDefault;
+            obj.rMax = obj.rMaxDefault; 
+            obj.livingDepth = obj.livingDepthDefault; 
+            obj.deltaLivingDepth = obj.deltaLivingDepthDefault;
         end
 
         %% Set methods 

@@ -169,11 +169,15 @@ classdef editMarineMammalUI < handle
         function specieChanged(app, hObject, eventData)
             switch hObject.Value
                 case 'Common dolphin'
+                    app.Simulation.marineMammal = CommonDolphin;
                 case 'Bottlenose dolphin'
+                    app.Simulation.marineMammal = BottlenoseDolphin;
                 case 'Porpoise'
+                    app.Simulation.marineMammal = Porpoise; 
                 case 'Other'
                     app.Simulation.marineMammal = MarineMammal;
             end
+            app.updatePropertiesValue()
             app.updateSpecieNameEditField()
         end
         
@@ -213,6 +217,15 @@ classdef editMarineMammalUI < handle
             app.Simulation.marineMammal.livingDepth = get(app.handleEditField(5), 'Value');
             app.Simulation.marineMammal.deltaLivingDepth = get(app.handleEditField(6), 'Value');
         end
+
+        function updatePropertiesValue(app)
+            set(app.handleEditField(1), 'Value', app.Simulation.marineMammal.name);
+            set(app.handleEditField(2), 'Value', app.Simulation.marineMammal.centroidFrequency);
+            set(app.handleEditField(3), 'Value', app.Simulation.marineMammal.sourceLevel);
+            set(app.handleEditField(4), 'Value', app.Simulation.marineMammal.rMax);
+            set(app.handleEditField(5), 'Value', app.Simulation.marineMammal.livingDepth);
+            set(app.handleEditField(6), 'Value', app.Simulation.marineMammal.deltaLivingDepth);
+        end 
 
     end
     %% Get methods for dependent properties 

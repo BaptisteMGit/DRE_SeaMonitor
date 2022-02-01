@@ -186,15 +186,15 @@ classdef configEnvironmentUI < handle
         function specieChanged(app, hObject, eventData)
             switch hObject.Value
                 case 'Common dolphin'
-                    newSpecie = CommonDolphin;
+                    app.Simulation.marineMammal = CommonDolphin;
                 case 'Bottlenose dolphin'
-                    newSpecie = BottlenoseDolphin;
+                    app.Simulation.marineMammal = BottlenoseDolphin;
                 case 'Porpoise'
-                    newSpecie = Porpoise;
+                    app.Simulation.marineMammal = Porpoise;
                 case 'Other'
+                    app.Simulation.marineMammal = MarineMammal;
                     app.editMarinneMammalProperties()
             end
-            app.Simulation.marineMammal = newSpecie;
         end
 
         function detectorChanged(app, hObject, eventData)

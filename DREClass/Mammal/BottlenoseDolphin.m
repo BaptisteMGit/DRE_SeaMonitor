@@ -24,6 +24,7 @@ classdef BottlenoseDolphin < MarineMammal
             obj.signal =  Click(obj.centroidFrequency, obj.sourceLevel, obj.meanICI, obj.peakFrequency);
 
             obj.rMax = 1500; % TODO: check literature (rMax is inherited from MarineMammal)
+            % TODO: check following values 
             obj.livingDepth = 25;
             obj.deltaLivingDepth = 100;
             obj.name = 'Bottlenose dolphin';
