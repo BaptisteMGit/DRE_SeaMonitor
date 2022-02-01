@@ -11,5 +11,4 @@ function GEBCObBox = extratBathybBoxFromGEBCOGlobal(bBox, rootSaveInput)
     cmd = sprintf('%s%s%s %s %s', path_ncks, lonlim, latlim, GEBCOGlobal, fullfile(rootSaveInput, GEBCObBox));
 
     [status, cmdout] = system(cmd);
-
 end

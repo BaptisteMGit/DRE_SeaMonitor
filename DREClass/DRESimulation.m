@@ -620,6 +620,29 @@
             cd(current)
         end
 
+        function plotFOM(obj, nameProfile, saveBool, bathyBool)
+            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
+            figure('visible','off');
+            current = pwd;
+            cd(obj.rootOutputFiles)
+            plotspl(varSpl{:});
+            a = colorbar;
+            a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
+
+            if bathyBool
+                plotbty( nameProfile );
+            end
+
+            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+
+            if saveBool
+                cd(obj.rootOutputFigures)
+                saveas(gcf, sprintf('%sSPL.png', nameProfile));
+            end
+            close(gcf);
+            cd(current)
+        end
+
         function plotDR(obj)
             figure;
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
@@ -669,6 +692,7 @@
             saveas(gcf, fullfile(obj.rootSaveInput, 'CelerityProfile.png'))
             close(gcf)
         end
+        
 
         function addDetectionRange(obj, nameProfile)
             current = pwd;
