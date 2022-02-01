@@ -4,15 +4,15 @@ classdef WenzModel < handle
     %   Detailed explanation goes here
     
     properties
-        windSpeed % Wind speed in knots 
-        trafficIntensity % traffic intensity on a scale from 1 to 7 
+        windSpeed % Wind speed in m.s-1 
+        trafficIntensity % traffic intensity on a scale from 0 to 3 <-> quiet, low, medium, heavy 
         frequencyRange % Bandwidth to integrate  
     end
 
     properties (Hidden)
         % Default values 
         windSpeedDefault = 10;
-        trafficIntensityDefault = 3;
+        trafficIntensityDefault = 1;
 
         % Limit of the model 
         modelMaxFrequency = 2e5;

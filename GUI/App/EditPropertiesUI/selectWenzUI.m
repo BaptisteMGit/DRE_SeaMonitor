@@ -29,11 +29,13 @@ classdef selectWenzUI < handle
         fmax
         % round coeff for frequency 
         roundCoeff
+        % Label for traffic intensity value
+        trafficIntensityLabel
     end
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 410;
+        Width = 350;
         Height = 300;
         % Number of components 
         glNRow = 9;
@@ -80,7 +82,7 @@ classdef selectWenzUI < handle
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             app.GridLayout.ColumnWidth{1} = 10;
-            app.GridLayout.ColumnWidth{2} = 180;
+            app.GridLayout.ColumnWidth{2} = 120;
             app.GridLayout.ColumnWidth{3} = 5;
             app.GridLayout.ColumnWidth{4} = 150;
             app.GridLayout.ColumnWidth{5} = 5;
@@ -89,11 +91,11 @@ classdef selectWenzUI < handle
 
             % Labels 
             addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
-            trafficIntensityTooltip = ['Traffic intensity is evaluated on a scale from 1 to 7.', ...
-                'This parameter only contribute to noise background in the very low frequency band (10Hz - 500Hz).'];
-            addLabel(app, 'Traffic intensity (from 1 to 7)', 2, 2, 'text', 'left', trafficIntensityTooltip)
-            windSpeedTooltip = ['Wind speed in knots.', ...
-                'This parameter contribute to noise background in the low to high frequency band (200Hz - 100kHz).'];
+            trafficIntensityTooltip = ['Traffic intensity is evaluated on a scale from 0 to 3.', ...
+                'This parameter only contribute to noise background in the very low frequency band (10Hz - 1kHz).'];
+            addLabel(app, 'Traffic intensity', 2, 2, 'text', 'left', trafficIntensityTooltip)
+            windSpeedTooltip = ['Wind speed in m.s-1.', ...
+                'This parameter contribute to noise background in the low to high frequency band (1kHz - 100kHz).'];
             addLabel(app, 'Wind speed', 3, 2, 'text', 'left', windSpeedTooltip)
             addLabel(app, 'Centroid frequency', 4, 2, 'text')
 
@@ -105,31 +107,29 @@ classdef selectWenzUI < handle
 
             % Edit field
             % Recording
-            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.trafficIntensity, 2, 4, 'Traffic intensity from 1 to 7', 'numeric', {@app.editFieldChanged, 'trafficIntensity'}) 
-            set(app.handleEditField(1), 'ValueDisplayFormat', '%d (/7)') 
-
-            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.windSpeed, 3, 4, 'Wind speed in knots', 'numeric', {@app.editFieldChanged, 'windSpeed'}) 
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%d kts') 
+            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.windSpeed, 3, 4, 'Wind speed in m.s-1', 'numeric', {@app.editFieldChanged, 'windSpeed'}) 
+            set(app.handleEditField(1), 'ValueDisplayFormat', '%d m.s-1') 
 
             addEditField(app, app.centroidFrequency, 4, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
+            set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
 
             addEditField(app, app.fmin, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz')
+            set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
 
             addEditField(app, app.fmax, 7, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
-            set(app.handleEditField(5), 'ValueDisplayFormat', '%d Hz') 
-
-            % Set editable properties 
-            app.updateWindTrafficVisualAspect()
-            app.updateFrequencyRangeVisualAspect()
+            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
             
             % Drop down 
+            addDropDown(app, {'Quiet', 'Low', 'Medium', 'Heavy'}, app.trafficIntensityLabel, 2, 4, @app.trafficIntensityChanged) 
             % Bandwidth
             addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.bandwidthType, 5, 4, @app.bandwidthTypeChanged) % Auto loaded bathy
 
             % Save settings 
             addButton(app, 'Compute noise level', 9, [2, 4], @app.computeNoiseLevel)
+
+            % Set editable properties 
+            app.updateWindTrafficVisualAspect()
+            app.updateFrequencyRangeVisualAspect()
         end
     end
     
@@ -191,9 +191,9 @@ classdef selectWenzUI < handle
 
         function updateFrequencyRange(app)
             app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min = app.fmin;
-            set(app.handleEditField(4), 'Value', app.fmin)
+            set(app.handleEditField(3), 'Value', app.fmin)
             app.Simulation.noiseEnvironment.wenzModel.frequencyRange.max = app.fmax;
-            set(app.handleEditField(5), 'Value', app.fmax)
+            set(app.handleEditField(4), 'Value', app.fmax)
             app.updateWindTrafficVisualAspect()
         end
 
@@ -206,30 +206,28 @@ classdef selectWenzUI < handle
                 case 'ManuallyDefined'
                     bool = 1;
             end
+            set(app.handleEditField(3), 'Editable', bool)
             set(app.handleEditField(4), 'Editable', bool)
-            set(app.handleEditField(5), 'Editable', bool)
         end
         
         function updateWindTrafficVisualAspect(app)
-            if app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min >= 500
+            if app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min > 1000
                 boolTraffic = 0;
             else 
                 boolTraffic = 1;
             end
-            set(app.handleEditField(1), 'Editable', boolTraffic)
+            set(app.handleDropDown(1), 'Enable', boolTraffic)
             
             if app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min >= 100000
                 boolWind = 0;
             else 
                 boolWind = 1;
             end
-            set(app.handleEditField(2), 'Editable', boolWind)
+            set(app.handleEditField(1), 'Editable', boolWind)
         end
        
         function editFieldChanged(app, hObject, eventData, iD)
             switch iD
-                case 'trafficIntensity'
-                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = hObject.Value;
                 case 'windSpeed'
                     app.Simulation.noiseEnvironment.wenzModel.windSpeed = hObject.Value; 
                 case 'centroidFrequency'
@@ -243,6 +241,19 @@ classdef selectWenzUI < handle
                     app.updateWindTrafficVisualAspect()
             end
         end
+
+        function trafficIntensityChanged(app, hOject, eventData)
+            switch hOject.Value
+                case 'Quiet'
+                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = 0;
+                case 'Low'
+                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = 1;
+                case 'Medium'
+                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = 2;
+                case 'Heavy'
+                    app.Simulation.noiseEnvironment.wenzModel.trafficIntensity = 3;
+            end
+        end 
     end
 
     %% Get methods for dependent properties 
@@ -290,6 +301,19 @@ classdef selectWenzUI < handle
                 roundCoeff = -2; 
             else 
                 roundCoeff = -3; 
+            end
+        end
+
+        function label = get.trafficIntensityLabel(app)
+            switch app.Simulation.noiseEnvironment.wenzModel.trafficIntensity
+                case 0
+                    label = 'Quiet';
+                case 1 
+                    label = 'Low';
+                case 2 
+                    label = 'Medium';
+                case 3
+                    label = 'Heavy';
             end
         end
     end 

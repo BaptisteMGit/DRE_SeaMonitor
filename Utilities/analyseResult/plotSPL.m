@@ -1,4 +1,4 @@
-function plotspl(varargin)
+function plotSPL(varargin)
 
 filename = getVararginValue(varargin, 'filename', '');
 sl = getVararginValue(varargin, 'SL', 100); % Source level in decibel (dB) 

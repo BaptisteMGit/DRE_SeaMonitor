@@ -179,7 +179,7 @@
             % NOTE: cwa is computed using the median depth in the area around the mooring 
             % - sign for positive depth toward bottom
             medianDepth = -median(obj.dataBathy(:, 3)); 
-            cwa = AbsorptionSoundSeaWaterFrancoisGarrison(...
+            cwa = FrancoisGarrison(...
                 obj.marineMammal.signal.centroidFrequency / 1000,...
                 mean(obj.oceanEnvironment.temperatureC, 'omitnan'),...
                 mean(obj.oceanEnvironment.salinity, 'omitnan'),...
@@ -495,11 +495,6 @@
         function setBottom(obj)
             % Bottom properties 
             obj.bottom = obj.seabedEnvironment.bottom;
-%             obj.bottom.c = 1600; % Sound celerity in bottom half space 
-%             obj.bottom.ssc = 0.0; % Shear Sound Celerity in bottom half space 
-%             obj.bottom.rho = 1.8; % Density in bottom half space 
-%             obj.bottom.cwa = 0.8; % Compression Wave Absorption in bottom half space (unit depend on topOption(3), 'W' = dB/wavelength)
-%             obj.bottom.swa = []; % Shear Wave Absorption in bottom half space 
         end
 
         function setSsp(obj, bathyProfile, i_theta)
@@ -602,7 +597,7 @@
             figure('visible','off');
             current = pwd;
             cd(obj.rootOutputFiles)
-            plotspl(varSpl{:});
+            plotSPL(varSpl{:});
             a = colorbar;
             a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
 
@@ -625,10 +620,7 @@
             figure('visible','off');
             current = pwd;
             cd(obj.rootOutputFiles)
-            plotspl(varSpl{:});
-            a = colorbar;
-            a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
-
+            plotFOM(varSpl{:});
             if bathyBool
                 plotbty( nameProfile );
             end

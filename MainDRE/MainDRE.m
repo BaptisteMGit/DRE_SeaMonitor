@@ -52,7 +52,7 @@ if ~exist(rootSaveResult, 'dir'); mkdir(rootSaveResult);end
 listDetectionRange = [];
 for theta = listAz 
     %% Extract 2D profile
-    fprintf('Extraction of 2D profile, azimuth = %2.1f°\n', theta);
+    fprintf('Extraction of 2D profile, azimuth = %2.1fÂ°\n', theta);
     varGetProfiles = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'SRC', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
     [dataProfile] = getBathy2Dprofile(varGetProfiles{:});
     
@@ -116,7 +116,7 @@ for theta = listAz
     varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', SL};
     [SPL, zt, rt] = computeSpl(varSpl{:});
     figure;
-    plotspl(varSpl{:});
+    plotSPL(varSpl{:});
     plotbty( nameProfile );
     saveas(gcf, sprintf('%sSPL.png', nameProfile));
     close(gcf);
