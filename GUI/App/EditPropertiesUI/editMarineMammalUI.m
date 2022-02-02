@@ -122,7 +122,7 @@ classdef editMarineMammalUI < handle
 
         function closeWindowCallback(app, hObject, eventData)
             msg = 'Do you want to save the changes ?';
-            options = {'Save and quit', 'Quit without saving'   , 'Cancel'};
+            options = {'Save and quit', 'Quit without saving', 'Cancel'};
             selection = uiconfirm(app.Figure, msg, 'Save settings ?', ...
                             'Options', options, ...
                             'DefaultOption',1,'CancelOption',3);

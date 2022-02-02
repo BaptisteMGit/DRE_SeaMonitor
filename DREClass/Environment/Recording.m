@@ -5,6 +5,7 @@ classdef Recording < handle
     
     properties
         recordingFile % fullpath to the sound file 
+        listRecordingFile % List of file to process 
         calibrationCoefficient % Calibration coefficient to convert volt values in the .wav file into micro pascals 
         centroidFrequency % center frequency of interest
         bandwidthType  % '1 octave', '1/3 octave' or 'ManuallyDefined'
@@ -29,12 +30,12 @@ classdef Recording < handle
     end
 
     methods
-        function obj = Recording(centroidFrequency, bandwidthType, recordingFile, filterOrder)
+        function obj = Recording(centroidFrequency, bandwidthType, listRecordingFile, filterOrder)
             obj.setDefault()
 
             if nargin >= 1; obj.centroidFrequency = centroidFrequency; end 
             if nargin >= 2; obj.bandwidthType = bandwidthType; end 
-            if nargin >= 3; obj.recordingFile = recordingFile; end 
+            if nargin >= 3; obj.listRecordingFile = listRecordingFile; end 
             if nargin >= 4; obj.filterOrder = filterOrder; end 
         end
         
@@ -51,7 +52,7 @@ classdef Recording < handle
             bool = 1;
             msg = {};
             
-            if isempty(obj.recordingFile)
+            if isempty(obj.listRecordingFile)
                 bool = 0;
                 msg{end+1} = 'No recording file selected. Please select a valid sound file (.wav).';
             end
@@ -65,35 +66,49 @@ classdef Recording < handle
         end
 
         function noiseLevel = computeNoiseLevel(obj, d)
-            % Continuous equivalent level (RMS over temporalWindow s) 
-            info = audioinfo(obj.recordingFile);
-            
-            deltaSample = obj.temporalWindow * info.SampleRate;
-            starting_sample = 1;
-            ending_sample = 1 + deltaSample;
-
-            n = floor(info.TotalSamples / (obj.temporalWindow * info.SampleRate));
-            listLeq = int32.empty([n, 0]);
-
-            % Loop through the sound file 
-            for i=1:n 
-                % Update process bar 
-                d.Value = i/n;
-                d.Message = sprintf('Processing recording from %.2f s to %.2f s ...', starting_sample / info.SampleRate, ending_sample / info.SampleRate);
+            figure
+%             listNL = int32.empty([numel(obj.listRecordingFile), 0]);
+            listNL = [];
+            for j = 1:numel(obj.listRecordingFile)
+                obj.recordingFile = obj.listRecordingFile{j};
+                % Continuous equivalent level (RMS over temporalWindow s) 
+                info = audioinfo(obj.recordingFile);
                 
-                samplesRange = [starting_sample, ending_sample];
-                obj.signal = obj.loadSignal(samplesRange);
-                listLeq(i) = getNLFromWavFile_Leq(obj.filteredSignal, obj.calibrationCoefficient);
+                deltaSample = obj.temporalWindow * info.SampleRate;
+                starting_sample = 1;
+                ending_sample = 1 + deltaSample;
+    
+                n = floor(info.TotalSamples / (obj.temporalWindow * info.SampleRate));
+                listLeq = int32.empty([n, 0]);
+    
+                % Loop through the sound file 
+                for i=1:n 
+                    % Update process bar 
+                    d.Value = i/n;
+                    d.Message = sprintf('Processing recording n°%d/%d from %.2f s to %.2f s ...', j, numel(obj.listRecordingFile), ...
+                                    starting_sample / info.SampleRate, ending_sample / info.SampleRate);
+                    
+                    samplesRange = [starting_sample, ending_sample];
+                    obj.signal = obj.loadSignal(samplesRange);
+                    listLeq(i) = getNLFromWavFile_Leq(obj.filteredSignal, obj.calibrationCoefficient);
+                    
+                    % Next window sample 
+                    starting_sample = starting_sample + obj.temporalWindow * info.SampleRate;
+                    ending_sample = ending_sample + obj.temporalWindow * info.SampleRate;
+                end
                 
-                % Next window sample 
-                starting_sample = starting_sample + obj.temporalWindow * info.SampleRate;
-                ending_sample = ending_sample + obj.temporalWindow * info.SampleRate;
+                hold on
+                plot(listLeq)
+
+                listNL = [listNL listLeq];
+                % Spectral power 
+    %             noiseLevel = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient, obj.temporalWindow);
             end
-            noiseLevel = mean(listLeq);
-            noiseLevel = round(noiseLevel, 0);
-
-            % Spectral power 
-%             noiseLevel = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient, obj.temporalWindow);
+            noiseLevel = median(listNL);
+            
+            hold on 
+            yline(noiseLevel, '--r', sprintf('Ambient noise level computed = %d dB', noiseLevel))
+            ylabel('Continuous equivalent noise level dB re 1\muPa')
         end
 
         function signal = loadSignal(obj, samplesRange)

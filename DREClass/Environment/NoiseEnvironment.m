@@ -39,7 +39,7 @@ classdef NoiseEnvironment < handle
                 case 'Derived from Wenz model'
                     obj.noiseLevel = obj.wenzModel.computeNoiseLevel();
                 case 'Derived from recording'
-                    cond = (~isempty(obj.recording) & ~isempty(obj.recording.recordingFile) & (ischar(obj.recording.recordingFile) | isstring(obj.recording.recordingFile)));
+                    cond = (~isempty(obj.recording) & ~isempty(obj.recording.listRecordingFile) & (ischar(obj.recording.listRecordingFile{1}) | isstring(obj.recording.listRecordingFile{1})));
                     assert(cond, 'When trying to measure ambient noise level from a recording a .waw must be provided.')
                     obj.noiseLevel = obj.recording.computeNoiseLevel(d);
             end

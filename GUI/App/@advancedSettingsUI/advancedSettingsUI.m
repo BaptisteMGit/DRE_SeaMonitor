@@ -37,9 +37,10 @@ classdef advancedSettingsUI < handle
 
     properties (Dependent)
         fPosition
-        InterpMethod
-        SurfaceType
-        BeamType
+        interpMethod
+        surfaceType
+        attenuationUnit
+        beamType
     end
 
     methods
@@ -56,7 +57,7 @@ classdef advancedSettingsUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback);
 
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             
@@ -71,25 +72,26 @@ classdef advancedSettingsUI < handle
             addLabel(app, 'Bellhop parameters', 1, [1, 2], 'title')
 
             addLabel(app, 'Horizontal resolution', 2, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, 4, [], 'numeric', {@app.editFieldChanged, 'dr'})
+            addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, 4, [], 'numeric')
             set(app.handleEditField(1), 'ValueDisplayFormat', '%.4f km') 
 
             addLabel(app, 'Vertical resolution', 3, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, 4, [], 'numeric', {@app.editFieldChanged, 'dz'})
+            addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, 4, [], 'numeric')
             set(app.handleEditField(2), 'ValueDisplayFormat', '%.1f m')     
 
             addLabel(app, 'SSP interpolation method', 4, 2, 'text')
-            addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, 4, @app.interpMethodChanged)
+            addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, 4, {})
             
             addLabel(app, 'Type of surface', 5, 2, 'text')
-            addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, @app.surfaceTypeChanged)
+            addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, {})
             set(app.handleDropDown(2), 'Enable', 'off') % Not editable for the moment 
 
             addLabel(app, 'Attenuation in the bottom', 6, 2, 'text')
-            addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, @app.attenuationUnitChanged)
+            addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, {})
+            set(app.handleDropDown(3), 'Enable', 'off') % Not editable for the moment 
 
             addLabel(app, 'Beam type', 7, 2, 'text')
-            addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, 4, @app.beamTypeChanged)
+            addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, 4, {})
 
             % Save settings 
             addButton(app, 'Save settings', 9, [2, 4], @app.saveSettings)
@@ -99,125 +101,88 @@ classdef advancedSettingsUI < handle
     end
 
     methods
-        function addLabel(app, txt, nRow, nCol, labelType, varargin)
-            % Create label 
-            label = uilabel(app.GridLayout, ...
-                        'Text', txt, ...
-                        'HorizontalAlignment', 'left', ...
-                        'FontName', app.LabelFontName, ...
-                        'VerticalAlignment', 'center');
-            if length(varargin) >= 1
-                label.HorizontalAlignment = varargin{1};
+        function closeWindowCallback(app, hObject, eventData)
+            msg = 'Do you want to save the changes ?';
+            options = {'Save and quit', 'Quit without saving', 'Cancel'};
+            selection = uiconfirm(app.Figure, msg, 'Save settings ?', ...
+                            'Options', options, ...
+                            'DefaultOption',1,'CancelOption',3);
+            switch selection
+                case options{1}
+                    app.saveProperties()
+                    delete(app.Figure)
+                case options{2}
+                    delete(app.Figure)
+                otherwise
+                    return
             end
-            if length(varargin) >= 2
-                label.Tooltip = varargin{2};
-            end
-            % Set label position in grid layout 
-            label.Layout.Row = nRow;
-            label.Layout.Column = nCol;
-            % Set Font parameters depending of type 
-            if strcmp(labelType, 'title')
-                label.FontSize = app.LabelFontSize_title;
-                label.FontWeight = app.LabelFontWeight_title;
-            elseif strcmp(labelType, 'text')
-                label.FontWeight = app.LabelFontWeight_text;
-                label.FontSize = app.LabelFontSize_text;
-            end
-            % Store handle to created label
-            app.handleLabel = [app.handleLabel, label];
+        end
+    
+        function saveProperties(app)
+            app.Simulation.bellhopEnvironment.drSimu = get(app.handleEditField(1), 'Value');
+            app.Simulation.bellhopEnvironment.dzSimu = get(app.handleEditField(2), 'Value');
+            app.Simulation.bellhopEnvironment.SspOption(1) = app.interpMethod;
+            app.Simulation.bellhopEnvironment.SspOption(2) = app.surfaceType;
+            app.Simulation.bellhopEnvironment.SspOption(3) = app.attenuationUnit;
+            app.Simulation.bellhopEnvironment.beam.RunType(2) = app.beamType;
         end
 
-        function addEditField(app, val, nRow, nCol, placeHolder, style, varargin)
-            editField = uieditfield(app.GridLayout, style, ...
-                        'Value', val);
-            if isempty(val) && ~isempty(placeHolder)
-                editField.Placeholder = placeHolder;
-            end
-            if length(varargin) >= 1
-                editField.ValueChangedFcn = varargin{1};
-            end
-            % Set edit field position in grid layout 
-            editField.Layout.Row = nRow;
-            editField.Layout.Column = nCol;
-            app.handleEditField = [app.handleEditField, editField];
-        end
-
-        function addDropDown(app, items, val, nRow, nCol, callbackFunction)
-            dropDown = uidropdown(app.GridLayout, ...
-                        'Items', items, ...
-                        'Value', val, ...
-                        'ValueChangedFcn', callbackFunction);
-            % Set dropdown position in grid layout 
-            dropDown.Layout.Row = nRow;
-            dropDown.Layout.Column = nCol;
-            app.handleDropDown = [app.handleDropDown, dropDown];
-        end
+        function saveSettings(app, hObject, eventData)
+            app.saveProperties()
+            delete(app.Figure)
+        end 
     end
 
+    %% Get methods 
     methods 
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
         end
 
-    end
-
-    methods
-    
-        function editFieldChanged(app, hObject, eventData, type)
-            switch type 
-                case 'dr'
-                    app.Simulation.bellhopEnvironment.drSimu = hObject.Value;
-                case 'dz'
-                    app.Simulation.bellhopEnvironment.dzSimu = hObject.Value;
-            end
-        end
-
-        function closeWindowCallback(app, hObject, eventData)
-            closeWindowCallback(app.childWindows, hObject, eventData)
-        end
-
-        function interpMethodChanged(app)
-            switch hOject.Value
+        function interpMethod = get.interpMethod(app)
+            switch get(app.handleDropDown(1), 'Value')
                 case 'Cubic spline'
-                    app.Simulation.bellhopEnvironment.SspOption(1) = 'S';
+                    interpMethod = 'S';
                 case 'C-linear' 
-                    app.Simulation.bellhopEnvironment.SspOption(1) = 'C';
+                    interpMethod = 'C';
                 case 'N-2-linear' 
-                    app.Simulation.bellhopEnvironment.SspOption(1) = 'N';
+                    interpMethod = 'N';
                     % Quadratic interpolation requires the creation of the
                     % a *.ssp file containing the field. Not considered for
                     % the moment dur to more complexity.
 %                 case 'Quadratic'
-%                     intMethod = 'Q';
-            end
-        end
-
-        function beamTypeChanged(app, hObject, eventData)
-            switch hOject.Value
-                case 'Gaussian beams'
-                    app.Simulation.bellhopEnvironment.beam.RunType(2) = 'B';
-                case 'Geometric rays'
-                    app.Simulation.bellhopEnvironment.beam.RunType(2) = 'G';
+%                     interpMethod = 'Q';
             end
         end
         
-        function surfaceTypeChanged(app, hObject, eventData)
-            % TODO: handle different type of surface ? 
-            % Is it really relevant to let the user choose ? 
+        function surfaceType = get.surfaceType(app)
+            switch get(app.handleDropDown(2), 'Value')
+                case 'Vacuum above surface'
+                    surfaceType = 'V';
+                case 'Perfectly rigid media above surface'
+                    surfaceType = R;
+                case 'Acoustic half-space'
+                    surfaceType = A;
+            end 
         end
 
-        function attenuationUnitChanged(app, hOject, eventData)
-            switch hOject.Value
-                case 'db/m'
-                    app.Simulation.bellhopEnvironment.SspOption(3) = 'M';
-                case 'db/lambda'
-                    app.Simulation.bellhopEnvironment.SspOption(3) = 'W';
+        function attenuationUnit = get.attenuationUnit(app)
+            switch get(app.handleDropDown(3), 'Value')
+                case 'dB/m'
+                    attenuationUnit = 'M';
+                case 'dB/lambda'
+                    attenuationUnit = 'W';
             end
         end
 
-        function saveSettings(app, hObject, eventData)
-            close(app.Figure)
-        end 
+        function beamType = get.beamType(app)
+            switch get(app.handleDropDown(4), 'Value')
+                case 'Gaussian beams'
+                    beamType = 'B';
+                case 'Geometric rays'
+                    beamType = 'G';
+            end
+        end
     end
 end
 

@@ -119,7 +119,7 @@ classdef selectRecordingUI < handle
             addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.Simulation.noiseEnvironment.recording.bandwidthType, 4, [4, 6], @app.bandwidthTypeChanged) % Auto loaded bathy
 
             % Buttons
-            addButton(app, 'Select file', 2, 8, @app.selectRecording)
+            addButton(app, 'Select file(s)', 2, 8, @app.selectRecording)
 
             % Save settings 
             addButton(app, 'Compute', 9, 5, @app.computeNoiseLevel)
@@ -131,15 +131,20 @@ classdef selectRecordingUI < handle
 
         function selectRecording(app, hObject, eventData)
             [file, path, indx] = uigetfile({'*.wav', 'Sound file'}, ...
-                                            'Select a file');
- 
-            app.Simulation.noiseEnvironment.recording.recordingFile = fullfile(path, file);          
-            set(app.handleEditField(1), 'Value', file)
+                                            'Select file(s)', ...
+                                            'MultiSelect','on');
+             if iscell(file)
+                set(app.handleEditField(1), 'Value', file{1})
+                app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, file);  
+            else
+                set(app.handleEditField(1), 'Value', file)
+                app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, {file});  
+            end
         end
         
         function closeWindowCallback(app, hObject, eventData)
             % Update edit field with new value 
-            set(app.nlEditFieldHandle, 'Value', app.Simulation.noiseEnvironment.noiseLevel)
+            set(app.nlEditFieldHandle, 'Value', double(app.Simulation.noiseEnvironment.noiseLevel))
             closeWindowCallback(hObject, eventData)
         end
         
