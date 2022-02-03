@@ -114,7 +114,7 @@ for theta = listAz
     
     %% Compute and plot SPL 
     varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', SL};
-    [SPL, zt, rt] = computeSpl(varSpl{:});
+    [SPL, zt, rt] = computeSPL(varSpl{:});
     figure;
     plotSPL(varSpl{:});
     plotbty( nameProfile );

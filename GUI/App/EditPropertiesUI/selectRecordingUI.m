@@ -144,7 +144,7 @@ classdef selectRecordingUI < handle
         
         function closeWindowCallback(app, hObject, eventData)
             % Update edit field with new value 
-            set(app.nlEditFieldHandle, 'Value', double(app.Simulation.noiseEnvironment.noiseLevel))
+            set(app.nlEditFieldHandle, 'Value', app.Simulation.noiseEnvironment.noiseLevel)
             closeWindowCallback(hObject, eventData)
         end
         

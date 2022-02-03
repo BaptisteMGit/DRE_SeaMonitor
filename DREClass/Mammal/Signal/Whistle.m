@@ -4,8 +4,8 @@ classdef Whistle < Signal
     end
 
     methods
-        function obj = Whistle(cFreq, sLevel, wPara)
-            obj = obj@Signal('Whistle', cFreq, sLevel)
+        function obj = Whistle(cFreq, sLevel, ssLevel, wPara)
+            obj = obj@Signal('Whistle', cFreq, sLevel, ssLevel)
             if nargin >= 3; obj.whistlePara = wPara;end
         end
     end

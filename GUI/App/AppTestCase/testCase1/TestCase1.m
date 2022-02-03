@@ -67,8 +67,8 @@ classdef TestCase1 < DRESimulation
             noiseLevel = (30 + 46)/2; 
             obj.noiseEnvironment = NoiseEnvironment('Input value', noiseLevel);
 
-%             obj.listAz = 0.1:5:360.1;
-            obj.listAz = [75.1];
+            obj.listAz = 0.1:30:360.1;
+%             obj.listAz = [75.1];
             obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
                                                      % for small odontocetes (C-PODs)
 

@@ -21,7 +21,7 @@ classdef Porpoise < MarineMammal
             obj.centroidFrequency = 130 * 1e3; % Centroid frequency in Hz
             obj.sourceLevel = 165; % Source level in dB 
             % Signal
-            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.meanICI, obj.peakFrequency);
+            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency);
 
 %             Estimating effective detection area of static passive acoustic 
 %             data loggers from playback experiments with cetacean 

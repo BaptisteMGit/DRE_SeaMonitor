@@ -95,8 +95,6 @@ classdef advancedSettingsUI < handle
 
             % Save settings 
             addButton(app, 'Save settings', 9, [2, 4], @app.saveSettings)
-        
-
         end
     end
 

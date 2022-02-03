@@ -3,7 +3,8 @@ classdef MarineMammal
         name % name of the marine mammal
 
         centroidFrequency % centroid frequency
-        sourceLevel % source level dB re 1uPa @ 1m 
+        sourceLevel % On axis average source level dB re 1uPa @ 1m 
+        sigmaSourceLevel % Standard deviation of the source level 
         signalName % signal name (click, whistle, etc..) 
         signal % Signal object  
 
@@ -26,6 +27,7 @@ classdef MarineMammal
         rMaxDefault = 1500; % Maximum detection range according to literature 
         livingDepthDefault = 10; % Depth where the mammal is supposed to live 
         deltaLivingDepthDefault = 5; % Range around livingDepth where the mammal has a high probability to be encountered 
+        sigmaSourceLevelDefault = 5; % Standard deviation of the source level 
 
     end
 
@@ -61,7 +63,7 @@ classdef MarineMammal
     
         
         function obj = setDefaultSignal(obj)      
-            obj.signal = Signal(obj.signalName, obj.centroidFrequency, obj.sourceLevel);
+            obj.signal = Signal(obj.signalName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel);
         end
 
         function updateSignal(obj)
@@ -74,6 +76,7 @@ classdef MarineMammal
             obj.name = 'DefaultMammal';
             obj.centroidFrequency =  obj.centroidFrequencyDefault;
             obj.sourceLevel = obj.sourceLevelDefault;
+            obj.sigmaSourceLevel = obj.sigmaSourceLevelDefault;
             obj.rMax = obj.rMaxDefault; 
             obj.livingDepth = obj.livingDepthDefault; 
             obj.deltaLivingDepth = obj.deltaLivingDepthDefault;

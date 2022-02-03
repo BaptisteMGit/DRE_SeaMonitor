@@ -99,12 +99,12 @@ classdef Recording < handle
                 
                 hold on
                 plot(listLeq)
-
+                drawnow
                 listNL = [listNL listLeq];
                 % Spectral power 
     %             noiseLevel = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient, obj.temporalWindow);
             end
-            noiseLevel = median(listNL);
+            noiseLevel = double(median(listNL));
             
             hold on 
             yline(noiseLevel, '--r', sprintf('Ambient noise level computed = %d dB', noiseLevel))

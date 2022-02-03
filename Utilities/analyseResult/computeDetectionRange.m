@@ -1,9 +1,9 @@
 function detectionRange = computeDetectionRange(varargin)
-spl = getVararginValue(varargin, 'SPL', []);
+SPL = getVararginValue(varargin, 'SPL', []);
 zt = getVararginValue(varargin, 'Depth', []);
 rt = getVararginValue(varargin, 'Range', []);
-nl = getVararginValue(varargin, 'NL', 0);
-dt = getVararginValue(varargin, 'DT', 0);
+NL = getVararginValue(varargin, 'NL', 0);
+DT = getVararginValue(varargin, 'DT', 0);
 zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 
@@ -11,12 +11,12 @@ deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 % TODO: replace by probality law centered on the living depth 
 if not (isempty(zTarget) && isempty(zt))
     izToKeep = (zt < zTarget + deltaZ) & (zt > zTarget - deltaZ);
-    spl = spl(izToKeep, :);
+    SPL = SPL(izToKeep, :);
 end
 
 % Median
-spl_r = median(spl);
-SNR = spl_r -  nl;
+spl_r = median(SPL);
+SNR = spl_r -  NL;
 idPos = SNR > 0;
 SNR = SNR(idPos);
 %% Detection range: last point possible
@@ -36,7 +36,7 @@ SNR = SNR(idPos);
 
 % idxToKeep = rt > 50;
 % SNR = SNR(idxToKeep);
-iundetected = SNR < dt;
+iundetected = SNR < DT;
 if ~isempty(iundetected)
     if isempty(find(iundetected, 1))
         detectionRange = max(rt);

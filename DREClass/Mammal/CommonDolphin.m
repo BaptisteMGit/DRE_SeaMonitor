@@ -21,7 +21,7 @@ classdef CommonDolphin < MarineMammal
             obj.centroidFrequency = 80 * 1e3; % Centroid frequency in Hz
             obj.sourceLevel = 213; % dB for clicks, Passive Acoustic Monitoring of Cetaceans (Walter M. X. Zimmer)
             % Signal
-            obj.signal =  Click(obj.centroidFrequency, obj.sourceLevel, obj.meanICI, obj.peakFrequency);
+            obj.signal =  Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency);
 
             obj.rMax = 1500; % TODO: check literature (rMax is inherited from MarineMammal)
             % TODO: check following values 

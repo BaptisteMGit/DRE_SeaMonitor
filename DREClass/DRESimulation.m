@@ -20,6 +20,7 @@
         listAz
         % Output
         listDetectionRange
+        listDetectionFunction
         % Folder to save the result 
         rootResult 
         % CPU time 
@@ -250,6 +251,9 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
+            % Initialize list of detection functions 
+%             obj.listDetectionFunction = zeros(size(obj.listAz));
+            obj.listDetectionFunction = [];
                         
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
@@ -291,10 +295,13 @@
                 bathyBool = true;
                 obj.plotTL(nameProfile, saveBool, bathyBool)
                 obj.plotSPL(nameProfile, saveBool, bathyBool)
-
+                obj.plotSE(nameProfile, saveBool, bathyBool)
+                
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
                 obj.addDetectionRange(nameProfile);
+                % Detection probability function 
+                obj.addDetectionFunction(nameProfile)
 
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
@@ -306,6 +313,8 @@
             if flag % The all process terminated without any error 
                 % Plot detection range (polar plot and map) 
                 obj.plotDR()
+                % Plot detection probability 
+                obj.plotDetectionProbability2D()
                 % Write CPU time to the log file 
                 obj.CPUtime = toc(tStart);
                 obj.writeLogEnd
@@ -366,6 +375,7 @@
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
                 obj.addDetectionRange(nameProfile);
+                obj.addDetectionFunction(nameProfile)
 
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
@@ -586,7 +596,7 @@
 
             if saveBool
                 cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%sTL.png', nameProfile));
+                saveas(gcf, sprintf('%s_TL.png', nameProfile));
             end
             close(gcf);
             cd(current)
@@ -609,18 +619,21 @@
 
             if saveBool
                 cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%sSPL.png', nameProfile));
+                saveas(gcf, sprintf('%s_SPL.png', nameProfile));
             end
             close(gcf);
             cd(current)
         end
 
-        function plotFOM(obj, nameProfile, saveBool, bathyBool)
-            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
-            figure('visible','off');
+        function plotSE(obj, nameProfile, saveBool, bathyBool)
             current = pwd;
             cd(obj.rootOutputFiles)
-            plotFOM(varSpl{:});
+            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
+            [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
+            SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
+                'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
+             plotSE(SEArgin{:});
+
             if bathyBool
                 plotbty( nameProfile );
             end
@@ -629,7 +642,7 @@
 
             if saveBool
                 cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%sSPL.png', nameProfile));
+                saveas(gcf, sprintf('%s_SE.png', nameProfile));
             end
             close(gcf);
             cd(current)
@@ -685,12 +698,38 @@
             close(gcf)
         end
         
+        function plotDetectionFunction(obj, nameProfile, g)            
+            figure('visible','off');
+            plot(obj.rt, g)
+            xlabel('Range [m]')
+            ylabel('Detection probability')
+            hold on 
+            yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
+            title({'Detection function'})
 
+            current = pwd;
+            cd(obj.rootOutputFigures)
+            saveas(gcf, sprintf('%s_DetectionFunction.png', nameProfile));
+            close(gcf);
+            cd(current)
+        end
+        
+        function plotDetectionProbability2D(obj)
+            figure('visible','off');
+            plotDetectionProbability2D(obj.listAz, obj.rt, obj.listDetectionFunction)
+            current = pwd;
+            cd(obj.rootOutputFigures)
+            saveas(gcf, 'DetectionProbability.png');
+            close(gcf);
+            cd(current)
+        end
+
+        
         function addDetectionRange(obj, nameProfile)
             current = pwd;
             cd(obj.rootOutputFiles)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
-            [obj.spl, obj.zt, obj.rt] = computeSpl(varSpl{:});
+            [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
             computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
             detectionRange = computeDetectionRange(computeArgin{:});
@@ -698,6 +737,25 @@
             i = find(~obj.listDetectionRange, 1, 'first');
             obj.listDetectionRange(i) = detectionRange;
             obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
+            cd(current)
+        end
+
+        function addDetectionFunction(obj, nameProfile)
+            current = pwd;
+            cd(obj.rootOutputFiles)
+            detFunVar = {'filename',  sprintf('%s.shd', nameProfile),...
+                'SL', obj.marineMammal.signal.sourceLevel,...
+                'sigmaSL', obj.marineMammal.signal.sigmaSourceLevel,...
+                'DT', obj.detector.detectionThreshold,...
+                'NL', obj.noiseEnvironment.noiseLevel,... 
+                'zTarget', obj.marineMammal.livingDepth,...
+                'deltaZ', obj.marineMammal.deltaLivingDepth};
+
+%             i = find(~obj.listDetectionFunction, 1, 'first');
+            g = computeDetectionFunction(detFunVar{:});
+            obj.plotDetectionFunction(nameProfile, g)
+            obj.listDetectionFunction = [obj.listDetectionFunction; g];
+
             cd(current)
         end
     end
