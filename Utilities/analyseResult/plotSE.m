@@ -10,7 +10,7 @@ deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 
 SNR = spl -  nl;
 SE = SNR - dt; 
-figure
+
 pcolor( rt, zt, SE);
 shading flat
 

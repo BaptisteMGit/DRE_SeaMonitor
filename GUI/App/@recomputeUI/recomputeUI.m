@@ -86,12 +86,12 @@ classdef recomputeUI < handle
             % Labels 
             addLabel(app, 'Noise level', 2, 2, 'text')
             addLabel(app, 'dB', 2, 4, 'text')
-            addLabel(app, 'Detection range', 4, 2, 'text')
+            addLabel(app, 'Detection threshold', 4, 2, 'text')
             addLabel(app, 'dB', 4, 4, 'text')
 
             % Edit field
-            addEditField(app, app.Simulation.noiseLevel, 2, 3, [], 'numeric', {@app.editFieldChanged, 'NL'}) 
-            addEditField(app, app.Simulation.detector.detectionThreshold, 4, 3, [], 'numeric', {@app.editFieldChanged, 'DR'}) % Bathy resolution 
+            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 2, 3, [], 'numeric', {@app.editFieldChanged, 'NL'}) 
+            addEditField(app, app.Simulation.detector.detectionThreshold, 4, 3, [], 'numeric', {@app.editFieldChanged, 'DT'})
             
             % Button
             addButton(app, 'Recompute', 6, [2, 4], @app.recomputeButtonPushed)
@@ -123,7 +123,7 @@ classdef recomputeUI < handle
             switch type 
                 case 'NL'
                     app.Simulation.noiseLevel = hObject.Value;
-                case 'DR'
+                case 'DT'
                     app.Simulation.detector.detectionThreshold = hObject.Value;
             end
         end

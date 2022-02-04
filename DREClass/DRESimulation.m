@@ -299,8 +299,15 @@
                 
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
-                obj.addDetectionRange(nameProfile);
+%                 obj.addDetectionRange(nameProfile); % Replaced by
+%                 addDetection function to use 50 % detection range 
                 % Detection probability function 
+                % The list of detection function is initialized inside the
+                % loop because the range size is needed. Preallocation
+                % increase performances. 
+                if i_theta == 1
+                    obj.listDetectionFunction = zeros([numel(obj.listAz), numel(obj.receiverPos.r.range)]);
+                end 
                 obj.addDetectionFunction(nameProfile)
 
                 % Switch flag when the all process is over with no problem 
@@ -374,7 +381,9 @@
 
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
-                obj.addDetectionRange(nameProfile);
+%                 obj.addDetectionRange(nameProfile); % Replaced by
+%                 addDetection function to use 50 % detection range 
+                % Detection probability function 
                 obj.addDetectionFunction(nameProfile)
 
                 % Switch flag when the all process is over with no problem 
@@ -630,6 +639,8 @@
             cd(obj.rootOutputFiles)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
+            
+            figure('visible','off');
             SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
              plotSE(SEArgin{:});
@@ -649,40 +660,64 @@
         end
 
         function plotDR(obj)
-            figure;
+            %%% Polar plot %%% 
+            figure
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
             ax = gca;
             ax.RLim = [0, obj.marineMammal.rMax];
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName)));
+            
+            %%% Map plot %%% 
+            figure
+            E = obj.dataBathy(:,1);
+            N = obj.dataBathy(:,2);
+            U = obj.dataBathy(:,3);
+            pts = 1E+3;
+            xGrid = linspace(min(E), max(E), pts);
+            yGrid = linspace(min(N), max(N), pts);
+            [X,Y] = meshgrid(xGrid, yGrid);
+            zDep = griddata(E, N, U, X, Y);
 
-            obj.plotBathyENU()
-            xx = obj.listDetectionRange .* cos(obj.listAz * pi / 180);
-            yy = obj.listDetectionRange .* sin(obj.listAz * pi / 180);
-            plot(xx, yy, 'k', 'LineWidth', 3)
+            pcolor(X, Y, zDep)
+            shading flat
+            hold on 
+            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
+            setBathyColormap(zDep)
+            hold on 
+            scatter(0, 0, 'filled', 'red') 
 
+            title('Simulated detection range')
+            xlabel('E [m]')
+            ylabel('N [m]')
+
+            [xx, yy] = pol2cart(obj.listAz * pi/180, obj.listDetectionRange);
+            plot(xx, yy, 'k', 'LineWidth', 2)
+            legend({'', '', 'Mooring', '50% detection range'})
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
         end
         
         function plotBathyENU(obj)
             E = obj.dataBathy(:,1);
+            E = obj.dataBathy(:,1);
             N = obj.dataBathy(:,2);
             U = obj.dataBathy(:,3);
-
             pts = 1E+3;
             xGrid = linspace(min(E), max(E), pts);
             yGrid = linspace(min(N), max(N), pts);
             [X,Y] = meshgrid(xGrid, yGrid);
             zDep = griddata(E, N, U, X, Y);
-            
-            figure
-            contourf(X, Y, zDep)
-            c = colorbar;
-            c.Label.String = 'Elevation (m)';
+
+            pcolor(X, Y, zDep)
+            shading flat
+            hold on 
+            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
+            setBathyColormap(zDep)
             hold on 
             scatter(0, 0, 'filled', 'red') 
-            title('Bathymetry - frame ENU')
+
+            title('Simulated detection range')
             xlabel('E [m]')
             ylabel('N [m]')
         end
@@ -698,13 +733,16 @@
             close(gcf)
         end
         
-        function plotDetectionFunction(obj, nameProfile, g)            
+        function plotDetectionFunction(obj, nameProfile, g, DR50Percent)            
             figure('visible','off');
             plot(obj.rt, g)
             xlabel('Range [m]')
             ylabel('Detection probability')
             hold on 
-            yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
+            yline(0.5, '--r', 'LineWidth', 1, 'Label', '50 % detection threshold')
+            hold on 
+            xline(DR50Percent, '--g', 'LineWidth', 1, 'Label', sprintf('50 %% detection range = %dm', round(DR50Percent, 0)),...
+                'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'top')
             title({'Detection function'})
 
             current = pwd;
@@ -751,10 +789,16 @@
                 'zTarget', obj.marineMammal.livingDepth,...
                 'deltaZ', obj.marineMammal.deltaLivingDepth};
 
-%             i = find(~obj.listDetectionFunction, 1, 'first');
-            g = computeDetectionFunction(detFunVar{:});
-            obj.plotDetectionFunction(nameProfile, g)
-            obj.listDetectionFunction = [obj.listDetectionFunction; g];
+            [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
+            obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)
+
+            i = find(~obj.listDetectionRange, 1, 'first');
+            % Detection function            
+            obj.listDetectionFunction(i, :) = detectionFunction;
+            
+            % 50 % Detection range 
+            obj.listDetectionRange(i) = detectionRange;
+            obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
 
             cd(current)
         end
