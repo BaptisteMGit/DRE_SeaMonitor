@@ -51,6 +51,9 @@ classdef mainUI < handle
         lX
         lY
         lPosition
+
+        % Store previous simulations 
+        rootToPreviousSimulation
     end 
 
     properties (Hidden=true)
@@ -61,7 +64,7 @@ classdef mainUI < handle
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 5;
+        nbButton = 7;
         currButtonID = 0;
         
         % Label Heigth
@@ -72,14 +75,13 @@ classdef mainUI < handle
         configEnvironmentWindow
         plottingToolsWindow
         recomputeWindow
-
-        % Store previous simulations 
-        rootToPreviousSimulation
     end
     
     %% Constructor of the class 
     methods
-        function app = mainUI
+        function app = mainUI(simulation)
+            % Pass simulation handle 
+            app.Simulation = simulation;
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Visible', 'on', ...
@@ -101,10 +103,12 @@ classdef mainUI < handle
                                     'Units', 'normalized');
 
             % Buttons
+            addButton(app, 'Load simulation', @app.loadSimulationButtonPushed)
             addButton(app, 'Configure Environment',  @app.configEnvironmentButtonPushed)
             addButton(app, 'Run DRE', @app.runDREButtonPushed)
             addButton(app, 'Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
             addButton(app, 'Plotting Tools', @app.plottingToolsButtonPushed)
+            addButton(app, 'Save simulation', @app.saveSimulationButtonPushed)
             addButton(app, 'Exit App', {@app.exitAppButtonPushed})
             
             % Main label 
@@ -161,6 +165,33 @@ classdef mainUI < handle
             end
         
         end
+        
+        function saveSimulationButtonPushed(app, hObject, eventData)            
+            current = pwd;
+            cd(app.Simulation.rootSaveSimulation)
+            props = properties(app.Simulation);
+            for i=1:numel(props)
+                property = props{i};
+                structSimu.(property) = app.Simulation.(property);
+            end
+
+            uisave('structSimu', app.Simulation.mooring.mooringName)
+            cd(current)
+        end
+
+        function loadSimulationButtonPushed(app, hObject, event)
+            current = pwd;            
+            cd(app.Simulation.rootSaveSimulation)
+            [file, path, ~] = uigetfile({'*.mat', 'Simulation file'}, ...
+                                            'Select file');
+            structSimu = importdata(fullfile(path, file));
+            props = fieldnames(structSimu);
+            for i=1:numel(props)
+                property = props{i};
+                app.Simulation.(property) = structSimu.(property);
+            end
+            cd(current)
+        end 
 
         function resizeWindow(app, hObject, eventData)
             currentPos = get(app.Figure, 'Position');
@@ -261,5 +292,6 @@ classdef mainUI < handle
         function lPos = get.lPosition(app)
             lPos = [app.lX, app.lY, app.lWidth, app.lHeight];
         end
+
     end
 end                                             

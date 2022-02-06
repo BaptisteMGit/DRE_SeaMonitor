@@ -46,6 +46,9 @@ classdef editMarineMammalUI < handle
         
         % Handle to the specie drop down
         specieDropDownHandle
+
+        % Flag to check if properties have been updated 
+        flagChanges = 0;
     end
 
     methods
@@ -111,7 +114,7 @@ classdef editMarineMammalUI < handle
             set(app.handleEditField(6), 'ValueDisplayFormat', '%d m') 
             
             % Drop down 
-            addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise', 'Other'}, app.marineMammalName, 2, 4, @app.specieChanged) 
+            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 2, 4, @app.specieChanged) 
 
             % Save settings 
             addButton(app, 'Save', 10, [2, 4], @app.saveSettings)
@@ -138,27 +141,18 @@ classdef editMarineMammalUI < handle
             set(app.specieDropDownHandle, 'Value', app.marineMammalName)
         end
 
-        function editFieldChanged(app, hObject, eventData, iD)
-            switch iD
-                case 'name'
-                    app.Simulation.noiseEnvironment.wenzModel.windSpeed = hObject.Value; 
-                case 'centroidFrequency'
-                    app.centroidFrequency = hObject.Value;
-                    app.updateFrequencyRange()
-                case 'fmin'
-                    app.Simulation.noiseEnvironment.wenzModel.frequencyRange.min = hObject.Value;
-                    app.updateWindTrafficVisualAspect()
-                case 'fmax'
-                    app.Simulation.noiseEnvironment.wenzModel.frequencyRange.max = hObject.Value;   
-                    app.updateWindTrafficVisualAspect()
-            end
+        function editFieldChanged(app, hObject, eventData)
+            app.flagChanges = 1;
         end
 
         function updateSpecieNameEditField(app)
-            if strcmp(get(app.handleDropDown(1), 'Value'), 'Other')
+            if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source')
                 bool = 1;
                 set(app.handleEditField(1), 'Value', '')
                 set(app.handleEditField(1), 'Placeholder', 'Enter a name')
+            elseif ~strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)
+                bool = 1;
+                set(app.handleEditField(1), 'Value',  get(app.handleDropDown(1), 'Value'))
             else 
                 bool = 0;
                 set(app.handleEditField(1), 'Value', get(app.handleDropDown(1), 'Value'))
@@ -174,7 +168,7 @@ classdef editMarineMammalUI < handle
                     app.Simulation.marineMammal = BottlenoseDolphin;
                 case 'Porpoise'
                     app.Simulation.marineMammal = Porpoise; 
-                case 'Other'
+                case 'New custom source'
                     app.Simulation.marineMammal = MarineMammal;
             end
             app.updatePropertiesValue()
@@ -184,28 +178,65 @@ classdef editMarineMammalUI < handle
         function saveSettings(app, hObject, eventData)
             app.saveProperties()
             
-            switch get(app.handleDropDown(1), 'Value')
-                case 'Other'
-                    app.Simulation.marineMammal.setDefaultSignal()
-                    msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
-                    options = {'Yes', 'No', 'Cancel'};
-                    selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
-                                    'Options', options, ...
-                                    'DefaultOption',2,'CancelOption',3);
-                    switch selection
-                        case options{1}
-                            marineMammal = app.Simulation.marineMammal;
-                            uisave('marineMammal', get(app.handleEditField(1), 'Value'))
-                        case options{2}
-                            delete(app.Figure)
-                        otherwise
-                            return
-                    end
-
-                otherwise
-                    app.Simulation.marineMammal.updateSignal()
-                    delete(app.Figure)
-            end 
+            if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source') 
+                app.Simulation.marineMammal.setDefaultSignal() % Create signal 
+                msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
+                options = {'Yes', 'No', 'Cancel'};
+                selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
+                                'Options', options, ...
+                                'DefaultOption',2,'CancelOption',3);
+                switch selection
+                    case options{1}
+                        marineMammal = app.Simulation.marineMammal;
+                        uisave('marineMammal', get(app.handleEditField(1), 'Value'))
+                    case options{2}
+                        delete(app.Figure)
+                    otherwise
+                        return
+                end
+            elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)) && app.flagChanges)
+                app.Simulation.marineMammal.updateSignal() % Update signal 
+                msg = 'You have modified the properties of this custom acoustic source. Do you want to save it in order to re-use it later ?';
+                options = {'Yes', 'No', 'Cancel'};
+                selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
+                                'Options', options, ...
+                                'DefaultOption',2,'CancelOption',3);
+                switch selection
+                    case options{1}
+                        marineMammal = app.Simulation.marineMammal;
+                        uisave('marineMammal', get(app.handleEditField(1), 'Value'))
+                    case options{2}
+                        delete(app.Figure)
+                    otherwise
+                        return
+                end
+            else 
+                app.Simulation.marineMammal.updateSignal() % Udapte signal 
+                delete(app.Figure)
+            end
+ 
+%             switch get(app.handleDropDown(1), 'Value')
+%                 case 'New custom source'
+%                     app.Simulation.marineMammal.setDefaultSignal()
+%                     msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
+%                     options = {'Yes', 'No', 'Cancel'};
+%                     selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
+%                                     'Options', options, ...
+%                                     'DefaultOption',2,'CancelOption',3);
+%                     switch selection
+%                         case options{1}
+%                             marineMammal = app.Simulation.marineMammal;
+%                             uisave('marineMammal', get(app.handleEditField(1), 'Value'))
+%                         case options{2}
+%                             delete(app.Figure)
+%                         otherwise
+%                             return
+%                     end
+% 
+%                 otherwise
+%                     app.Simulation.marineMammal.updateSignal()
+%                     delete(app.Figure)
+%             end 
             set(app.specieDropDownHandle, 'Value', app.marineMammalName)
         end 
 
@@ -235,8 +266,8 @@ classdef editMarineMammalUI < handle
         end
 
         function name = get.marineMammalName(app)
-            if ~any(strcmp({'Common dolphin', 'Bottlenose dolphin', 'Porpoise'}, app.Simulation.marineMammal.name))
-                name = 'Other';
+            if ~any(strcmp(app.Simulation.availableSources, app.Simulation.marineMammal.name))
+                name = 'New custom source';
             else
                 name = app.Simulation.marineMammal.name;
             end

@@ -24,7 +24,9 @@ classdef configEnvironmentUI < handle
         fPosition 
         % Position of the labels for Mooring Positon 
         MooringPosLabel
-       
+
+        % List of available sources (species) 
+       availableSources
     end
 
     properties (Hidden=true)
@@ -129,7 +131,7 @@ classdef configEnvironmentUI < handle
             % Hydrophone
             addDropDown(app, {'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
             % Specie
-            addDropDown(app, {'Common dolphin', 'Bottlenose dolphin', 'Porpoise', 'Other'}, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
+            addDropDown(app, app.Simulation.availableSources, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
              % Sediment
@@ -191,7 +193,7 @@ classdef configEnvironmentUI < handle
                     app.Simulation.marineMammal = BottlenoseDolphin;
                 case 'Porpoise'
                     app.Simulation.marineMammal = Porpoise;
-                case 'Other'
+                case 'New custom source'
                     app.Simulation.marineMammal = MarineMammal;
                     app.editMarinneMammalProperties()
             end

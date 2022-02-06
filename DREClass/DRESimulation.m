@@ -21,8 +21,16 @@
         % Output
         listDetectionRange
         listDetectionFunction
+        % Root used to launch app 
+        rootApp
         % Folder to save the result 
         rootResult 
+        % Folder to store Simulation objects 
+        rootSaveSimulation
+        % Folder to store custom sources 
+        rootSources
+        % Implemented sources 
+        implementedSources
         % CPU time 
         CPUtime
     end
@@ -65,6 +73,9 @@
         bBoxENU % Boundary box in ENU coordinates 
         tBox % Time box
         dBox % Depth box 
+        
+        % Available sources that can be selected by the user 
+        availableSources
     end
 
     %% Constructor 
@@ -110,7 +121,8 @@
             obj.noiseEnvironment = NoiseEnvironment;
             obj.seabedEnvironment = SeabedEnvironment;
             obj.bellhopEnvironment = BellhopEnvironment;
-            obj.listAz = 0.1:10:360.1;            
+            obj.listAz = 0.1:10:360.1;
+            obj.implementedSources = {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'};
         end
     end 
     %% Set methods 
@@ -220,6 +232,18 @@
     
         function dBox = get.dBox(obj)
             dBox = getdBox(0, obj.maxBathyDepth);
+        end
+
+        function availableSources = get.availableSources(obj)            
+            availableSources = obj.implementedSources;
+            cd(obj.rootSources)
+            customSources = dir('*.mat');
+            for i=1:numel(customSources)
+                availableSources{end+i} = customSources(i).name(1:end-4);
+            end
+            availableSources{end+1} = 'New custom source';
+            availableSources = availableSources(~cellfun('isempty',availableSources));
+            cd(obj.rootApp)
         end
 
     end
