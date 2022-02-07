@@ -1,5 +1,5 @@
 classdef configEnvironmentUI < handle
-% configEnvironementUI: App window dedicated to the configuration of the
+% CONFIGENVIORNMENTUI: App window dedicated to the configuration of the
 % simulation environment 
 %
 % Baptiste Menetrier    
@@ -24,9 +24,6 @@ classdef configEnvironmentUI < handle
         fPosition 
         % Position of the labels for Mooring Positon 
         MooringPosLabel
-
-        % List of available sources (species) 
-       availableSources
     end
 
     properties (Hidden=true)
@@ -135,13 +132,13 @@ classdef configEnvironmentUI < handle
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
              % Sediment
-            addDropDown(app, {'Boulders and bedrock', 'Coarse sediment', 'Mixed sediment', 'Muddy sand and sand', 'Mud and sandy mud'}, app.Simulation.seabedEnvironment.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
-
+            addDropDown(app, app.Simulation.availableSediments, app.Simulation.seabedEnvironment.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
+            
             %%% Buttons %%%
             % Edit hydrophone
             addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
             % Edit specie 
-            addButton(app, 'Edit properties', 9, 9, @app.editMarinneMammalProperties)
+            addButton(app, 'Edit properties', 9, 9, @app.editMarineMammalProperties)
             % Edit noise level 
             addButton(app, 'Edit properties', 11, 9, @app.editNoiseLevelPorperties)
             % Edit sediment
@@ -150,7 +147,7 @@ classdef configEnvironmentUI < handle
             % Advanced settings 
             addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Save settings', 18, [5, 8], @app.saveSettings)
+            addButton(app, 'Close', 18, [4, 7], @app.closeUI)
         end
     end
     
@@ -195,9 +192,27 @@ classdef configEnvironmentUI < handle
                     app.Simulation.marineMammal = Porpoise;
                 case 'New custom source'
                     app.Simulation.marineMammal = MarineMammal;
-                    app.editMarinneMammalProperties()
+                    app.editMarineMammalProperties()
+                otherwise
+                    app.loadMarineMammal(hObject.Value)
             end
         end
+
+        function loadMarineMammal(app, sourceName) % Load properties of a custom source 
+            % Create a default mammal
+            app.Simulation.marineMammal = MarineMammal;
+            % Load custom properties 
+            file = sprintf('%s.mat', sourceName);
+            structMarineMammal= importdata(fullfile(app.Simulation.rootSources, file));
+            props = fieldnames(structMarineMammal);
+            for i=1:numel(props)
+                property = props{i};
+                app.Simulation.marineMammal.(property) = structMarineMammal.(property);
+            end
+            app.Simulation.marineMammal.setSignal()
+            cd(app.Simulation.rootApp)
+        end
+
 
         function detectorChanged(app, hObject, eventData)
             switch hObject.Value
@@ -234,8 +249,31 @@ classdef configEnvironmentUI < handle
         end
         
         function sedimentTypeChanged(app, hObject, eventData)
-            app.Simulation.seabedEnvironment.sedimentType = hObject.Value;
+            if strcmp(hObject.Value, 'New custom sediment')
+                app.editSedimentProperties()
+            elseif any(strcmp(hObject.Value, app.Simulation.availableSediments))
+                app.Simulation.seabedEnvironment.sedimentType = hObject.Value;
+                app.Simulation.seabedEnvironment.setBottom();
+            else
+                app.loadedSeabedEnvironment(hObject.Value);
+            end
+%             app.loadedSeabedEnvironment(hObject.Value);
+%             app.Simulation.seabedEnvironment.sedimentType = hObject.Value;
         end 
+        function loadSeabedEnvironment(app, sedimentType) % Load properties of a custom source 
+            % Create a default seabed environment
+            app.Simulation.seabedEnvironment = SeabedEnvironment;
+            % Load custom properties 
+            file = sprintf('%s.mat', sedimentType);
+            structSeabedEnvironment= importdata(fullfile(app.Simulation.rootSources, file));
+            props = fieldnames(structSeabedEnvironment);
+            for i=1:numel(props)
+                property = props{i};
+                app.Simulation.seabedEnvironment.(property) = structSeabedEnvironment.(property);
+            end
+            cd(app.Simulation.rootApp)
+        end
+
 
         function editFieldChanged(app, hObject, eventData, type)
             switch type 
@@ -250,12 +288,16 @@ classdef configEnvironmentUI < handle
             end
         end
 
-        function editMarinneMammalProperties(app, hOject, eventData)
+        function editMarineMammalProperties(app, hOject, eventData)
             app.subWindows{end+1} = editMarineMammalUI(app.Simulation, app.handleDropDown(3));        
         end
 
         function editDetectorProperties(app, hObject, eventData)
             % Open editUI
+        end
+
+        function editSedimentProperties(app, hObject, eventData)
+            app.subWindows{end+1} = editSeabedEnvironmentUI(app.Simulation, app.handleDropDown(5));
         end
 
         function editNoiseLevelPorperties(app, hObject, eventData)
@@ -284,7 +326,7 @@ classdef configEnvironmentUI < handle
             closeWindowCallback(app, hObject, eventData)
         end
         
-        function saveSettings(app, hObject, eventData)
+        function closeUI(app, hObject, eventData)
             % Check user choices 
             app.checkAll
             % Close UI

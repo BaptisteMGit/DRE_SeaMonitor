@@ -18,15 +18,20 @@ classdef AppDRE
             % Root from where the app is executed
             rootApp = pwd;
             app.Simulation.rootApp = rootApp;
+            rootUserConfiguration = fullfile(rootApp, "UserConfiguration");
+                
             % Folders to store files 
             app.Simulation.rootResult = fullfile(rootApp, 'Output');
-            app.Simulation.rootSaveSimulation = fullfile(rootApp, 'Simulation');
-            app.Simulation.rootSources = fullfile(rootApp, 'Source');
+            app.Simulation.rootSaveSimulation = fullfile(rootUserConfiguration, 'Simulation');
+            app.Simulation.rootSources = fullfile(rootUserConfiguration, 'Source');
+            app.Simulation.rootSediments = fullfile(rootUserConfiguration, 'Sediment');
             
             % Create folders 
             if ~exist(app.Simulation.rootResult, 'dir'); mkdir(app.Simulation.rootResult);end
             if ~exist(app.Simulation.rootSaveSimulation, 'dir'); mkdir(app.Simulation.rootSaveSimulation);end
             if ~exist(app.Simulation.rootSources, 'dir'); mkdir(app.Simulation.rootSources);end
+            if ~exist(app.Simulation.rootSediments, 'dir'); mkdir(app.Simulation.rootSediments);end
+
             
             %% UI
             % Create main window 

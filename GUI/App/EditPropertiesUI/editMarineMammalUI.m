@@ -22,7 +22,7 @@ classdef editMarineMammalUI < handle
         % Position of the main figure 
         fPosition 
         
-        % Name to handle the issue with other 
+        % Name to handle the issue with 'Custom source' 
         marineMammalName
     end
 
@@ -95,22 +95,22 @@ classdef editMarineMammalUI < handle
             addLabel(app, 'Range around living depth', 8, 2, 'text')
 
             % Edit field
-            % Recording
-            addEditField(app, app.Simulation.marineMammal.name, 3, 4, 'Name', 'text', {@app.editFieldChanged, 'name'}) 
+            % Marine mammal
+            addEditField(app, app.Simulation.marineMammal.name, 3, 4, 'Name', 'text', @app.editFieldChanged) 
     
-            addEditField(app, app.Simulation.marineMammal.centroidFrequency, 4, 4, [], 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency
+            addEditField(app, app.Simulation.marineMammal.centroidFrequency, 4, 4, [], 'numeric', @app.editFieldChanged) % Centroid frequency
             set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
 
-            addEditField(app, app.Simulation.marineMammal.sourceLevel, 5, 4, [], 'numeric', {@app.editFieldChanged, 'sourceLevel'}) % Source level 
+            addEditField(app, app.Simulation.marineMammal.sourceLevel, 5, 4, [], 'numeric', @app.editFieldChanged) % Source level 
             set(app.handleEditField(3), 'ValueDisplayFormat', '%d dB re 1uPa at 1m')
 
-            addEditField(app, app.Simulation.marineMammal.rMax, 6, 4, [], 'numeric', {@app.editFieldChanged, 'rMax'}) % rMax
+            addEditField(app, app.Simulation.marineMammal.rMax, 6, 4, [], 'numeric', @app.editFieldChanged) % rMax
             set(app.handleEditField(4), 'ValueDisplayFormat', '%d m')
             
-            addEditField(app, app.Simulation.marineMammal.livingDepth, 7, 4, [], 'numeric', {@app.editFieldChanged, 'livingDepth'}) % livingDepth
+            addEditField(app, app.Simulation.marineMammal.livingDepth, 7, 4, [], 'numeric', @app.editFieldChanged) % livingDepth
             set(app.handleEditField(5), 'ValueDisplayFormat', '%d m')
 
-            addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 8, 4, [], 'numeric', {@app.editFieldChanged, 'deltaLivingDepth'}) % deltaLivingDepth
+            addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 8, 4, [], 'numeric', @app.editFieldChanged) % deltaLivingDepth
             set(app.handleEditField(6), 'ValueDisplayFormat', '%d m') 
             
             % Drop down 
@@ -124,20 +124,25 @@ classdef editMarineMammalUI < handle
         end
 
         function closeWindowCallback(app, hObject, eventData)
-            msg = 'Do you want to save the changes ?';
-            options = {'Save and quit', 'Quit without saving', 'Cancel'};
-            selection = uiconfirm(app.Figure, msg, 'Save settings ?', ...
-                            'Options', options, ...
-                            'DefaultOption',1,'CancelOption',3);
-            switch selection
-                case options{1}
-                    app.saveProperties()
-                    delete(app.Figure)
-                case options{2}
-                    delete(app.Figure)
-                otherwise
-                    return
+            if app.flagChanges
+                msg = 'Do you want to save the changes ?';
+                options = {'Save and quit', 'Quit without saving', 'Cancel'};
+                selection = uiconfirm(app.Figure, msg, 'Save settings ?', ...
+                                'Options', options, ...
+                                'DefaultOption',1,'CancelOption',3);
+                switch selection
+                    case options{1}
+                        app.saveProperties()
+                        delete(app.Figure)
+                    case options{2}
+                        delete(app.Figure)
+                    otherwise
+                        return
+                end
+            else
+                delete(app.Figure)
             end
+            app.updateSpecieDropDown()
             set(app.specieDropDownHandle, 'Value', app.marineMammalName)
         end
 
@@ -175,70 +180,54 @@ classdef editMarineMammalUI < handle
             app.updateSpecieNameEditField()
         end
         
+        function updateSpecieDropDown(app, hObject, eventData)
+            set(app.specieDropDownHandle, 'Items', app.Simulation.availableSources)
+        end
+
+
         function saveSettings(app, hObject, eventData)
             app.saveProperties()
             
             if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source') 
-                app.Simulation.marineMammal.setDefaultSignal() % Create signal 
+                app.Simulation.marineMammal.setSignal(); % Create signal
                 msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
-                options = {'Yes', 'No', 'Cancel'};
-                selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
-                                'Options', options, ...
-                                'DefaultOption',2,'CancelOption',3);
-                switch selection
-                    case options{1}
-                        marineMammal = app.Simulation.marineMammal;
-                        uisave('marineMammal', get(app.handleEditField(1), 'Value'))
-                    case options{2}
-                        delete(app.Figure)
-                    otherwise
-                        return
-                end
+                title = 'Save  new source ?';
+                app.saveModalWindow(msg, title);
             elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)) && app.flagChanges)
-                app.Simulation.marineMammal.updateSignal() % Update signal 
+                app.Simulation.marineMammal.setSignal() % Update signal 
                 msg = 'You have modified the properties of this custom acoustic source. Do you want to save it in order to re-use it later ?';
-                options = {'Yes', 'No', 'Cancel'};
-                selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
-                                'Options', options, ...
-                                'DefaultOption',2,'CancelOption',3);
-                switch selection
-                    case options{1}
-                        marineMammal = app.Simulation.marineMammal;
-                        uisave('marineMammal', get(app.handleEditField(1), 'Value'))
-                    case options{2}
-                        delete(app.Figure)
-                    otherwise
-                        return
-                end
+                title = 'Save modifications ?';
+                app.saveModalWindow(msg, title);
             else 
-                app.Simulation.marineMammal.updateSignal() % Udapte signal 
+                app.Simulation.marineMammal.setSignal() % Udapte signal 
                 delete(app.Figure)
             end
- 
-%             switch get(app.handleDropDown(1), 'Value')
-%                 case 'New custom source'
-%                     app.Simulation.marineMammal.setDefaultSignal()
-%                     msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
-%                     options = {'Yes', 'No', 'Cancel'};
-%                     selection = uiconfirm(app.Figure, msg, 'Save new source ?', ...
-%                                     'Options', options, ...
-%                                     'DefaultOption',2,'CancelOption',3);
-%                     switch selection
-%                         case options{1}
-%                             marineMammal = app.Simulation.marineMammal;
-%                             uisave('marineMammal', get(app.handleEditField(1), 'Value'))
-%                         case options{2}
-%                             delete(app.Figure)
-%                         otherwise
-%                             return
-%                     end
-% 
-%                 otherwise
-%                     app.Simulation.marineMammal.updateSignal()
-%                     delete(app.Figure)
-%             end 
+            app.updateSpecieDropDown()
             set(app.specieDropDownHandle, 'Value', app.marineMammalName)
         end 
+
+        function saveModalWindow(app, msg, title)
+            options = {'Yes', 'No', 'Cancel'};
+            selection = uiconfirm(app.Figure, msg, title, ...
+                            'Options', options, ...
+                            'DefaultOption',2,'CancelOption',3);
+            switch selection
+                case options{1}
+                    cd(app.Simulation.rootSources)
+                    props = properties(app.Simulation.marineMammal);
+                    for i=1:numel(props)
+                        property = props{i};
+                        structMarineMammal.(property) = app.Simulation.marineMammal.(property);
+                    end
+                    uisave('structMarineMammal', get(app.handleEditField(1), 'Value'))
+                    cd(app.Simulation.rootApp)
+                    delete(app.Figure)
+                case options{2}
+                    delete(app.Figure)
+                otherwise
+                    return
+            end
+        end
 
         function saveProperties(app)
             app.Simulation.marineMammal.name = get(app.handleEditField(1), 'Value');

@@ -1,4 +1,4 @@
-classdef MarineMammal
+classdef MarineMammal < handle
     properties
         name % name of the marine mammal
 
@@ -35,7 +35,9 @@ classdef MarineMammal
     methods
         %% Constructor 
         function obj = MarineMammal(sig, rmax, lDepth, deltaLDepth)
-            obj = obj.setDefault();
+            obj.setDefault();
+            obj.setSignal();
+
             % Signal  
             if nargin >= 1
                 if isa(sig, 'Signal')
@@ -46,33 +48,24 @@ classdef MarineMammal
             end
 
             % rMax
-            if nargin >= 2
-                obj.rMax = rmax;
-            end
-            
+            if nargin >= 2; obj.rMax = rmax; end
             % MinFrequency
-            if nargin >= 3 
-                obj.livingDepth = lDepth;
-            end
-
+            if nargin >= 3; obj.livingDepth = lDepth; end
             % MaxFrequency
-            if nargin >= 4
-                obj.deltaLivingDepth = deltaLDepth;
-            end
+            if nargin >= 4; obj.deltaLivingDepth = deltaLDepth; end
         end 
     
         
-        function obj = setDefaultSignal(obj)      
-            obj.signal = Signal(obj.signalName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel);
+        function setSignal(obj)
+            if isempty(obj.signalName)
+                sigName = sprintf('signal_%s', obj.name);
+            else
+                sigName = obj.signalName;
+            end
+            obj.signal = Signal(sigName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel);
         end
 
-        function updateSignal(obj)
-            obj.signal.name = obj.signalName;
-            obj.signal.centroidFrequency = obj.centroidFrequency;
-            obj.signal.sourceLevel = obj.sourceLevel;
-        end
-
-        function obj = setDefault(obj)
+        function setDefault(obj)
             obj.name = 'DefaultMammal';
             obj.centroidFrequency =  obj.centroidFrequencyDefault;
             obj.sourceLevel = obj.sourceLevelDefault;
@@ -83,7 +76,7 @@ classdef MarineMammal
         end
 
         %% Set methods 
-        function obj = set.rMax(obj, rmax)
+        function set.rMax(obj, rmax)
             if rmax < 100
                 error('Maximum detection range rMax should be greater than 100m !')
             else 

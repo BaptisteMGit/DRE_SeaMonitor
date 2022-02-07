@@ -180,7 +180,6 @@ classdef mainUI < handle
         end
 
         function loadSimulationButtonPushed(app, hObject, event)
-            current = pwd;            
             cd(app.Simulation.rootSaveSimulation)
             [file, path, ~] = uigetfile({'*.mat', 'Simulation file'}, ...
                                             'Select file');
@@ -190,7 +189,7 @@ classdef mainUI < handle
                 property = props{i};
                 app.Simulation.(property) = structSimu.(property);
             end
-            cd(current)
+            cd(app.Simulation.rootApp)
         end 
 
         function resizeWindow(app, hObject, eventData)

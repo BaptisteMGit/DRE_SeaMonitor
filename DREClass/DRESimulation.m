@@ -29,8 +29,12 @@
         rootSaveSimulation
         % Folder to store custom sources 
         rootSources
+        % Folder to store custom sediment
+        rootSediments
         % Implemented sources 
         implementedSources
+        % Implemented sediments
+        implementedSediments
         % CPU time 
         CPUtime
     end
@@ -76,6 +80,8 @@
         
         % Available sources that can be selected by the user 
         availableSources
+        % Available sediments that can be selected by the user 
+        availableSediments
     end
 
     %% Constructor 
@@ -85,29 +91,15 @@
             obj.setDefault() 
 
             % Bathy env 
-            if nargin >= 1
-                obj.bathyEnvironment = bathyEnv;
-            end
-                
+            if nargin >= 1; obj.bathyEnvironment = bathyEnv; end               
             % Mooring
-            if nargin >= 2
-                obj.mooring = moor;
-            end
-                    
+            if nargin >= 2; obj.mooring = moor; end
             % Mammal
-            if nargin >= 3
-                obj.marineMammal = mammal;
-            end
-
+            if nargin >= 3; obj.marineMammal = mammal; end
             % Detector
-            if nargin >= 4
-                obj.detector = det;
-            end
-
+            if nargin >= 4; obj.detector = det; end
             % Bellhop env
-            if nargin >= 5
-                obj.bellhopEnvironment  = bellhopEnv;
-            end
+            if nargin >= 5; obj.bellhopEnvironment  = bellhopEnv; end
                        
         end
     end 
@@ -123,6 +115,7 @@
             obj.bellhopEnvironment = BellhopEnvironment;
             obj.listAz = 0.1:10:360.1;
             obj.implementedSources = {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'};
+            obj.implementedSediments = {'Boulders and bedrock', 'Coarse sediment', 'Mixed sediment', 'Muddy sand and sand', 'Mud and sandy mud'};
         end
     end 
     %% Set methods 
@@ -246,6 +239,17 @@
             cd(obj.rootApp)
         end
 
+        function availableSediments = get.availableSediments(obj)            
+            availableSediments = obj.implementedSediments;
+            cd(obj.rootSediments)
+            customSediments = dir('*.mat');
+            for i=1:numel(customSediments)
+                availableSediments{end+i} = customSediments(i).name(1:end-4);
+            end
+            availableSediments{end+1} = 'New custom sediment';
+            availableSediments = availableSediments(~cellfun('isempty',availableSediments));
+            cd(obj.rootApp)
+        end
     end
 
     %% Simulation methods  
