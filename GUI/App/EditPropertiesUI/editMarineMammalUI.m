@@ -49,6 +49,8 @@ classdef editMarineMammalUI < handle
 
         % Flag to check if properties have been updated 
         flagChanges = 0;
+        % Flag to check if the new source is saved 
+        isSaved = 0;
     end
 
     methods
@@ -188,23 +190,32 @@ classdef editMarineMammalUI < handle
         function saveSettings(app, hObject, eventData)
             app.saveProperties()
             
-            if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source') 
-                app.Simulation.marineMammal.setSignal(); % Create signal
-                msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
-                title = 'Save  new source ?';
-                app.saveModalWindow(msg, title);
-            elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)) && app.flagChanges)
-                app.Simulation.marineMammal.setSignal() % Update signal 
+            if (strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source')) % User created a custom source 
+                if isempty(get(app.handleEditField(1), 'Value')) % New source has no name 
+                    uialert(app.Figure, 'Custom source has no name, please enter a name.', 'No name selected', 'Icon', 'info')
+                else
+                    msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
+                    title = 'Save  new source ?';
+                    app.saveModalWindow(msg, title);
+                end
+
+            elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)) && app.flagChanges) % User modified an already existing custom source 
+                app.isSaved = 1;
                 msg = 'You have modified the properties of this custom acoustic source. Do you want to save it in order to re-use it later ?';
                 title = 'Save modifications ?';
                 app.saveModalWindow(msg, title);
-            else 
-                app.Simulation.marineMammal.setSignal() % Udapte signal 
+        
+            elseif (any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)) && app.flagChanges) % User modified a pre-defined source 
+                delete(app.Figure)
+
+            else % Nothing has been modified
+                app.isSaved = 1;
                 delete(app.Figure)
             end
+
             app.updateSpecieDropDown()
             set(app.specieDropDownHandle, 'Value', app.marineMammalName)
-        end 
+            end 
 
         function saveModalWindow(app, msg, title)
             options = {'Yes', 'No', 'Cancel'};
@@ -222,6 +233,7 @@ classdef editMarineMammalUI < handle
                     uisave('structMarineMammal', get(app.handleEditField(1), 'Value'))
                     cd(app.Simulation.rootApp)
                     delete(app.Figure)
+                    app.isSaved = 1;
                 case options{2}
                     delete(app.Figure)
                 otherwise
@@ -236,6 +248,7 @@ classdef editMarineMammalUI < handle
             app.Simulation.marineMammal.rMax = get(app.handleEditField(4), 'Value');
             app.Simulation.marineMammal.livingDepth = get(app.handleEditField(5), 'Value');
             app.Simulation.marineMammal.deltaLivingDepth = get(app.handleEditField(6), 'Value');
+            app.Simulation.marineMammal.setSignal(); % Update signal with new values
         end
 
         function updatePropertiesValue(app)
@@ -255,7 +268,7 @@ classdef editMarineMammalUI < handle
         end
 
         function name = get.marineMammalName(app)
-            if ~any(strcmp(app.Simulation.availableSources, app.Simulation.marineMammal.name))
+            if ~any(strcmp(app.Simulation.availableSources, app.Simulation.marineMammal.name)) && ~app.isSaved
                 name = 'New custom source';
             else
                 name = app.Simulation.marineMammal.name;

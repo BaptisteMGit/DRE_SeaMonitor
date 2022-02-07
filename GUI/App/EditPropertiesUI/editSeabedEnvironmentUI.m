@@ -173,19 +173,23 @@ classdef editSeabedEnvironmentUI < handle
         function saveSettings(app, hObject, eventData)
             app.saveProperties()
             
-            if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom sediment') && app.flagChanges
-                msg = 'You have created a new type of sediment. Do you want to save it in order to re-use it later ?';
-                title = 'Save new sediment ?';
-                app.saveModalWindow(msg, title);
+            if (strcmp(get(app.handleDropDown(1), 'Value'), 'New custom sediment'))  % User created a custom sediment 
+                if isempty(get(app.handleEditField(1), 'Value')) % New source has no name 
+                    uialert(app.Figure, 'Custom sediment has no name, please enter a name.', 'No name selected', 'Icon', 'info')
+                else
+                    msg = 'You have created a new type of sediment. Do you want to save it in order to re-use it later ?';
+                    title = 'Save new sediment ?';
+                    app.saveModalWindow(msg, title);
+                end
 
-            elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSediments)) && app.flagChanges)
+            elseif (~any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSediments)) && app.flagChanges) % User modified an already existing custom sediment
                 app.isSaved = 1;
                 msg = 'You have modified the properties of this custom sediment. Do you want to save it in order to re-use it later ?';
                 title = 'Save new sediment ?';
                 app.saveModalWindow(msg, title);
 
-            elseif (any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSediments)) && app.flagChanges)
-                app.closeWindowCallback()
+            elseif (any(strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSediments)) && app.flagChanges)  % User modified a pre-defined source 
+                delete(app.Figure)
 
             else 
                 app.isSaved = 1;
