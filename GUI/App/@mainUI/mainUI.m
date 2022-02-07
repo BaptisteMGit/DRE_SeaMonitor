@@ -51,9 +51,6 @@ classdef mainUI < handle
         lX
         lY
         lPosition
-
-        % Store previous simulations 
-        rootToPreviousSimulation
     end 
 
     properties (Hidden=true)
@@ -75,6 +72,9 @@ classdef mainUI < handle
         configEnvironmentWindow
         plottingToolsWindow
         recomputeWindow
+
+        % Store previous simulations 
+        rootToPreviousSimulation
     end
     
     %% Constructor of the class 

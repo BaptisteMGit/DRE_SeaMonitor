@@ -58,6 +58,11 @@
         appUIFigure 
         %Ssp 
         SoundCelerity
+
+        % Threshold that can be used to derived detection range from
+        % detection function (detection probability along profile) 
+        availableDRThreshold = {'25%', '50%', '75%', '99%'};
+        detectionRangeThreshold = '50%'
     end
 
     properties (Dependent, Hidden=true)
@@ -721,7 +726,7 @@
 
             [xx, yy] = pol2cart(obj.listAz * pi/180, obj.listDetectionRange);
             plot(xx, yy, 'k', 'LineWidth', 2)
-            legend({'', '', 'Mooring', '50% detection range'})
+            legend({'', '', 'Mooring', sprintf('%s detection range', obj.detectionRangeThreshold)})
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
         end
@@ -761,15 +766,15 @@
             close(gcf)
         end
         
-        function plotDetectionFunction(obj, nameProfile, g, DR50Percent)            
+        function plotDetectionFunction(obj, nameProfile, g, detectionRange)            
             figure('visible','off');
             plot(obj.rt, g)
             xlabel('Range [m]')
             ylabel('Detection probability')
             hold on 
-            yline(0.5, '--r', 'LineWidth', 1, 'Label', '50 % detection threshold')
+            yline(str2double(obj.detectionRangeThreshold(1:end-1))/100, '--r', 'LineWidth', 1, 'Label', sprintf('%s detection threshold', obj.detectionRangeThreshold))
             hold on 
-            xline(DR50Percent, '--g', 'LineWidth', 1, 'Label', sprintf('50 %% detection range = %dm', round(DR50Percent, 0)),...
+            xline(detectionRange, '--g', 'LineWidth', 1, 'Label', sprintf('%s detection range = %dm', obj.detectionRangeThreshold, round(detectionRange, 0)),...
                 'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'top')
             title({'Detection function'})
 
@@ -815,7 +820,8 @@
                 'DT', obj.detector.detectionThreshold,...
                 'NL', obj.noiseEnvironment.noiseLevel,... 
                 'zTarget', obj.marineMammal.livingDepth,...
-                'deltaZ', obj.marineMammal.deltaLivingDepth};
+                'deltaZ', obj.marineMammal.deltaLivingDepth, ...
+                'DRThreshold', obj.detectionRangeThreshold};
 
             [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
             obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)
@@ -824,7 +830,7 @@
             % Detection function            
             obj.listDetectionFunction(i, :) = detectionFunction;
             
-            % 50 % Detection range 
+            % Detection range 
             obj.listDetectionRange(i) = detectionRange;
             obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
 

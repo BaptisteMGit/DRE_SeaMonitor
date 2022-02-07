@@ -29,9 +29,9 @@ classdef configEnvironmentUI < handle
     properties (Hidden=true)
         % Size of the main window 
         Width = 575;
-        Height = 600;
+        Height = 700;
         % Number of components 
-        glNRow = 18;
+        glNRow = 20;
         glNCol = 9;
         
         % Labels visual properties 
@@ -43,7 +43,10 @@ classdef configEnvironmentUI < handle
         
         % Subwindow open to kill when this window is closed 
         subWindows = {};
-
+        
+        % Handle issue with unsaved custom source / sediment 
+        marineMammalName
+        sedimentType
     end
     
     %% Constructor of the class 
@@ -76,7 +79,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{17} = 30;
+            app.GridLayout.RowHeight{19} = 30;
 
 
             %%% Labels %%%
@@ -107,10 +110,16 @@ classdef configEnvironmentUI < handle
             
             % Seabed 
             addLabel(app, 'Seabed', 13, [1, 2], 'title')
-            addLabel(app, 'Sediment', 14, [1, 2], 'text')
+            addLabel(app, 'Sediment', 14, 2, 'text')
 
             % Bellhop 
             addLabel(app, 'Bellhop parameters', 15, [1, 2], 'title')
+            addLabel(app, 'Settings', 16, 2, 'text')
+
+            % Detection function 
+            addLabel(app, 'Detection range', 17, [1, 2], 'title')
+            addLabel(app, 'Threshold', 18, 2, 'text')
+
 
             %%% Edit field %%%
             % Mooring
@@ -128,12 +137,14 @@ classdef configEnvironmentUI < handle
             % Hydrophone
             addDropDown(app, {'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
             % Specie
-            addDropDown(app, app.Simulation.availableSources, app.Simulation.marineMammal.name, 9, [4, 7], @app.specieChanged)
+            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 9, [4, 7], @app.specieChanged)
             % Noise level model
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
              % Sediment
-            addDropDown(app, app.Simulation.availableSediments, app.Simulation.seabedEnvironment.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
-            
+            addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
+            % Detection range criterion 
+            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged)
+        
             %%% Buttons %%%
             % Edit hydrophone
             addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
@@ -147,7 +158,7 @@ classdef configEnvironmentUI < handle
             % Advanced settings 
             addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Close', 18, [4, 7], @app.closeUI)
+            addButton(app, 'Close', 20, [4, 7], @app.closeUI)
         end
     end
     
@@ -300,6 +311,10 @@ classdef configEnvironmentUI < handle
             app.subWindows{end+1} = editSeabedEnvironmentUI(app.Simulation, app.handleDropDown(5));
         end
 
+        function detectionRangeThresholdChanged(app, hObject, eventData)
+            app.Simulation.detectionRangeThreshold = hObject.Value;
+        end
+
         function editNoiseLevelPorperties(app, hObject, eventData)
             switch get(app.handleDropDown(4), 'Value')
                 case 'Derived from recording'
@@ -331,6 +346,23 @@ classdef configEnvironmentUI < handle
             app.checkAll
             % Close UI
             close(app.Figure)
+        end
+
+        function sedimentType = get.sedimentType(app)
+            if ~any(strcmp(app.Simulation.availableSediments, app.Simulation.seabedEnvironment.sedimentType))
+                sedimentType = 'New custom sediment';
+            else
+                sedimentType = app.Simulation.seabedEnvironment.sedimentType;
+            end
+        end
+
+
+        function name = get.marineMammalName(app)
+            if ~any(strcmp(app.Simulation.availableSources, app.Simulation.marineMammal.name))
+                name = 'New custom source';
+            else
+                name = app.Simulation.marineMammal.name;
+            end
         end
     end
 

@@ -1,4 +1,4 @@
-function [g, DR50Percent] = computeDetectionFunction(varargin)
+function [g, detectionRange] = computeDetectionFunction(varargin)
 %COMPUTEDETECTIONFUNCTION Summary of this function goes here
 %   Detailed explanation goes here
 filename = getVararginValue(varargin, 'filename', '');
@@ -8,6 +8,7 @@ DT = getVararginValue(varargin, 'DT', []);
 NL = getVararginValue(varargin, 'NL', []);
 zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
+DRThreshold = getVararginValue(varargin, 'DRThreshold', '50%');
 
 %% Transmission loss 
 [tl, zt, rt] = computeTL(filename); % Transmission loss 
@@ -87,11 +88,12 @@ for i_r = 1:nr
     g(i_r) = phi + 1/(2*sqrt(2*pi)*sigmaSL) * psy;
 end
 
-%% Compute 50percent detection range 
-y = 0.5 * ones(size(rt));
+%% Compute detection range 
+threshold = str2double(DRThreshold(1:end-1)) / 100;
+y = threshold * ones(size(rt));
 idxSup = (g >= y);
-idx50Percent = find(idxSup, 1, 'last');
-DR50Percent = rt(idx50Percent);
+idxThreshold = find(idxSup, 1, 'last');
+detectionRange = rt(idxThreshold);
 
 %% Plot
 % figure
