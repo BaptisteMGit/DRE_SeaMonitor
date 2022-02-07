@@ -124,7 +124,11 @@ classdef editSeabedEnvironmentUI < handle
         function updateSedimentTypeEditField(app)
             if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom sediment')
                 bool = 1;
-                set(app.handleEditField(1), 'Value', '')
+                if strcmp(app.Simulation.seabedEnvironment.sedimentType, 'New custom sediment')
+                    set(app.handleEditField(1), 'Value', '')
+                else
+                    set(app.handleEditField(1), 'Value', app.Simulation.seabedEnvironment.sedimentType)
+                end
                 set(app.handleEditField(1), 'Placeholder', 'Enter a name')
             elseif ~strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSediments)
                 bool = 1;
@@ -220,6 +224,7 @@ classdef editSeabedEnvironmentUI < handle
                     app.isSaved = 1;
                 case options{2}
                     delete(app.Figure)
+                    app.isSaved = 0;
                 otherwise
                     return
             end

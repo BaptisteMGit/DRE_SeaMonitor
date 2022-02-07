@@ -155,7 +155,11 @@ classdef editMarineMammalUI < handle
         function updateSpecieNameEditField(app)
             if strcmp(get(app.handleDropDown(1), 'Value'), 'New custom source')
                 bool = 1;
-                set(app.handleEditField(1), 'Value', '')
+                if strcmp(app.Simulation.marineMammal.name, 'DefaultMammal')
+                    set(app.handleEditField(1), 'Value', '')
+                else
+                    set(app.handleEditField(1), 'Value', app.Simulation.marineMammal.name)
+                end
                 set(app.handleEditField(1), 'Placeholder', 'Enter a name')
             elseif ~strcmp(get(app.handleDropDown(1), 'Value'), app.Simulation.implementedSources)
                 bool = 1;
