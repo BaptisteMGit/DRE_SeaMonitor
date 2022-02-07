@@ -62,7 +62,10 @@
         % Threshold that can be used to derived detection range from
         % detection function (detection probability along profile) 
         availableDRThreshold = {'25%', '50%', '75%', '99%'};
-        detectionRangeThreshold = '50%'
+        detectionRangeThreshold = '50%';
+
+        availableOffAxisDistribution = {'Uniformly distributed on a sphere (random off-axis)', 'Near on-axis'}
+        offAxisDistribution = 'Uniformly distributed on a sphere (random off-axis)';
     end
 
     properties (Dependent, Hidden=true)
@@ -776,7 +779,7 @@
             hold on 
             xline(detectionRange, '--g', 'LineWidth', 1, 'Label', sprintf('%s detection range = %dm', obj.detectionRangeThreshold, round(detectionRange, 0)),...
                 'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'top')
-            title({'Detection function'})
+            title({sprintf('Detection function - %s', nameProfile)})
 
             current = pwd;
             cd(obj.rootOutputFigures)

@@ -9,6 +9,8 @@ NL = getVararginValue(varargin, 'NL', []);
 zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 DRThreshold = getVararginValue(varargin, 'DRThreshold', '50%');
+offAxisDistribution = getVararginValue(varargin, 'offAxisDistribution', 'Uniformly distributed on a sphere (random off-axis)');
+sigmaH = 5; % To be investigated 
 
 %% Transmission loss 
 [tl, zt, rt] = computeTL(filename); % Transmission loss 
@@ -69,24 +71,66 @@ F0 = NL + DT;
 FOM0 = SL0 - F0; % Nominal figure of merit 
 
 %% Detection probability 
-% Intermidiate function to compute the second integral 
-h = @(u, v) exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2) .* (1 - cos(DLinv(u)));
+switch offAxisDistribution
+    case 'Uniformly distributed on a sphere (random off-axis)'
+        % Here we consider that the off-axis angle is uniformly distributed
+        % on a sphere. That is to say that the marine mammal (= the
+        % acoustic source)  is not necessarily heading toward the
+        % hydrophone. 
 
-% Detection function values ( g(r) ) 
-g = double.empty([nr, 0]);
-for i_r = 1:nr
-    TL = tl(i_r);
-    % Integrating over all source levels for which detection occurs 
-    x0 = F0 + TL + DLmax;
-    phi = integral(Wsl, x0, Inf); 
-    
-    % Part that handle the cases where the off-axis angles matter
-    f_TL = @(u) h(u, TL);
-    psy = integral(f_TL, 0, DLmax);
-    
-    % Total detection probability 
-    g(i_r) = phi + 1/(2*sqrt(2*pi)*sigmaSL) * psy;
+        % Intermidiate function to compute the second integral 
+        h = @(u, v) exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2) .* (1 - cos(DLinv(u)));
+        
+        % Detection function values ( g(r) ) 
+        g = double.empty([nr, 0]);
+        for i_r = 1:nr
+            TL = tl(i_r);
+            % Integrating over all source levels for which detection occurs 
+            x0 = F0 + TL + DLmax;
+            phi = integral(Wsl, x0, Inf); 
+            
+            % Part that handle the cases where the off-axis angles matter
+            f_TL = @(u) h(u, TL);
+            omega = integral(f_TL, 0, DLmax);
+            
+            % Total detection probability 
+            g(i_r) = phi + 1/(2*sqrt(2*pi)*sigmaSL) * omega;
+        end
+
+    case 'Near on-axis'
+        % Here we only consider the cues emitted by a marine mammal (= the
+        % acoustic source)  heading toward the hydrophone. That is to say
+        % when the receiver is on-axis with the animal orientation. We
+        % assume that the head of the animal is moving randomly relative to
+        % the on-axis with no vertical or horizontal preference. Therefore 
+        % the off-axis distribution is a Reyleigh distribution. 
+
+        % Intermidiate function to compute the second integral: psy
+        k = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2);
+
+        % Intermidiate function to compute the third integral: omega
+        h = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH)^2) );
+        
+        % Detection function values ( g(r) ) 
+        g = double.empty([nr, 0]);
+        for i_r = 1:nr
+            TL = tl(i_r);
+            % Integrating over all source levels for which detection occurs 
+            x0 = F0 + TL + DLmax;
+            phi = integral(Wsl, x0, Inf); 
+            
+            % Part that handle the cases where the off-axis angles matter
+            l_TL = @(u) k(u, TL);
+            psy = integral(l_TL, 0, DLmax);
+
+            f_TL = @(u) h(u, TL);
+            omega = integral(f_TL, 0, DLmax);
+            
+            % Total detection probability 
+            g(i_r) = phi + psy - omega;
+        end
 end
+
 
 %% Compute detection range 
 threshold = str2double(DRThreshold(1:end-1)) / 100;

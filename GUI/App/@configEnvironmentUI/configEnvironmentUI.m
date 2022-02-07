@@ -31,7 +31,7 @@ classdef configEnvironmentUI < handle
         Width = 575;
         Height = 700;
         % Number of components 
-        glNRow = 20;
+        glNRow = 21;
         glNCol = 9;
         
         % Labels visual properties 
@@ -79,7 +79,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{19} = 30;
+            app.GridLayout.RowHeight{20} = 30;
 
 
             %%% Labels %%%
@@ -119,6 +119,7 @@ classdef configEnvironmentUI < handle
             % Detection function 
             addLabel(app, 'Detection range', 17, [1, 2], 'title')
             addLabel(app, 'Threshold', 18, 2, 'text')
+            addLabel(app, 'Off-axis distribution', 19, 2, 'text')
 
 
             %%% Edit field %%%
@@ -142,9 +143,10 @@ classdef configEnvironmentUI < handle
             addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
              % Sediment
             addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
-            % Detection range criterion 
-            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged)
-        
+            % Detection range 
+            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
+            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 7], @app.detectionRangeThresholdChanged) % Off-axis distribution  
+
             %%% Buttons %%%
             % Edit hydrophone
             addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
@@ -158,7 +160,7 @@ classdef configEnvironmentUI < handle
             % Advanced settings 
             addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Close', 20, [4, 7], @app.closeUI)
+            addButton(app, 'Close', 21, [4, 7], @app.closeUI)
         end
     end
     
