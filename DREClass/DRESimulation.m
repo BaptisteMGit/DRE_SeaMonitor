@@ -37,10 +37,11 @@
         implementedSediments
         % CPU time 
         CPUtime
+        % Bathymetry data (not hidden to be saved when clicking save)
+        dataBathy
     end
     
     properties (Hidden)
-        dataBathy
         
         % Bellhop parameters 
         bottom
@@ -376,9 +377,14 @@
             tStart = tic;
             
             oldRootSaveResult = obj.rootSaveResult;
+            oldLaunchDate = obj.launchDate;
 
             % Create new result folder
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
+            if strcmp(oldLaunchDate, obj.launchDate)
+                obj.launchDate(end) = double2str(str2double(obj.launchDate(end)) + 1); 
+            end
+
             if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
 
             % Copy all files to the new folder 
@@ -498,7 +504,7 @@
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Environment\n\n');
             fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
-            fprintf(fileID, '\tCompression wave attenuation = %3.4f dB/m\n', obj.cwa);
+            fprintf(fileID, '\tCompression wave attenuation = %3.4f 1e-3 dB/m\n', obj.cwa*1000);
             fprintf(fileID, '__________________________________________________________________________\n\n');
             fprintf(fileID, 'Estimating detection range\n\n');
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
@@ -736,7 +742,6 @@
         
         function plotBathyENU(obj)
             E = obj.dataBathy(:,1);
-            E = obj.dataBathy(:,1);
             N = obj.dataBathy(:,2);
             U = obj.dataBathy(:,3);
             pts = 1E+3;
@@ -824,7 +829,8 @@
                 'NL', obj.noiseEnvironment.noiseLevel,... 
                 'zTarget', obj.marineMammal.livingDepth,...
                 'deltaZ', obj.marineMammal.deltaLivingDepth, ...
-                'DRThreshold', obj.detectionRangeThreshold};
+                'DRThreshold', obj.detectionRangeThreshold, ...
+                'offAxisDistribution', obj.offAxisDistribution};
 
             [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
             obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)

@@ -174,7 +174,6 @@ classdef mainUI < handle
                 property = props{i};
                 structSimu.(property) = app.Simulation.(property);
             end
-
             uisave('structSimu', app.Simulation.mooring.mooringName)
             cd(current)
         end
@@ -189,6 +188,9 @@ classdef mainUI < handle
                 property = props{i};
                 app.Simulation.(property) = structSimu.(property);
             end
+            % Mark simulation as previous simu to allow recomputing without
+            % simulation 
+            app.rootToPreviousSimulation = app.Simulation.rootSaveResult;
             cd(app.Simulation.rootApp)
         end 
 

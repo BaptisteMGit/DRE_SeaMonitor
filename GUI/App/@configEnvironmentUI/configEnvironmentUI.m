@@ -145,7 +145,7 @@ classdef configEnvironmentUI < handle
             addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
             % Detection range 
             addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
-            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 7], @app.detectionRangeThresholdChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 9], @app.offAxisDistributionChanged) % Off-axis distribution  
 
             %%% Buttons %%%
             % Edit hydrophone
@@ -273,6 +273,7 @@ classdef configEnvironmentUI < handle
 %             app.loadedSeabedEnvironment(hObject.Value);
 %             app.Simulation.seabedEnvironment.sedimentType = hObject.Value;
         end 
+
         function loadSeabedEnvironment(app, sedimentType) % Load properties of a custom source 
             % Create a default seabed environment
             app.Simulation.seabedEnvironment = SeabedEnvironment;
@@ -286,7 +287,6 @@ classdef configEnvironmentUI < handle
             end
             cd(app.Simulation.rootApp)
         end
-
 
         function editFieldChanged(app, hObject, eventData, type)
             switch type 
@@ -315,6 +315,10 @@ classdef configEnvironmentUI < handle
 
         function detectionRangeThresholdChanged(app, hObject, eventData)
             app.Simulation.detectionRangeThreshold = hObject.Value;
+        end
+        
+        function offAxisDistributionChanged(app, hObject, eventData)
+            app.Simulation.offAxisDistribution = hObject.Value;
         end
 
         function editNoiseLevelPorperties(app, hObject, eventData)
