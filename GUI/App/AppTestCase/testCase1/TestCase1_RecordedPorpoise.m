@@ -1,4 +1,4 @@
-classdef TestCase1 < DRESimulation
+classdef TestCase1_RecordedPorpoise < DRESimulation
     %TESTCASE1 simulation object to be used for App test 
     %   Test case based on the paper: 
     %   Nuuttila HK, Brundiers K, Dähne M,
@@ -6,12 +6,15 @@ classdef TestCase1 < DRESimulation
     %   acoustic data loggers from playback experiments with
     %   cetacean vocalisations. Methods Ecol Evol. 2018;00:1–10. 
     %   https://doi.org/10.1111/2041-210X.1309
+    % 
+    % In this test case we consider the part of the study dealing with
+    % recorded Porpoise clicks. 
 
     properties
     end
     
     methods
-        function obj = TestCase1
+        function obj = TestCase1_RecordedPorpoise
             %% Bathymetry 
 %             Old way to instanciate the object BathyEnvironement (before
 %             26/01/2022) 

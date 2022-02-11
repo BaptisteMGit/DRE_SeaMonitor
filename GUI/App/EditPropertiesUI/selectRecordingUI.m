@@ -27,6 +27,8 @@ classdef selectRecordingUI < handle
         fmax
         % round coeff for frequency 
         roundCoeff
+        
+        centroidFrequency
     end
 
     properties (Hidden=true)
@@ -102,7 +104,7 @@ classdef selectRecordingUI < handle
             % Edit field
             % Recording
             addEditField(app, app.Simulation.noiseEnvironment.recording.recordingFile, 2, [4, 6], 'Filename.wav', 'text', {@app.editFieldChanged, 'filename'}) % recording file 
-            addEditField(app, app.Simulation.marineMammal.centroidFrequency, 3, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
+            addEditField(app, app.centroidFrequency, 3, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
             set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
 
             addEditField(app, app.fmin, 5, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
@@ -280,6 +282,14 @@ classdef selectRecordingUI < handle
                 roundCoeff = -2; 
             else 
                 roundCoeff = -3; 
+            end
+        end
+
+        function cFreq = get.centroidFrequency(app)
+            if ~isempty(app.Simulation.noiseEnvironment.recording.centroidFrequency)
+                cFreq = app.Simulation.noiseEnvironment.recording.centroidFrequency;
+            else
+                cFreq = app.Simulation.marineMammal.centroidFrequency;
             end
         end
     end 

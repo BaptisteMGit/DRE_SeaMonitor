@@ -90,8 +90,12 @@ classdef Recording < handle
                     
                     samplesRange = [starting_sample, ending_sample];
                     obj.signal = obj.loadSignal(samplesRange);
-                    listLeq(i) = getNLFromWavFile_Leq(obj.filteredSignal, obj.calibrationCoefficient);
-                    
+
+                    % Using equivalent continuous sound pressure 
+%                     listLeq(i) = getNLFromWavFile_Leq(obj.filteredSignal, obj.calibrationCoefficient);
+                    % Using spectral power density 
+                    listLeq(i) = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient);
+
                     % Next window sample 
                     starting_sample = starting_sample + obj.temporalWindow * info.SampleRate;
                     ending_sample = ending_sample + obj.temporalWindow * info.SampleRate;
@@ -101,14 +105,14 @@ classdef Recording < handle
                 plot(listLeq)
                 drawnow
                 listNL = [listNL listLeq];
-                % Spectral power 
-    %             noiseLevel = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient, obj.temporalWindow);
+
             end
             noiseLevel = double(median(listNL));
             
             hold on 
             yline(noiseLevel, '--r', sprintf('Ambient noise level computed = %d dB', noiseLevel))
-            ylabel('Continuous equivalent noise level dB re 1\muPa')
+            ylabel('Lrms [dB re 1\muPa]')
+            xlabel('Time [minute]')
         end
 
         function signal = loadSignal(obj, samplesRange)

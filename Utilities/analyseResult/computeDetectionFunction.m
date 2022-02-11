@@ -10,7 +10,8 @@ zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 DRThreshold = getVararginValue(varargin, 'DRThreshold', '50%');
 offAxisDistribution = getVararginValue(varargin, 'offAxisDistribution', 'Uniformly distributed on a sphere (random off-axis)');
-sigmaH = 5; % To be investigated 
+sigmaHdeg = getVararginValue(varargin, 'sigmaH', 10);
+DI = getVararginValue(varargin, 'DI', 22); % Directivity index 
 
 %% Transmission loss 
 [tl, zt, rt] = computeTL(filename); % Transmission loss 
@@ -52,8 +53,13 @@ Wsl = @(x) 1/(sqrt(2*pi)*sigmaSL) * exp(-1/2 * ((x - SL0)/sigmaSL).^2);
 %% Off-axis attenuation 
 % Ref: Passive Acoustic Monitoring of Cetaceans, Walter M. X. Zimmer,
 % p260-267
+% ka = 17.8; % 
+% p99: Eq. 3.8 adapted considering DI = 20 log(ka) 
+% NOTE: This approximation of DI is valid for narrowband signal with ka>>1
+% yet we use it to derive ka fort all short pulses 
+
+ka = 10^(DI/20);
 C1 = 47; % dB
-ka = 17.8; % 
 C2 = 0.218*ka;
 DLmax = C1 * C2^2 / (1 + C2 + C2^2);
 
@@ -106,6 +112,9 @@ switch offAxisDistribution
         % assume that the head of the animal is moving randomly relative to
         % the on-axis with no vertical or horizontal preference. Therefore 
         % the off-axis distribution is a Reyleigh distribution. 
+        
+        % Head angle standard deviation 
+        sigmaH = sigmaHdeg * pi/180;
 
         % Intermidiate function to compute the second integral: psy
         k = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2);

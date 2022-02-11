@@ -266,6 +266,7 @@
         function flag = runSimulation(obj)
             % Start time 
             tStart = tic;
+            cd(obj.rootApp) % In order to avoid further issues when the program previously failed 
             % Create result folders
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if ~exist(obj.rootSaveInput, 'dir'); mkdir(obj.rootSaveInput);end
@@ -485,28 +486,47 @@
             fileID = fopen(obj.logFile,'w');
             % Configuration 
             fprintf(fileID,'Estimation of the detection range using BELLHOP\n\n');
+
             fprintf(fileID, 'Equipment\n\n');
             fprintf(fileID,'\tName: %s\n', obj.mooring.mooringName);
             fprintf(fileID,'\tDeployment: %s to %s\n', obj.mooring.deploymentDate.startDate, obj.mooring.deploymentDate.stopDate);
             fprintf(fileID,'\tPosition: lon %4.4f°, lat %4.4f°, hgt %4.4fm\n', obj.mooring.mooringPos.lon, obj.mooring.mooringPos.lat, obj.mooring.mooringPos.hgt);
             fprintf(fileID,'\tHydrophone: %s\n', obj.detector.name);
-            fprintf(fileID, '\tDetection threshold = %3.2f dB\n', obj.detector.detectionThreshold);
+            fprintf(fileID, '\tDetection threshold: %3.2f dB\n', obj.detector.detectionThreshold);
             fprintf(fileID, '__________________________________________________________________________\n\n');
+
             fprintf(fileID, 'Animal\n\n');
             fprintf(fileID, '\t%s emitting %s\n', obj.marineMammal.name, obj.marineMammal.signal.name);
             fprintf(fileID,'\tCentroid frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
             fprintf(fileID, '__________________________________________________________________________\n\n');
+
             fprintf(fileID, 'BELLHOP parameters\n\n');
-            fprintf(fileID, '\tNumber of beams = %d\n', obj.bellhopEnvironment.beam.Nbeams);
-            fprintf(fileID, '\tTL = %s\n', obj.bellhopEnvironment.runTypeLabel);
-            fprintf(fileID, '\tBeam type = %s\n', obj.bellhopEnvironment.beamTypeLabel);
-            fprintf(fileID, '\tSsp option = %s\n', obj.bellhopEnvironment.SspOption);
+            fprintf(fileID, '\tNumber of beams: %d\n', obj.bellhopEnvironment.beam.Nbeams);
+            fprintf(fileID, '\tTL: %s\n', obj.bellhopEnvironment.runTypeLabel);
+            fprintf(fileID, '\tBeam type: %s\n', obj.bellhopEnvironment.beamTypeLabel);
+            fprintf(fileID, '\tSsp option: %s\n', obj.bellhopEnvironment.SspOption);
             fprintf(fileID, '__________________________________________________________________________\n\n');
+
             fprintf(fileID, 'Environment\n\n');
-            fprintf(fileID, '\tAmbient noise level = %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
-            fprintf(fileID, '\tCompression wave attenuation = %3.4f 1e-3 dB/m\n', obj.cwa*1000);
+            fprintf(fileID, '\tAmbient noise level: %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
+            switch obj.bellhopEnvironment.SspOption(3)
+                case 'M'
+                    unit = 'dB/m';
+                case 'W'
+                    unit = 'dB/lambda';
+            end
+            fprintf(fileID, '\tCompression wave attenuation in the water column: %3.4f 1e-3 %s\n', obj.cwa*1000, unit);
+            fprintf(fileID, '\tSediment: %s with the following properties\n', obj.seabedEnvironment.sedimentType);
+            fprintf(fileID, '\t\tCompression wave celerity: %4.1f m.s-1\n', obj.seabedEnvironment.bottom.c); 
+            fprintf(fileID, '\t\tCompression wave attenuation: %3.4f 1e-3 %s\n', obj.seabedEnvironment.bottom.cwa*1000, unit); 
+            fprintf(fileID, '\t\tDensity: %2.2f g.cm-3 %s\n', obj.seabedEnvironment.bottom.cwa*1000, unit); 
             fprintf(fileID, '__________________________________________________________________________\n\n');
+
             fprintf(fileID, 'Estimating detection range\n\n');
+            fprintf(fileID, 'Directional loss approximation:\nDLbb = C1 * (C2*sin(theta)).^2 ./ (1 + abs(C2*sin(theta)) + (C2*sin(theta)).^2)\n');
+            fprintf(fileID, 'with C1 = 47, C2 = 0.218*ka, ka = 17.8\n\n');
+            fprintf(fileID, 'Off-axis distribution: %s\n', obj.offAxisDistribution);
+            fprintf(fileID, 'Probability threshold for detection range: %s\n\n', obj.detectionRangeThreshold);
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
             fclose(fileID);   
         end
@@ -702,11 +722,15 @@
         end
 
         function plotDR(obj)
+            % Limit
+            Rmax = max(obj.listDetectionRange);
+%             offset = 100;
+%             R = Rmax + offset;
             %%% Polar plot %%% 
             figure
             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
             ax = gca;
-            ax.RLim = [0, obj.marineMammal.rMax];
+            ax.RLim = [0, Rmax+50];
             % Save 
             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName)));
             
@@ -716,8 +740,9 @@
             N = obj.dataBathy(:,2);
             U = obj.dataBathy(:,3);
             pts = 1E+3;
-            xGrid = linspace(min(E), max(E), pts);
-            yGrid = linspace(min(N), max(N), pts);
+
+            xGrid = linspace(-(Rmax+500), Rmax+500, pts);
+            yGrid = linspace(-(Rmax+500), Rmax+500, pts);   
             [X,Y] = meshgrid(xGrid, yGrid);
             zDep = griddata(E, N, U, X, Y);
 

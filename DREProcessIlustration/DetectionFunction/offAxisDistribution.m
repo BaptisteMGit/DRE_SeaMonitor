@@ -59,3 +59,55 @@ plot3(xoffaxis, yoffaxis, zoffaxis, 'LineWidth', 2, 'LineStyle','--')
 lgd{end+1} = 'Off-axis';
 
 legend(lgd)
+
+
+%% Comparison of the two distributions
+
+% Probability density function
+dth = 0.1;
+thetadeg = 0:dth:90;
+theta = thetadeg * pi/180;
+
+figure
+lgd = {};
+Woa_a = 1/2 * sin(theta);
+plot(thetadeg, Woa_a, 'LineWidth', 1)
+lgd{end + 1} = 'W_{OA_A}';
+
+listSigmaHdeg = [1 5 10 30 50];
+for sigmaHdeg = listSigmaHdeg
+    sigmaH = sigmaHdeg * pi/180;
+    Woa_h = (theta / sigmaH^2) .* exp(-1/2 * ( (theta / sigmaH).^2) );
+    hold on 
+    plot(thetadeg, Woa_h, 'LineWidth', 1)
+    lgd{end+1} = sprintf('W_{OA_H}, \\sigma_H = %.1f °', sigmaHdeg);
+end 
+xlabel('Off-axis angle [°]')
+ylabel('PDF')
+legend(lgd)
+title('Probability density function - Off-axis distribution')
+
+% Cumulative distribution function
+figure
+lgd = {};
+CDFoa_a = 1/2 * (1 - cos(theta));
+plot(thetadeg, CDFoa_a, 'LineWidth', 1)
+lgd{end + 1} = 'W_{OA_A}';
+
+listSigmaHdeg = [1 5 10 30 50];
+for sigmaHdeg = listSigmaHdeg
+    sigmaH = sigmaHdeg * pi/180;
+    CDFoa_h = 1 - exp(-1/2 * ( (theta / sigmaH).^2) );
+    hold on 
+    plot(thetadeg, CDFoa_h, 'LineWidth', 1)
+    lgd{end+1} = sprintf('W_{OA_H}, \\sigma_H = %.1f °', sigmaHdeg);
+end 
+
+xlabel('Off-axis angle [°]')
+ylabel('CDF')
+legend(lgd)
+title('Cumulative distribution function - Off-axis distribution')
+
+
+
+
