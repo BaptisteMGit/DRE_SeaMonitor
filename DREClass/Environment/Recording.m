@@ -61,12 +61,20 @@ classdef Recording < handle
                 bool = 0;
                 msg{end+1} = 'No calibration coefficient. Please enter a valid calibration coefficient.';
             end
-
-
+            
+            if ~isempty(obj.listRecordingFile)
+                [~, fs] = audioread(obj.recordingFile, [1:2]);
+                fNyquist = fs/2;
+                if obj.frequencyRange.max > fNyquist
+                    bool = 0;
+                    msg{end+1} = sprintf('Maximum frequency exceed Nyquist frequency %.2fHz for the selected file. Please select another sound file or change frequency band.', fNyquist) ;
+                end
+            end
         end
 
         function noiseLevel = computeNoiseLevel(obj, d)
             figure
+            p1 = scatter(nan, nan, 20, 'r', 'filled');
 %             listNL = int32.empty([numel(obj.listRecordingFile), 0]);
             listNL = [];
             for j = 1:numel(obj.listRecordingFile)
@@ -92,27 +100,42 @@ classdef Recording < handle
                     obj.signal = obj.loadSignal(samplesRange);
 
                     % Using equivalent continuous sound pressure 
-%                     listLeq(i) = getNLFromWavFile_Leq(obj.filteredSignal, obj.calibrationCoefficient);
+                    listLeq(i) = getNLFromWavFile_Lrms(obj.filteredSignal, obj.calibrationCoefficient);
                     % Using spectral power density 
-                    listLeq(i) = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient);
+%                     listLeq(i) = getNLFromWavFile_Power(obj.filteredSignal, obj.calibrationCoefficient);
 
                     % Next window sample 
                     starting_sample = starting_sample + obj.temporalWindow * info.SampleRate;
-                    ending_sample = ending_sample + obj.temporalWindow * info.SampleRate;
+                    ending_sample = min(ending_sample + obj.temporalWindow * info.SampleRate, info.TotalSamples);
                 end
                 
                 hold on
-                plot(listLeq)
+                T = [1:n] + n*(j-1);
+                scatter(T, listLeq, 20, 'k', 'filled')
+                scatter(T(1), listLeq(1), 20, 'r', 'filled')
                 drawnow
                 listNL = [listNL listLeq];
 
             end
+            % Get rid off outlayers with 95% confidence level to get rid of
+            % electrical noises (at the begining of each sound file)
+            muNL = mean(double(listNL));
+            sigmaNL = std(double(listNL));
+            yline(muNL, '--b', 'label', '\mu')
+            yline(muNL + 2*sigmaNL, '--b', 'label', '\mu + 2*\sigma')
+            yline(muNL - 2*sigmaNL, '--b', 'label', '\mu - 2*\sigma')
+            idxOutlayers = (listNL >= muNL + 2*sigmaNL) | (listNL <= muNL - 2*sigmaNL);
+            listNL = listNL(~idxOutlayers);
+
             noiseLevel = double(median(listNL));
-            
+
             hold on 
-            yline(noiseLevel, '--r', sprintf('Ambient noise level computed = %d dB', noiseLevel))
-            ylabel('Lrms [dB re 1\muPa]')
+            yline(noiseLevel, '--r', sprintf('Ambient noise level computed = %d dB', noiseLevel), 'LabelVerticalAlignment', 'bottom')
+            ylabel('SPL_{rms} [dB re 1\muPa]')
             xlabel('Time [minute]')
+            legend(p1, sprintf('SPL for first %.fs of each .wav file', obj.temporalWindow), 'Location', 'southeast');
+            title({sprintf('SPL_{rms} (%.fs windows) derived from  %d .wav recordings', obj.temporalWindow, numel(obj.listRecordingFile)),...
+                sprintf('Frequency band: %.fHz - %.fHz', obj.frequencyRange.min, obj.frequencyRange.max)})
         end
 
         function signal = loadSignal(obj, samplesRange)
