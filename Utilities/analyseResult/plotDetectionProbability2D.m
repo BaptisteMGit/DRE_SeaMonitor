@@ -21,16 +21,16 @@ yGrid = linspace(min(N), max(N), pts);
 [X,Y] = meshgrid(xGrid, yGrid);
 P = griddata(E, N, G, X, Y);
 
-figure
+% figure
 h = pcolor(X, Y, P);
 shading flat
 
-% IdxAlpha_P = (P <= 0.1);
-% imAlpha = 0.1*ones(size(P)); % want to make it translucent?
-% imAlpha(IdxAlpha_P) = 0;
-% set(h, 'AlphaData', imAlpha);
+IdxAlpha_P = (P <= 0.1);
+imAlpha = ones(size(P)); % want to make it translucent?
+imAlpha(IdxAlpha_P) = 0.2;
+set(h, 'AlphaData', imAlpha);
 
-colormap(flipud(hot))
+colormap(flipud(bone))
 alpha (h, 'color')
 alpha (h, 'scaled')
 
@@ -42,5 +42,6 @@ scatter(0, 0, 'filled', 'red')
 title('Detection probability')
 xlabel('E [m]')
 ylabel('N [m]')
+legend({'', '', 'Mooring'})
 end
 

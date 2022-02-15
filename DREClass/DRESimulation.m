@@ -282,8 +282,8 @@
             obj.getBathyData();
 
             d.Message = 'Downloading T, S, pH data from CMEMS...';
-            obj.oceanEnvironment = OceanEnvironement(obj.mooring, obj.rootSaveInput, obj.bBox, obj.tBox, obj.dBox); % setup ocean parameters by querying data from CMEMS 
-            
+            obj.setOceanEnvironment()     
+
             d.Message = 'Setting up the environment...';
             obj.setSource();
 
@@ -557,6 +557,11 @@
 
 
         %% Set environment 
+        function setOceanEnvironment(obj)
+            obj.oceanEnvironment = OceanEnvironement(obj.mooring, obj.rootSaveInput, obj.bBox, obj.tBox, obj.dBox); % setup ocean parameters by querying data from CMEMS 
+        end
+
+
         function setSource(obj)
             % Position of the hydrophone in the water column 
             if obj.mooring.hydrophoneDepth < 0  % If negative the position of the hydrophone if reference to the seafloor
@@ -819,15 +824,28 @@
         end
         
         function plotDetectionProbability2D(obj)
-            figure('visible','off');
+            figure('visible','on');
+
+            E = obj.dataBathy(:,1);
+            N = obj.dataBathy(:,2);
+            U = obj.dataBathy(:,3);
+            pts = 1E+3;
+            xGrid = linspace(min(E), max(E), pts);
+            yGrid = linspace(min(N), max(N), pts);
+            [X,Y] = meshgrid(xGrid, yGrid);
+            zDep = griddata(E, N, U, X, Y);
+            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
+            hold on 
             plotDetectionProbability2D(obj.listAz, obj.rt, obj.listDetectionFunction)
+            xlim([-500, 500])
+            ylim([-500, 500])
+
             current = pwd;
             cd(obj.rootOutputFigures)
             saveas(gcf, 'DetectionProbability.png');
             close(gcf);
             cd(current)
         end
-
         
         function addDetectionRange(obj, nameProfile)
             current = pwd;
@@ -855,7 +873,8 @@
                 'zTarget', obj.marineMammal.livingDepth,...
                 'deltaZ', obj.marineMammal.deltaLivingDepth, ...
                 'DRThreshold', obj.detectionRangeThreshold, ...
-                'offAxisDistribution', obj.offAxisDistribution};
+                'offAxisDistribution', obj.offAxisDistribution, ...
+                'DI', obj.marineMammal.directivityIndex};
 
             [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
             obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)

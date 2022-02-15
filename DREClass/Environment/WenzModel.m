@@ -1,11 +1,12 @@
 classdef WenzModel < handle
-    %RECORDING Class to handle the estimation of the ambient noise level
+    %WENZMODEL Class to handle the estimation of the ambient noise level
     %using wenz model 
     %   Detailed explanation goes here
     
     properties
         windSpeed % Wind speed in m.s-1 
-        trafficIntensity % traffic intensity on a scale from 0 to 3 <-> quiet, low, medium, heavy 
+        trafficIntensity % traffic intensity on a scale from 0 to 3 <-> quiet, low, medium, heavy
+        oceanEnvironment % Handle pH, T, S, depth
         frequencyRange % Bandwidth to integrate  
     end
 
@@ -20,7 +21,8 @@ classdef WenzModel < handle
     end 
     
     methods
-        function obj = WenzModel()
+        function obj = WenzModel(oceanEnv)
+            obj.oceanEnvironment = oceanEnv;
             obj.setDefault()
         end
       
@@ -38,7 +40,9 @@ classdef WenzModel < handle
 
         function noiseLevel = computeNoiseLevel(obj)
             wenzArgin = {'fMin', obj.frequencyRange.min, 'fMax', obj.frequencyRange.max, ...
-                'trafficIntensity', obj.trafficIntensity, 'windSpeed', obj.windSpeed};
+                'TrafficIntensity', obj.trafficIntensity, 'WindSpeed', obj.windSpeed, ...
+                'Temperature', obj.oceanEnvironment.temperatureC, 'Salinity', obj.oceanEnvironment.salinity, ...
+                'pH', obj.oceanEnvironment.pH, 'depth', obj.oceanEnvironment.depth};
             noiseLevel = getNLFromWenzModel(wenzArgin{:});
         end
 

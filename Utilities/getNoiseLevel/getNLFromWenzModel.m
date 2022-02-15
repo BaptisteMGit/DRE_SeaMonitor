@@ -89,7 +89,7 @@ area(freq(idxBW), NLspectrum(idxBW), 'EdgeColor', 'none', 'FaceColor', 'y', 'Fac
 
 ylim([0, 100])
 legend()
-title(sprintf('Wenz curves - hydrophone depth of %.2f', Depth))
+title(sprintf('Wenz curves - hydrophone depth of %.2fm', Depth))
 
 
 % NIS_1 = zeros([1, numel(freq)]);

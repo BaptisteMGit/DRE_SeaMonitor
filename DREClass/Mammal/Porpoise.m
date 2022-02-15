@@ -1,6 +1,4 @@
 classdef Porpoise < MarineMammal
-    properties
-    end
 
     properties
         % Properties specific to clicks 
@@ -11,7 +9,6 @@ classdef Porpoise < MarineMammal
 %         bandWidth = 50 * 1e3; % Bandwidth of the signal 
 %         signalEnergy  = []; % Signal energy in Ws 
 %         signalLength = 65 * 1e-6; % Signal length in s
-%         directivityIndex = 22; % Directivity index in dB 
 
     end
 
@@ -20,17 +17,19 @@ classdef Porpoise < MarineMammal
             % Shared properties 
             obj.centroidFrequency = 130 * 1e3; % Centroid frequency in Hz
             obj.sourceLevel = 165; % Source level in dB 
+            obj.directivityIndex = 22; % Directivity index in dB 
+
             % Signal
-            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency);
+            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency, obj.directivityIndex);
 
 %             Estimating effective detection area of static passive acoustic 
 %             data loggers from playback experiments with cetacean 
-%             vocalisations -> he maximum detection distance for the recorded porpoise séquence was 566 m (C-POD 4C) and the mean maximum distance for
+%             vocalisations -> the maximum detection distance for the recorded porpoise séquence was 566 m (C-POD 4C) and the mean maximum distance for
 %             all the C-PODs was 248 m (95% CI: 181–316).
-            obj.rMax = 2000; % Detection distance depend on the environment (especially with modeling), 1000m is taken to be sure 
+            obj.rMax = 1500; % Detection distance depend on the environment (especially with modeling), 1500m is taken to be sure 
             % TODO: check following values 
-            obj.livingDepth = 25;
-            obj.deltaLivingDepth = 50;
+            obj.livingDepth = 50;
+            obj.deltaLivingDepth = 100;
             obj.name = 'Porpoise';
         end 
     end

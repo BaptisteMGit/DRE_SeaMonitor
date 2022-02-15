@@ -142,11 +142,94 @@ title({'Apparent source level for a narrow band signal', ...
     'Porpoise - DI = 22dB, SL_0 = 173dB'})
 legend(lgd, 'Location', 'southoutside')
 
-%% Inversion of DLnb ?
-idInf = DLnb>100;
-DLnb_modified = DLnb(~isnan(DLnb));
-thetadeg_modified = thetadeg(~isnan(DLnb));
-DLnb_modified(idInf) = 100;
-DL = 1:0.1:100;
-thetaInv = interp1(DLnb_modified, thetadeg_modified, DL);
+%% DLnb restricted to main lobe ?
+dth = 0.01;
+thetadeg = -90:dth:90;
+theta = thetadeg * pi/180;
 
+idxDef = (thetadeg <=90) & (thetadeg>=-90);
+idxNotDef = ~idxDef;
+DLnb = zeros([numel(theta), 0]);
+
+% First-order Bessel function of the first kind 
+J1 = @(x) besselj(1, x);
+
+% Narrow band directional loss 
+DLnb(idxDef) = ( 2*J1(ka*sin(theta(idxDef))) ./ (ka*sin(theta(idxDef))) ).^2;
+DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
+DLnb(idxNotDef) = DLnbmax;
+DLnb = -10*log10(DLnb);
+
+figure
+lgd = {};
+% Apparent source level
+SL0 = 100;
+ASLnb = SL0 - DLnb;
+polarplot(theta, ASLnb)
+lgd{end+1} = 'DL_{nb}';
+
+%%% Main lobe %%%
+dth = 0.01;
+thetadeg = 0:dth:90;
+theta = thetadeg * pi/180;
+
+idxDef = (thetadeg <=90) & (thetadeg>=-90);
+idxNotDef = ~idxDef;
+DLnb = zeros([numel(theta), 0]);
+
+% Narrow band directional loss 
+DLnb(idxDef) = ( 2*J1(ka*sin(theta(idxDef))) ./ (ka*sin(theta(idxDef))) ).^2;
+DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
+DLnb(idxNotDef) = DLnbmax;
+DLnb = -10*log10(DLnb);
+
+idxThetaFirstKnot = find(diff(DLnb) < 0, 1, "first");
+thetadeg_mainlobe = thetadeg(idxThetaFirstKnot);
+
+thetadeg = -thetadeg_mainlobe:dth:thetadeg_mainlobe;
+theta = thetadeg * pi/180;
+
+% Narrow band directional loss for main lobe
+DLnb_mainlobe = ( 2*J1(ka*sin(theta)) ./ (ka*sin(theta)) ).^2;
+DLnb_mainlobe = -10*log10(DLnb_mainlobe);
+
+ASLnb_mainlobe = SL0 - DLnb_mainlobe;
+hold on
+polarplot(theta, ASLnb_mainlobe, '--r', 'LineWidth', 2)
+lgd{end +1} = 'DL_{nb}_{mainlobe}';
+hold on 
+polarplot([thetadeg_mainlobe; thetadeg_mainlobe]*pi/180, [0; SL0], 'k', 'LineWidth', 2, 'LineStyle', '--')  
+polarplot([-thetadeg_mainlobe; -thetadeg_mainlobe]*pi/180, [0; SL0], 'k', 'LineWidth', 2, 'LineStyle', '--')  
+lgd{end +1} = sprintf('\\theta_{mainlobe} = %.0f', thetadeg_mainlobe);
+legend(lgd)
+
+% polarplot(theta_mainlobe, DLnb_mainlobe)
+% thetadeg_modified = thetadeg(~isnan(DLnb));
+% DLnb_modified(idInf) = 100;
+% DL = 1:0.1:100;
+% thetaInv = interp1(DLnb_modified, thetadeg_modified, DL);
+
+%% Theta limit for narrow band approximation 
+dth = 0.01;
+thetadeg = 0:dth:90;
+theta = thetadeg * pi/180;
+sigmaHdeg = 10;
+sigmaH = sigmaHdeg * pi/180;
+DL = theta./sigmaH .* exp(-1/2 * (theta./sigmaH).^2);
+
+alpha = 0.95; % confidence level 
+
+figure
+plot(thetadeg, DL, 'LineWidth', 2)
+xlabel('\theta [°]')
+ylabel('W_{OAH}')
+grid on
+theta_alpha = sigmaH * sqrt(-2 * log(1 - alpha)) * 180/pi;
+xline(theta_alpha, '--r', 'label', sprintf('\\theta_{\\alpha} = %.1f', theta_alpha), 'LabelOrientation','horizontal', 'LineWidth',1.5)
+
+hold on
+area(thetadeg(thetadeg<theta_alpha), DL(thetadeg<theta_alpha), 'EdgeColor', 'none', 'FaceColor', 'y', 'FaceAlpha', 0.3);
+legend({'', '', '95%'})
+
+title({sprintf('Confidence interval at the level \\alpha = %.2f', alpha), ...
+    sprintf('W_{OAH} with \\sigma_H = %.0f°', sigmaHdeg)})

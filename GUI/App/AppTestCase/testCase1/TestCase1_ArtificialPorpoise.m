@@ -54,7 +54,8 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
             porpoise.rMax = 1500;
-
+            porpoise.directivityIndex  = 22; %Transmission beam pattern and echolocation signals of a harbor
+                                             %porpoise (Phocoena phocoena
             obj.marineMammal = porpoise;
 
             %% Simulation parameters 

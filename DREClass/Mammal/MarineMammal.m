@@ -5,14 +5,13 @@ classdef MarineMammal < handle
         centroidFrequency % centroid frequency
         sourceLevel % On axis average source level dB re 1uPa @ 1m 
         sigmaSourceLevel % Standard deviation of the source level 
+        directivityIndex % Directivity index in dB 
         signalName % signal name (click, whistle, etc..) 
         signal % Signal object  
 
         rMax % Maximum detection range according to literature 
         livingDepth % Depth where the mammal is supposed to live 
         deltaLivingDepth % Range around livingDepth where the mammal has a high probability to be encountered 
-
-        %TODO: add directionnality later 
     end
 
     properties (Hidden=true)
@@ -28,6 +27,7 @@ classdef MarineMammal < handle
         livingDepthDefault = 10; % Depth where the mammal is supposed to live 
         deltaLivingDepthDefault = 5; % Range around livingDepth where the mammal has a high probability to be encountered 
         sigmaSourceLevelDefault = 5; % Standard deviation of the source level 
+        directivityIndexDefault = 25 % Directivity index in dB 
 
     end
 
@@ -62,7 +62,7 @@ classdef MarineMammal < handle
             else
                 sigName = obj.signalName;
             end
-            obj.signal = Signal(sigName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel);
+            obj.signal = Signal(sigName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex);
         end
 
         function setDefault(obj)
@@ -73,6 +73,7 @@ classdef MarineMammal < handle
             obj.rMax = obj.rMaxDefault; 
             obj.livingDepth = obj.livingDepthDefault; 
             obj.deltaLivingDepth = obj.deltaLivingDepthDefault;
+            obj.directivityIndex = obj.directivityIndexDefault;
         end
 
         %% Set methods 
@@ -83,18 +84,6 @@ classdef MarineMammal < handle
                 obj.rMax = rmax;
             end
         end
-
-%         function obj = set.sourceLevel(obj, sl)
-%             %TODO: check sl limits for marine mammals 
-%             if sl > 100
-%                 error('Maximum detection range rMax should be greater than 100m !')
-%             else 
-%                 obj.sourceLevel = sl;
-%             end
-%         end
-        %% Get methods 
-%         function value = get.PropertyName(obj)
-%         end
     end 
     
 end

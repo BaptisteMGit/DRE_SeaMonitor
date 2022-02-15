@@ -4,21 +4,22 @@ classdef Signal
         centroidFrequency % Centroid emission frequency (Hz) 
         sourceLevel % Source level in dB 
         sigmaSourceLevel % Standard deviation of the source level 
-        
+        directivityIndex % Directivity index in dB 
+
         % Useless for the moment 
 %         bandWidth % Signal Bandwidth 
 %         signalEnergy % Signal energy in Ws 
 %         signalLength % Signal length in s
-%         directivityIndex % Directivity index in dB 
     end
 
     methods
-        function obj = Signal(name, cFreq, sLevel, ssLevel)
+        function obj = Signal(name, cFreq, sLevel, ssLevel, dirIndex)
             % Mandatory parameters 
             obj.name = name; 
             obj.centroidFrequency = cFreq;
             obj.sourceLevel = sLevel;
             obj.sigmaSourceLevel = ssLevel;
+            obj.directivityIndex = dirIndex;
 
             % Optional parameters 
 %             Signal(name, cFreq, sLevel, bWidth, sEnergy, sLength, dIndex)
