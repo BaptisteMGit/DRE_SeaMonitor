@@ -498,6 +498,7 @@
             fprintf(fileID, 'Animal\n\n');
             fprintf(fileID, '\t%s emitting %s\n', obj.marineMammal.name, obj.marineMammal.signal.name);
             fprintf(fileID,'\tCentroid frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
+            fprintf(fileID,'\tDirectivity index:  %ddB\n', obj.marineMammal.signal.directivityIndex);
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
             fprintf(fileID, 'BELLHOP parameters\n\n');
@@ -519,12 +520,12 @@
             fprintf(fileID, '\tSediment: %s with the following properties\n', obj.seabedEnvironment.sedimentType);
             fprintf(fileID, '\t\tCompression wave celerity: %4.1f m.s-1\n', obj.seabedEnvironment.bottom.c); 
             fprintf(fileID, '\t\tCompression wave attenuation: %3.4f 1e-3 %s\n', obj.seabedEnvironment.bottom.cwa*1000, unit); 
-            fprintf(fileID, '\t\tDensity: %2.2f g.cm-3 %s\n', obj.seabedEnvironment.bottom.cwa*1000, unit); 
+            fprintf(fileID, '\t\tDensity: %2.2f g.cm-3', obj.seabedEnvironment.bottom.density); 
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
             fprintf(fileID, 'Estimating detection range\n\n');
             fprintf(fileID, 'Directional loss approximation:\nDLbb = C1 * (C2*sin(theta)).^2 ./ (1 + abs(C2*sin(theta)) + (C2*sin(theta)).^2)\n');
-            fprintf(fileID, 'with C1 = 47, C2 = 0.218*ka, ka = 17.8\n\n');
+            fprintf(fileID, 'with C1 = 47, C2 = 0.218*ka, ka = 10^(DI/20)\n\n');
             fprintf(fileID, 'Off-axis distribution: %s\n', obj.offAxisDistribution);
             fprintf(fileID, 'Probability threshold for detection range: %s\n\n', obj.detectionRangeThreshold);
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
@@ -865,16 +866,25 @@
         function addDetectionFunction(obj, nameProfile)
             current = pwd;
             cd(obj.rootOutputFiles)
+
+            % Quick fix for CPODs detector (TODO: reshape the behavior of the
+            % app) done on 16/02/2022
+            if isa(obj.detector , 'CPOD')
+                NL = 0; % Noise level have no impact on detection for CPOD
+            else
+                NL = obj.noiseEnvironment.noiseLevel;
+            end
+
             detFunVar = {'filename',  sprintf('%s.shd', nameProfile),...
                 'SL', obj.marineMammal.signal.sourceLevel,...
                 'sigmaSL', obj.marineMammal.signal.sigmaSourceLevel,...
                 'DT', obj.detector.detectionThreshold,...
-                'NL', obj.noiseEnvironment.noiseLevel,... 
+                'NL', NL,... 
                 'zTarget', obj.marineMammal.livingDepth,...
                 'deltaZ', obj.marineMammal.deltaLivingDepth, ...
                 'DRThreshold', obj.detectionRangeThreshold, ...
                 'offAxisDistribution', obj.offAxisDistribution, ...
-                'DI', obj.marineMammal.directivityIndex};
+                'DI', obj.marineMammal.signal.directivityIndex};
 
             [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
             obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)

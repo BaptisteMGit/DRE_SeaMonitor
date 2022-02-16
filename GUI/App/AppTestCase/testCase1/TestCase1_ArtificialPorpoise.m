@@ -32,6 +32,7 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             obj.bathyEnvironment = BathyEnvironment(source);
 
             %% Mooring 
+            % Position in WGS84 crs 
             mooringPos.lat = 52.22;
             mooringPos.lon = -4.37;
             % Since 25/01/2022 geoid height (= ellipsoid height) is computed using geoidheigth function   
@@ -41,7 +42,7 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             deploymentDate.startDate = '2022-01-01 12:00:00';
             deploymentDate.stopDate = '2022-01-21 12:00:00';
             
-            mooringName = 'TestCase1';
+            mooringName = 'TestCase1_ArtificialPorpoise';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1.5 meter over the seafloor 
             
@@ -51,12 +52,14 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             porpoise = Porpoise();
             porpoise.centroidFrequency = 130 * 1e3; % frequency in Hz
             porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
+            porpoise.sigmaSourceLevel = 1; % We assumed the tranducer to be correctly calibrated and to show a little dispersion around the desired value.  
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
-            porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
+            porpoise.deltaLivingDepth = 1; % Arbitrary (to discuss)
             porpoise.rMax = 1500;
-            porpoise.directivityIndex  = 22; %Transmission beam pattern and echolocation signals of a harbor
-                                             %porpoise (Phocoena phocoena
+            porpoise.directivityIndex  = 1;  % Transducer used is assumed to be omnidirectional 
+            
             obj.marineMammal = porpoise;
+            obj.marineMammal.setSignal(); 
 
             %% Simulation parameters 
             obj.bellhopEnvironment = BellhopEnvironment;
@@ -67,21 +70,35 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             obj.detector = CPOD();
             
             %% noiseLevel 
-%             noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
-            noiseLevel = (30 + 46)/2; 
+            % Noise level using Wenz model with windSpeed = 3.1; % Sea 
+            % state = 2, w = 6knots = 3.1 m.s-1 in the frequency band of
+            % interest: 1-Octave band centered on 130kHz  
+            noiseLevel = 75; 
             obj.noiseEnvironment = NoiseEnvironment('Input value', noiseLevel);
 
-            obj.listAz = 0.1:30:360.1;
-%             obj.listAz = [75.1];
-            obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
-                                                     % for small odontocetes (C-PODs)
+            obj.listAz = 0.1:5:360.1;
+            % According to Methodology and results of calibration of tonal 
+            % click detectors for small odontocetes (C-PODs) the detection
+            % threshold of C-PODS (derived from linear model) is (based on
+            % the tests realised over 86 C-PODS) DT = 114.5 dB re 1uPa
+            % peak-peak. As we are considering 0-peak pressures to derive
+            % TL with BELLHOP model we need to consider 0-peak detection
+            % threshold. To do so we assume that clicks are symetric
+            % signals which implies that 0-peak pressure Pp is equal to 1/2
+            % * peak-peak presurre Ppp i.e Ppp = 2Pp. Therefore,
+            % considering the log10 one can deduce the following relations
+            % between 0-peak detection threshold and peak-peak detection
+            % threshold: DTpp = DTp + 3 (dB) 
+            obj.detector.detectionThreshold = 114.5 - 3; 
 
-            % From ref paper: The average threshold level over the four positions was then used as the
+            % From ref paper: "The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
-            % peak-to-peak (pp) across the C-PODs used in the study.
+            % peak-to-peak (pp) across the C-PODs used in the study."
+            % This threshold is divided by to because SPL is derived from
+            % BELLHOP output considering 0 to peak pressure. 
             
 
-            obj.seabedEnvironment = SeabedEnvironment('Coarse sediment');
+            obj.seabedEnvironment = SeabedEnvironment('Mud and sandy mud');
 
         end
 

@@ -31,6 +31,11 @@ classdef Porpoise < MarineMammal
             obj.livingDepth = 50;
             obj.deltaLivingDepth = 100;
             obj.name = 'Porpoise';
-        end 
+        end
+
+        function setSignal(obj)
+            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency, obj.directivityIndex);
+        end
+
     end
 end
