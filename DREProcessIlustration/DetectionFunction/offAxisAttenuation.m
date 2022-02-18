@@ -3,9 +3,10 @@
 % Ref: Passive Acoustic Monitoring of Cetaceans by Walter M. X. Zimmer 
 % Page: 96 - 100
 
+clear 
+close all 
 % Constants 
-
-DI = 1; % Directivity index of Porpoise (PAMofC (p89)) [dB]
+DI = 24; % Directivity index of Porpoise (PAMofC (p89)) [dB]
 ka = 10^(DI/20);
 
 % Broadband
@@ -86,63 +87,40 @@ DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
 DLnb(idxNotDef) = DLnbmax;
 DLnb = -10*log10(DLnb);
 
-figure 
-lgd = {};
-plot(thetadeg, DLnb, 'r', 'LineWidth', 1)
-lgd{end + 1} = 'Narrowband signal';
-hold on 
-plot(thetadeg, DLbb, 'b', 'LineWidth', 1)
-lgd{end + 1} = 'Broadband signal';
+%% Find knots 
+% Find zeros of J1 function 
+lb = 0;             % Set a lower bound for the function.
+ub = 1.1*pi/2;          % Set an upper bound for the function.
+x = NaN*ones(100, 1);             % Initializes x.
+starting_points=linspace(lb, ub, 100);
+for i=1:100
+        % Look for the zeros in the function's current window.
+        x(i) = fzero(@(x) J1(ka*sin(x)), starting_points(i));
+end
+x_unique = x(diff(x)>1e-12);
+x_unique = x_unique(2:end); % Get rid of the first 0 (corresponding to on-axis)
 
-idxAlpha3dB = find((DLbb<=3), 1, 'first');
-alpha3dB = thetadeg(idxAlpha3dB);
-xline(-alpha3dB, 'b', 'LineStyle', '--', 'LineWidth', 1)
-xline(alpha3dB, 'b', 'LineStyle', '--', 'LineWidth', 1, ...
-    'Label', sprintf('Broadband beamwidth = %.1f°', abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
-    'LabelHorizontalAlignment','right', 'LabelOrientation', 'aligned')
+figure
+dth = 0.01;
+thetadeg = 0:dth:90;
+theta = thetadeg * pi/180;
+plot(thetadeg, J1(ka*sin(theta)), 'LineWidth', 1.5)
+yline(0, 'k')
+x_unique_deg = x_unique*180/pi;
+for i = 1:numel(x_unique)
+    xline(x_unique_deg(i), '--k', 'LineWidth', 1, 'Label', sprintf('%.1f°', x_unique_deg(i)))
+end
 
-xlabel('Off-axis angle [°]')
-ylabel('Off-axis attenuation [dB]')
-title({'Directionnal loss approximation', ... 
-     'Porpoise - DI = 22dB'})
-set(gca, 'YDir', 'reverse')
+legend({'J1(ka*sin(\theta))', '', '','', 'Zeros of the function'}, 'Location', 'southeast')
+xlabel('\theta [°]')
+ylabel('J1(ka*sin(\theta))')
 
-idxAlpha3dB = find((DLnb<3), 1, 'first');
-alpha3dB = thetadeg(idxAlpha3dB);
-xline(alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1)
-xline(-alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1, ...
-    'Label', sprintf('Narrowband beamwidth = %.1f°', abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
-    'LabelHorizontalAlignment','right', 'LabelOrientation', 'aligned')
-yline(3,  'k', 'LineStyle', '--', 'LineWidth', 1, ...
-    'Label', '-3dB')
-ylim([0 50])
-xlim([-90, 90])
 
-% Polar plot 
-% Apparent source level
-SL0 = 100;
-ASLnb = SL0 - DLnb;
-figure 
-lgd = {};
-polarplot(theta, ASLnb, 'LineWidth', 1)
-lgd{end+1} = sprintf('Apparent source level - narrow band');
+%% Check that zeros correspond to knots with polar plot 
+%%% Applying small offsets to theta_knots for future interpolation %%%
+offset = 0.01   ;
+x_unique(1) = x_unique(1) - offset; % Reducing main lobe 
 
-hold on 
-polarplot(theta, ASLbb, 'LineWidth', 1)
-lgd{end+1} = sprintf('Apparent source level - broadband');
-
-hold on
-polarplot([0; 0]*pi/180, [0; SL0],'LineWidth', 2)  
-lgd{end +1} = 'Acoustic axis';
-hold on 
-polarplot([45; 45]*pi/180, [0; SL0], 'LineWidth', 2, 'LineStyle', '--')  
-lgd{end +1} = 'Off-axis';
-
-title({'Apparent source level for a narrow band signal', ...
-    'Porpoise - DI = 22dB, SL_0 = 173dB'})
-legend(lgd, 'Location', 'southoutside')
-
-%% DLnb restricted to main lobe ?
 dth = 0.01;
 thetadeg = -90:dth:90;
 theta = thetadeg * pi/180;
@@ -150,9 +128,6 @@ theta = thetadeg * pi/180;
 idxDef = (thetadeg <=90) & (thetadeg>=-90);
 idxNotDef = ~idxDef;
 DLnb = zeros([numel(theta), 0]);
-
-% First-order Bessel function of the first kind 
-J1 = @(x) besselj(1, x);
 
 % Narrow band directional loss 
 DLnb(idxDef) = ( 2*J1(ka*sin(theta(idxDef))) ./ (ka*sin(theta(idxDef))) ).^2;
@@ -164,50 +139,322 @@ figure
 lgd = {};
 % Apparent source level
 SL0 = 100;
-ASLnb = SL0 - DLnb;
+ASLnb = SL0 - DLnb; 
 polarplot(theta, ASLnb)
 lgd{end+1} = 'DL_{nb}';
 
+% Plotting knots location
+hold on 
+for i=1:numel(x_unique)
+    polarplot([x_unique(i); x_unique(i)], [0; SL0], 'k', 'LineWidth', 1, 'LineStyle', '--')  
+    polarplot([-x_unique(i); -x_unique(i)], [0; SL0], 'k', 'LineWidth', 1, 'LineStyle', '--')  
+    lgd{end +1} = sprintf('lobe_{%d} = %.0f°', i, x_unique(i)*180/pi);
+    lgd{end +1} = '';
+end
+
 %%% Main lobe %%%
-dth = 0.01;
-thetadeg = 0:dth:90;
-theta = thetadeg * pi/180;
-
-idxDef = (thetadeg <=90) & (thetadeg>=-90);
-idxNotDef = ~idxDef;
-DLnb = zeros([numel(theta), 0]);
-
-% Narrow band directional loss 
-DLnb(idxDef) = ( 2*J1(ka*sin(theta(idxDef))) ./ (ka*sin(theta(idxDef))) ).^2;
-DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
-DLnb(idxNotDef) = DLnbmax;
-DLnb = -10*log10(DLnb);
-
-idxThetaFirstKnot = find(diff(DLnb) < 0, 1, "first");
-thetadeg_mainlobe = thetadeg(idxThetaFirstKnot);
-
-thetadeg = -thetadeg_mainlobe:dth:thetadeg_mainlobe;
-theta = thetadeg * pi/180;
+theta_firstlobe = x_unique(1);
+idxMainLobe = (theta >= -theta_firstlobe) & (theta <= theta_firstlobe);
 
 % Narrow band directional loss for main lobe
-DLnb_mainlobe = ( 2*J1(ka*sin(theta)) ./ (ka*sin(theta)) ).^2;
-DLnb_mainlobe = -10*log10(DLnb_mainlobe);
+DLnb_mainlobe = DLnb(idxMainLobe);
+theta_mainlobe = theta(idxMainLobe);
 
 ASLnb_mainlobe = SL0 - DLnb_mainlobe;
 hold on
-polarplot(theta, ASLnb_mainlobe, '--r', 'LineWidth', 2)
+polarplot(theta_mainlobe, ASLnb_mainlobe, '--m', 'LineWidth', 2)
 lgd{end +1} = 'DL_{nb}_{mainlobe}';
-hold on 
-polarplot([thetadeg_mainlobe; thetadeg_mainlobe]*pi/180, [0; SL0], 'k', 'LineWidth', 2, 'LineStyle', '--')  
-polarplot([-thetadeg_mainlobe; -thetadeg_mainlobe]*pi/180, [0; SL0], 'k', 'LineWidth', 2, 'LineStyle', '--')  
-lgd{end +1} = sprintf('\\theta_{mainlobe} = %.0f', thetadeg_mainlobe);
+
+%%% Remaining angles %%%
+if numel(x_unique) >= 2 % Fix to avoid pb if there is only 1 knot 
+    theta_knot2 = x_unique(2) + offset;
+    interpMethod = 'pchip';
+else 
+    theta_knot2 = x_unique(1) + 4*offset;
+    interpMethod = 'linear'; 
+end
+idxPart2 = (theta >= theta_knot2) | (theta <= -theta_knot2);
+
+% Narrow band directional loss for the angles out of main lobe 
+thetaPart2 = theta(idxPart2);
+DLnbPart2 = ones(size(thetaPart2)) * DLnb(end); % Constant with value DLnb(theta=90°)
+% We add a small slope to ensure the final distribution is injective on 
+% the interval [0, 90]° so that we can inverse it 
+eps = 0.1;
+a = +eps/(max(thetaPart2)-theta_knot2);
+b = -eps * (1+theta_knot2/((max(thetaPart2)-theta_knot2)));
+yoffset = a*abs(thetaPart2) + b; 
+DLnPart2WithSplope = DLnbPart2 + yoffset; 
+% DLnPart2WithSplope = 40 + yoffset; 
+
+DLnbPart2 = DLnPart2WithSplope;
+
+% DLnbPart2 = DLnbPart2 + 30; set an offset to increase attenuation ? 
+
+ASLnbPart2 = SL0 - DLnbPart2;
+hold on
+polarplot(thetaPart2, ASLnbPart2, '--', 'LineWidth', 2)
+lgd{end +1} = 'DL_{nb}_{sidelobes}';
+
+%%% Interpolate main lobe and part 2 %%%
+% Interpolation to consider main lobe as well as side lobes effect and 
+% backward energy for a directionnal source modelled by a piston. The 
+% solution adopted here is compromise between the complete piston model
+% which is not an injective function on [0, 90]° and thus can't be used to
+% model the detection function and a model with only the main lobe which
+% seems to lead to largely underestimate detection probability according to
+% the paper. 
+% Based on results from paper High resolution three-dimensional beam radiation pattern of harbour porpoise clicks
+% with implications for passive acoustic monitoring
+% Jamie D. J. Macaulay, Chloe E. Malinka, Douglas Gillespie, and Peter T. Madse
+
+dth = 0.01;
+thetadeg = -90:dth:90;
+theta = thetadeg * pi/180;
+
+thetaAll = [theta_mainlobe thetaPart2 ]; % Concatenate main and last lobe 
+DLnbAll = [DLnb_mainlobe DLnbPart2];
+
+DLnb_interp = interp1(thetaAll, DLnbAll, theta, interpMethod); 
+ 
+%%% Extent DLnb, DLnb_interp to the all range -180, 180° 
+angleInf = -180:dth:-90;
+angleSup = 90:dth:180;
+thetadeg = [angleInf thetadeg angleSup]; 
+theta = thetadeg * pi/180;
+% [C,ia,ic] = unique(theta);
+% DLnb
+val = DLnb(end);
+DLnb = [ones(size(angleInf))*val DLnb ones(size(angleSup))*val];
+% Extent DLnb_interp
+val = DLnb_interp(end);
+DLnb_interp = [ones(size(angleInf))*val DLnb_interp ones(size(angleSup))*val];
+
+
+ASLnb_interp = SL0 - DLnb_interp;
+hold on
+polarplot(theta, ASLnb_interp, '--g', 'LineWidth', 2)
+lgd{end +1} = 'DL_{nb}_{interp}';
+
 legend(lgd)
+
+
+% Regular plot 
+figure
+% plot(theta*180/pi, 10.^(DLnb_interp/20), 'LineWidth', 1)
+plot(theta*180/pi, DLnb_interp, 'LineWidth', 1)
+
+theta_DLnb = theta; 
+theta_DLnb_deg = theta_DLnb*180/pi;
+
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title('Directionnal loss approximation for narrowband signal')
+set(gca, 'YDir', 'reverse')
+
+%% Compare models 
+dth = 0.1;
+thetadeg = -180:dth:180;
+theta = thetadeg * pi/180;
+
+figure 
+lgd = {};
+plot(theta_DLnb_deg, DLnb, 'k', 'LineWidth', 1)
+lgd{end + 1} = 'Narrowband signal - piston model';
+hold on 
+plot(thetadeg, DLbb, 'b', 'LineWidth', 1)
+lgd{end + 1} = 'Broadband signal';
+hold on 
+plot(theta_DLnb_deg, DLnb_interp, 'r', 'LineWidth', 1)
+lgd{end + 1} = 'Narrowband signal - modified piston model';
+
+% Compare -3dB beamwidth
+% Broadband
+idxAlpha3dB = find((DLbb<=3), 1, 'first');
+alpha3dB = thetadeg(idxAlpha3dB);
+xline(-alpha3dB, 'b', 'LineStyle', '--', 'LineWidth', 1)
+xline(alpha3dB, 'b', 'LineStyle', '--', 'LineWidth', 1, ...
+    'Label', sprintf('Broadband beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
+    'LabelHorizontalAlignment','right', 'LabelOrientation', 'aligned')
+% Narrowband unmodified 
+idxAlpha3dB = find((DLnb<3), 1, 'first');
+alpha3dB = theta_DLnb_deg(idxAlpha3dB);
+xline(alpha3dB, 'k', 'LineStyle', '--', 'LineWidth', 1)
+xline(-alpha3dB, 'k', 'LineStyle', '--', 'LineWidth', 1, ...
+    'Label', sprintf('Narrowband unmodified beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
+    'LabelHorizontalAlignment','right', 'LabelOrientation', 'aligned')
+% Narrowband modified 
+idxAlpha3dB = find((DLnb_interp<3), 1, 'first');
+alpha3dB = theta_DLnb_deg(idxAlpha3dB);
+xline(alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1, ...
+    'Label', sprintf('Narrowband modified beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
+    'LabelHorizontalAlignment','left', 'LabelOrientation', 'aligned')
+xline(-alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1)
+
+yline(3,  'k', 'LineStyle', '--', 'LineWidth', 1, ...
+    'Label', '-3dB')
+ylim([0 50])
+xlim([-90, 90])
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title({'Directionnal loss approximation', ... 
+     sprintf('DI = %ddB', DI)})
+set(gca, 'YDir', 'reverse')
+
+
+% Polar plot 
+% Apparent source level
+SL0 = 100;
+ASLnb = SL0 - DLnb;
+figure 
+lgd = {};
+polarplot(theta_DLnb, ASLnb, 'LineWidth', 1)
+lgd{end+1} = sprintf('ASL - narrowband piston model');
+hold on
+polarplot(theta_DLnb, ASLnb_interp, 'LineWidth', 1)
+lgd{end+1} = sprintf('ASL - narrowband modified piston model');
+hold on 
+polarplot(theta, ASLbb, 'LineWidth', 1)
+lgd{end+1} = sprintf('ASL - broadband');
+
+title({'Apparent source level for a narrow band signal', ...
+    sprintf('DI = %ddB, SL_0 = %ddB', DI, SL0)})
+legend(lgd, 'Location', 'southoutside')
+
 
 % polarplot(theta_mainlobe, DLnb_mainlobe)
 % thetadeg_modified = thetadeg(~isnan(DLnb));
 % DLnb_modified(idInf) = 100;
 % DL = 1:0.1:100;
 % thetaInv = interp1(DLnb_modified, thetadeg_modified, DL);
+
+%%  Beam profile detectability 
+% Beam profile detectability for an echolocation click with a SL of 191 dB re 1 lPa pp. Each point on the plot is coloured by the
+% expected RL if a porpoise were facing in the y direction and located at (0,0)
+% The idea is to repoduce the results given in the paper High resolution 
+% three-dimensional beam radiation pattern of harbour porpoise clicks
+% with implications for passive acoustic monitoring by 
+% Jamie D. J. Macaulay, Chloe E. Malinka, Douglas Gillespie, and Peter T. Madsen
+
+% From the paper 
+SL0 = 191; % dB pp 
+alpha = 0.04; % dB/m 
+DTthreshold = 110; %dB 
+
+dx = 1; %m
+dy = 1; %m
+y = -200.1:dx:800;    
+x = -200.1:dy:200;
+
+[XX, YY] = meshgrid(x, y); 
+[THETA, R] = cart2pol(XX, YY); % Angle and range for each point of the grid 
+THETA = THETA - pi/2; % Shift so that on-axis = yaxis 
+  
+idxDef = (THETA <=pi/2) & (THETA>=-pi/2);
+idxNotDef = ~idxDef;
+DLnbcart = zeros(size(THETA));
+DLnbmodifiedcart = nan(size(THETA));
+DLbbcart = zeros(size(THETA));
+
+%%%% Narrow band directional loss %%%%
+DLnbcart(idxDef) = ( 2*J1(ka*sin(THETA(idxDef))) ./ (ka*sin(THETA(idxDef))) ).^2;
+DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
+DLnbcart(idxNotDef) = DLnbmax;
+DLnbcart = -10*log10(DLnbcart);
+ASLnb = SL0 - DLnbcart;
+
+%%%% Broadband directionnal loss %%%%
+cx = C2*sin(THETA(idxDef));
+DLbbcart(idxDef) = C1 * (cx).^2 ./ (1 + abs(cx) + (cx).^2);
+DLmax = C1 * C2^2 / (1 + C2 + C2^2);
+DLbbcart(idxNotDef) = DLmax;
+ASLbb = SL0 - DLbbcart;
+clear DLbbcart
+
+%%%% Narrowband modified %%%%
+% Main lobe
+theta_firstlobe = x_unique(1);
+idxMainLobe = (THETA >= -theta_firstlobe) & (THETA <= theta_firstlobe);
+% Narrow band directional loss for main lobe
+DLnbmodifiedcart(idxMainLobe) = DLnbcart(idxMainLobe);
+
+% Remaining angles
+if numel(x_unique) >= 2 % Fix to avoid pb if there is only 1 knot 
+    theta_knot2 = x_unique(2) + offset;
+else 
+    theta_knot2 = x_unique(1) + 4*offset;
+end
+idxPart2 = (THETA >= theta_knot2) | (THETA <= -theta_knot2);
+
+% Narrow band directional loss for the angles out of main lobe 
+% thetaPart2 = THETA(idxPart2);
+DLnbmodifiedcart(idxPart2) = -10*log10(DLnbmax); % Constant with value DLnb(theta=90°)
+
+% Interpolate main lobe and part 2
+DLnbmodifiedcart = inpaintn(DLnbmodifiedcart);
+ASLnbmodified = SL0 - DLnbmodifiedcart;
+
+clear DLnbcart
+clear DLnbmodifiedcart
+
+clear THETA;
+clear idxDef;
+clear idxNotDef;
+
+TL = 20*log10(R) + alpha.*R;
+RLbb = ASLbb - TL;
+RLnb = ASLnb - TL;
+RLnbmodified = ASLnbmodified - TL;
+
+fig = figure;
+% Broadband
+subplot(1, 3, 1)
+imagesc(x, y, RLbb)
+% Detection threshold contour
+hold on 
+contour(x, y, RLbb, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+colormap(jet)
+% colorbar
+caxis([100, 150])
+set(gca,'YDir','normal')
+title('Broadband approximation')
+% xlabel('x [m]')
+% ylabel('y [m]')
+
+% Narrowband
+subplot(1, 3, 2)
+imagesc(x, y, RLnb)
+% Detection threshold contour
+hold on
+contour(x, y, RLnb, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+colormap(jet)
+% colorbar
+caxis([100, 150])
+set(gca,'YDir','normal')
+title('Narrowband piston model')
+% xlabel('x [m]')
+% ylabel('y [m]')
+
+% Narrowband modified 
+subplot(1, 3, 3)
+imagesc(x, y, RLnbmodified)
+% Detection threshold contour
+hold on
+contour(x, y, RLnbmodified, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+colormap(jet)
+c = colorbar;
+c.Label.String = 'Received level [dB]'; 
+caxis([100, 150])
+set(gca,'YDir','normal')
+title('Narrowband modified piston model')
+
+% Give common xlabel, ylabel and title to your figure
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+han.YLabel.Visible='on';
+xlabel(han,'x [m]');
+ylabel(han,'y [m]');
 
 %% Theta limit for narrow band approximation 
 dth = 0.01;

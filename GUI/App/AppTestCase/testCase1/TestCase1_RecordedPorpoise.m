@@ -54,8 +54,14 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
             porpoise.rMax = 1500;
-
+            % Directivity is derived from angle of main lobe given in the
+            % paper: mainlobeAperture ~ 12.3° and for the narrowband direction loss considered we have 
+            % mainlobeAperture = 58.9 * pi/ka (mainlobeAperture in degrees); considering DI = 20log(ka) we have 
+            % DI = 20log(58.9 * pi/mainlobeAperture) ~ 23.5 dB 
+            porpoise.directivityIndex  = 23.5;  % 
+            
             obj.marineMammal = porpoise;
+            obj.marineMammal.setSignal(); 
 
             %% Simulation parameters 
             obj.bellhopEnvironment = BellhopEnvironment;

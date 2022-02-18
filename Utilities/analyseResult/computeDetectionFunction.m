@@ -9,7 +9,10 @@ NL = getVararginValue(varargin, 'NL', []);
 zTarget = getVararginValue(varargin, 'zTarget', []);
 deltaZ = getVararginValue(varargin, 'deltaZ', 5);
 DRThreshold = getVararginValue(varargin, 'DRThreshold', '50%');
+
 offAxisDistribution = getVararginValue(varargin, 'offAxisDistribution', 'Uniformly distributed on a sphere (random off-axis)');
+offAxisAttenuation = getVararginValue(varargin, 'offAxisAttenuation', 'Broadband'); % 'Broadband', 'Narrowband'
+
 sigmaHdeg = getVararginValue(varargin, 'sigmaH', 10);
 DI = getVararginValue(varargin, 'DI', 22); % Directivity index 
 
@@ -46,30 +49,40 @@ idxCrop(idxCropMax:end) = 0;
 tl(idxCrop) = TLR(idxCrop);
 
 nr = numel(rt);
+
 %% Source level distribution 
 % Source level normal distribution 
 Wsl = @(x) 1/(sqrt(2*pi)*sigmaSL) * exp(-1/2 * ((x - SL0)/sigmaSL).^2);
 
 %% Off-axis attenuation 
-% Ref: Passive Acoustic Monitoring of Cetaceans, Walter M. X. Zimmer,
-% p260-267
-% ka = 17.8; % 
-% p99: Eq. 3.8 adapted considering DI = 20 log(ka) 
-% NOTE: This approximation of DI is valid for narrowband signal with ka>>1
-% yet we use it to derive ka fort all short pulses 
+% For more precision on the following off-axis attenuations considered have
+% a look to (and run) the script offAxisAttenuation.m 
 
 ka = 10^(DI/20);
-C1 = 47; % dB
-C2 = 0.218*ka;
-DLmax = C1 * C2^2 / (1 + C2 + C2^2);
-
-% Inverse function of off-axis attenuation
-% It is a piecewise-defined function 
-DLinv = @(DL)...
-    0 * (DL <= 0) + ... % DL = 0
-    asin(1/(2*C2) * (DL/(DL - C1)) * real(-sqrt(1-4*(DL-C1)/DL - 1))) * (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
-    pi * (DL >= DLmax); % DL >= DLmax
-
+switch offAxisAttenuation
+    case 'Broadband'
+        % Here we consider the broadband approximation given in the
+        % following paper 
+        % Ref: Passive Acoustic Monitoring of Cetaceans, Walter M. X. Zimmer,
+        % p260-267
+        % ka = 17.8; % 
+        % p99: Eq. 3.8 adapted considering DI = 20 log(ka) 
+        % NOTE: This approximation of DI is valid for narrowband signal with ka>>1
+        % yet we use it to derive ka fort all short pulses 
+        
+        C1 = 47; % dB
+        C2 = 0.218*ka;
+        DLmax = C1 * C2^2 / (1 + C2 + C2^2);
+        
+        % Inverse function of off-axis attenuation
+        % It is a piecewise-defined function 
+        DLinv = @(DL)...
+            0 * (DL <= 0) + ... % DL = 0
+            asin(1/(2*C2) * (DL/(DL - C1)) * real(-sqrt(1-4*(DL-C1)/DL - 1))) * (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
+            pi * (DL >= DLmax); % DL >= DLmax
+    
+    case 'Narrowband'
+end 
 %% Figure of merit 
 % Constant part of the figure of merit describing environmental and PAM system parameters 
 % The non-constant part of FOM is given by SL (normally distributed)
