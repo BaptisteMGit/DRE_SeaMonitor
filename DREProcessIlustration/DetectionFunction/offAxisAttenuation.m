@@ -199,10 +199,10 @@ lgd{end +1} = 'DL_{nb}_{sidelobes}';
 %%% Interpolate main lobe and part 2 %%%
 % Interpolation to consider main lobe as well as side lobes effect and 
 % backward energy for a directionnal source modelled by a piston. The 
-% solution adopted here is compromise between the complete piston model
+% solution adopted here is a compromise between the original piston model
 % which is not an injective function on [0, 90]° and thus can't be used to
-% model the detection function and a model with only the main lobe which
-% seems to lead to largely underestimate detection probability according to
+    % model the detection function and a model with only the main lobe which
+    % seems to lead to largely underestimate detection probability according to
 % the paper. 
 % Based on results from paper High resolution three-dimensional beam radiation pattern of harbour porpoise clicks
 % with implications for passive acoustic monitoring

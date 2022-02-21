@@ -1,8 +1,24 @@
 function [T, S, D] = getTS(mooring, rootSaveInput, bBox, tBox, dBox)
 %% Query T, S data from CMEMS
 motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu';
-dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
-productName = 'global-analysis-forecast-phy-001-024';
+% dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
+% productName = 'global-analysis-forecast-phy-001-024';
+
+% Fix to allow simulation prior to 01/01/2019 which is the low limit date
+% for global-analysis-forecast-phy-001-024 model
+lowerLimitDate_024 = datetime('01/01/2019', 'InputFormat', "dd/MM/uuuu");
+upperLimitDate_030 = datetime('31/12/2019', 'InputFormat', "dd/MM/uuuu");
+
+if datetime(tBox.stopDate, 'InputFormat','yyyy-MM-dd HH:mm:ss') <= lowerLimitDate_024
+    dbName = 'GLOBAL_MULTIYEAR_PHY_001_030';
+    productName = 'cmems_mod_glo_phy_my_0.083_P1M-m';
+elseif datetime(tBox.startDate, 'InputFormat','yyyy-MM-dd HH:mm:ss') >= lowerLimitDate_024
+    dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
+    productName = 'global-analysis-forecast-phy-001-024';
+else % TODO: To be modified for dates covering both periods --> need to be fix 
+    dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
+    productName = 'global-analysis-forecast-phy-001-024';
+end
 
 % bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
 % tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box

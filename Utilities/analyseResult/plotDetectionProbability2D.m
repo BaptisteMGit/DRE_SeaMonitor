@@ -19,7 +19,7 @@ pts = 1E+3;
 xGrid = linspace(min(E), max(E), pts);
 yGrid = linspace(min(N), max(N), pts);
 [X,Y] = meshgrid(xGrid, yGrid);
-P = griddata(E, N, G, X, Y);
+P = griddata(E, N, G, X, Y, 'cubic');
 
 % figure
 h = pcolor(X, Y, P);

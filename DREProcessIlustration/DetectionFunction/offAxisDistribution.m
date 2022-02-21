@@ -17,7 +17,6 @@ plot(thetadeg, Woa)
 figure 
 polarplot(theta, Woa)
 
-
 %% Detecting a near on-axis click
 mu = [0 0];
 sigmaHdeg = 20;

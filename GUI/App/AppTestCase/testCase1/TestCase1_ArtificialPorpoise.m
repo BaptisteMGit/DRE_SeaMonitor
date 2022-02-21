@@ -39,9 +39,16 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
 %             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
             
             % yyyy-mm-dd hh:mm:ss
-            deploymentDate.startDate = '2022-01-01 12:00:00';
-            deploymentDate.stopDate = '2022-01-21 12:00:00';
+            % Date have been extracted from the data file 'Nuuttila et al
+            % Artifical porpoise data for Zenodo.csv'
+            % Data are archived in the Swansea University Open Research Data site at Zenodo, https://doi.org/10.5281/zenodo.1421093. 
+            deploymentDate.startDate = '2012-04-26 05:00:00'; % 26/04/2012 05:17
+            deploymentDate.stopDate = '2012-05-04 17:00:00'; % 04/05/2012 16:18
             
+            % Temporary before Copernicus reply 
+%             deploymentDate.startDate = '2020-04-26 07:00:00'; % 26/04/2012 07:23 
+%             deploymentDate.stopDate = '2020-05-04 17:00:00'; % 04/05/2012 16:57
+
             mooringName = 'TestCase1_ArtificialPorpoise';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1.5 meter over the seafloor 
@@ -60,6 +67,11 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             
             obj.marineMammal = porpoise;
             obj.marineMammal.setSignal(); 
+            
+            %% Off-axis 
+            % Omnidirectional transducer 
+            obj.offAxisDistribution = 'Uniformly distributed on a sphere (random off-axis)';
+            obj.offAxisAttenuation = 'Broadband';
 
             %% Simulation parameters 
             obj.bellhopEnvironment = BellhopEnvironment;

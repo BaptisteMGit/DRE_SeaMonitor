@@ -38,10 +38,17 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
 %             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
             
             % yyyy-mm-dd hh:mm:ss
-            deploymentDate.startDate = '2022-01-01 12:00:00';
-            deploymentDate.stopDate = '2022-01-21 12:00:00';
+            % Date have been extracted from the data file 'Nuuttila et al
+            % Recorded porpoise click data for Zenodo.csv'
+            % Data are archived in the Swansea University Open Research Data site at Zenodo, https://doi.org/10.5281/zenodo.1421093. 
+%             deploymentDate.startDate = '2012-04-26 07:00:00'; % 26/04/2012 07:23 
+%             deploymentDate.stopDate = '2012-05-04 17:00:00'; % 04/05/2012 16:57
             
-            mooringName = 'TestCase1';
+            % Temporary before Copernicus reply 
+            deploymentDate.startDate = '2020-04-26 07:00:00'; % 26/04/2012 07:23 
+            deploymentDate.stopDate = '2020-05-04 17:00:00'; % 04/05/2012 16:57
+
+            mooringName = 'TestCase1_RecordedPorpoise';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1.5 meter over the seafloor 
             
@@ -53,7 +60,7 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
-            porpoise.rMax = 1500;
+            porpoise.rMax = 500;
             % Directivity is derived from angle of main lobe given in the
             % paper: mainlobeAperture ~ 12.3° and for the narrowband direction loss considered we have 
             % mainlobeAperture = 58.9 * pi/ka (mainlobeAperture in degrees); considering DI = 20log(ka) we have 
@@ -62,6 +69,12 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             
             obj.marineMammal = porpoise;
             obj.marineMammal.setSignal(); 
+
+            %% Off-axis 
+            % Directional transducer 
+            obj.offAxisDistribution = 'Near on-axis';
+            obj.offAxisAttenuation = 'Narrowband';
+            obj.sigmaH = 60; % Large angle, the transducer is said to be turn from one side to another
 
             %% Simulation parameters 
             obj.bellhopEnvironment = BellhopEnvironment;
@@ -72,14 +85,26 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             obj.detector = CPOD();
             
             %% noiseLevel 
-%             noiseLevel = 75; % Noise level (first estimate using getNLFromWavFile and raw file from glider) 
-            noiseLevel = (30 + 46)/2; 
+            % Noise level using Wenz model with windSpeed = 3.1; % Sea 
+            % state = 2, w = 6knots = 3.1 m.s-1 in the frequency band of
+            % interest: 1-Octave band centered on 130kHz  
+            noiseLevel = 75; 
             obj.noiseEnvironment = NoiseEnvironment('Input value', noiseLevel);
 
-            obj.listAz = 0.1:30:360.1;
-%             obj.listAz = [75.1];
-            obj.detector.detectionThreshold = 114.5/2; % According to Methodology and results of calibration of tonal click detectors
-                                                     % for small odontocetes (C-PODs)
+            obj.listAz = 0.1:5:360.1;
+            % According to Methodology and results of calibration of tonal 
+            % click detectors for small odontocetes (C-PODs) the detection
+            % threshold of C-PODS (derived from linear model) is (based on
+            % the tests realised over 86 C-PODS) DT = 114.5 dB re 1uPa
+            % peak-peak. As we are considering 0-peak pressures to derive
+            % TL with BELLHOP model we need to consider 0-peak detection
+            % threshold. To do so we assume that clicks are symetric
+            % signals which implies that 0-peak pressure Pp is equal to 1/2
+            % * peak-peak presurre Ppp i.e Ppp = 2Pp. Therefore,
+            % considering the log10 one can deduce the following relations
+            % between 0-peak detection threshold and peak-peak detection
+            % threshold: DTpp = DTp + 3 (dB) 
+            obj.detector.detectionThreshold = 114.5 - 3;
 
             % From ref paper: The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa

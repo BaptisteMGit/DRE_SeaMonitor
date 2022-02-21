@@ -67,6 +67,11 @@
 
         availableOffAxisDistribution = {'Uniformly distributed on a sphere (random off-axis)', 'Near on-axis'}
         offAxisDistribution = 'Uniformly distributed on a sphere (random off-axis)';
+
+        availableOffAxisAttenuation = {'Broadband', 'Narrowband'}
+        offAxisAttenuation = 'Narrowband';
+
+        sigmaH = 15; % [°]
     end
 
     properties (Dependent, Hidden=true)
@@ -383,7 +388,7 @@
             % Create new result folder
             obj.launchDate = datestr(now,'yyyymmdd_HHMM');
             if strcmp(oldLaunchDate, obj.launchDate)
-                obj.launchDate(end) = double2str(str2double(obj.launchDate(end)) + 1); 
+                obj.launchDate(end) = num2str(str2double(obj.launchDate(end)) + 1); 
             end
 
             if ~exist(obj.rootSaveResult, 'dir'); mkdir(obj.rootSaveResult);end
@@ -520,13 +525,28 @@
             fprintf(fileID, '\tSediment: %s with the following properties\n', obj.seabedEnvironment.sedimentType);
             fprintf(fileID, '\t\tCompression wave celerity: %4.1f m.s-1\n', obj.seabedEnvironment.bottom.c); 
             fprintf(fileID, '\t\tCompression wave attenuation: %3.4f 1e-3 %s\n', obj.seabedEnvironment.bottom.cwa*1000, unit); 
-            fprintf(fileID, '\t\tDensity: %2.2f g.cm-3', obj.seabedEnvironment.bottom.density); 
+            fprintf(fileID, '\t\tDensity: %2.2f g.cm-3\n', obj.seabedEnvironment.bottom.rho); 
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
             fprintf(fileID, 'Estimating detection range\n\n');
-            fprintf(fileID, 'Directional loss approximation:\nDLbb = C1 * (C2*sin(theta)).^2 ./ (1 + abs(C2*sin(theta)) + (C2*sin(theta)).^2)\n');
-            fprintf(fileID, 'with C1 = 47, C2 = 0.218*ka, ka = 10^(DI/20)\n\n');
+            switch obj.offAxisAttenuation
+                case 'Broadband'
+                    fprintf(fileID, 'Directional loss approximation:\nDLbb = C1 * (C2*sin(theta)).^2 ./ (1 + abs(C2*sin(theta)) + (C2*sin(theta)).^2)\n');
+                    fprintf(fileID, 'with C1 = 47, C2 = 0.218*ka, ka = 10^(DI/20)\n\n');
+                case 'Narrowband'
+                    fprintf(fileID, 'Directional loss approximation:\nDLnb = (2*J1(ka*sin(theta)) ./ (ka*sin(theta)) ).^2\n');
+                    fprintf(fileID, 'with J1 the first-order Bessel function of the first kind and ka = 10^(DI/20)\n');
+                    fprintf(fileID, 'Please note that this piston model is modifed to reduced to mainly first lobe.\n');
+                    fprintf(fileID, 'For more information on the exact model read the attach documentation.\n\n');
+            end
             fprintf(fileID, 'Off-axis distribution: %s\n', obj.offAxisDistribution);
+            switch obj.offAxisDistribution
+                case 'Uniformly distributed on a sphere (random off-axis)'
+                    fprintf(fileID, 'Woa = 1/2 * sin(theta)\n\n');
+                case 'Near on-axis'
+                    fprintf(fileID, 'Woa_h = (theta / sigmaH^2) .* exp(-1/2 * ( (theta / sigmaH).^2) )\n');
+                    fprintf(fileID, 'with sigmaH = %d° (standard deviation of head angle with on-axis direction)\n\n', obj.sigmaH);
+            end
             fprintf(fileID, 'Probability threshold for detection range: %s\n\n', obj.detectionRangeThreshold);
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
             fclose(fileID);   
@@ -884,6 +904,8 @@
                 'deltaZ', obj.marineMammal.deltaLivingDepth, ...
                 'DRThreshold', obj.detectionRangeThreshold, ...
                 'offAxisDistribution', obj.offAxisDistribution, ...
+                'offAxisAttenuation', obj.offAxisAttenuation, ...
+                'sigmaH', obj.sigmaH, ...
                 'DI', obj.marineMammal.signal.directivityIndex};
 
             [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
