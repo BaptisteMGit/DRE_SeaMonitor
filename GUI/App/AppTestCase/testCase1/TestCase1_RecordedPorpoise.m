@@ -45,8 +45,8 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
 %             deploymentDate.stopDate = '2012-05-04 17:00:00'; % 04/05/2012 16:57
             
             % Temporary before Copernicus reply 
-            deploymentDate.startDate = '2020-04-26 07:00:00'; % 26/04/2012 07:23 
-            deploymentDate.stopDate = '2020-05-04 17:00:00'; % 04/05/2012 16:57
+            deploymentDate.startDate = '2020-04-26'; % 26/04/2012 07:23 
+            deploymentDate.stopDate = '2020-05-04'; % 04/05/2012 16:57
 
             mooringName = 'TestCase1_RecordedPorpoise';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 

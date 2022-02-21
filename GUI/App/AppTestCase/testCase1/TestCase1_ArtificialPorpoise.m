@@ -42,8 +42,8 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             % Date have been extracted from the data file 'Nuuttila et al
             % Artifical porpoise data for Zenodo.csv'
             % Data are archived in the Swansea University Open Research Data site at Zenodo, https://doi.org/10.5281/zenodo.1421093. 
-            deploymentDate.startDate = '2012-04-26 05:00:00'; % 26/04/2012 05:17
-            deploymentDate.stopDate = '2012-05-04 17:00:00'; % 04/05/2012 16:18
+            deploymentDate.startDate = '2012-04-26'; % 26/04/2012 05:17
+            deploymentDate.stopDate = '2012-07-04'; % 04/05/2012 16:18
             
             % Temporary before Copernicus reply 
 %             deploymentDate.startDate = '2020-04-26 07:00:00'; % 26/04/2012 07:23 

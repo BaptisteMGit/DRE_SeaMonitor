@@ -28,9 +28,9 @@ part1 = sprintf('python -m motuclient --motu %s ', motuPath); % Basic routine to
 part2 = sprintf('--service-id %s --product-id %s ', dbName, productName); % Setting name of the database and of the product to query 
 part3 = sprintf('--longitude-min %.4f --longitude-max %.4f --latitude-min %.4f --latitude-max %.4f ', ...
             bBox.lon.min, bBox.lon.max, bBox.lat.min, bBox.lat.max); % Setting geographical boundaries 
-part4 = sprintf('--date-min "%s" --date-max "%s" ', tBox.startDate, tBox.stopDate); % Setting time limits 
+part4 = sprintf('--date-min "%s" --date-max "%s" ', datestr(tBox.startDate, 'yyyy-mm-dd HH:MM:ss'), datestr(tBox.stopDate, 'yyyy-mm-dd HH:MM:ss')); % Setting time limits 
 if ~isempty(dBox)
-    part5 = sprintf('--depth-min %.4f --depth-max .4f ', dBox.min, dBox.max); % Setting depth limits
+    part5 = sprintf('--depth-min %.4f --depth-max %.4f ', dBox.min, dBox.max); % Setting depth limits
 else 
     part5 = '';
 end 
