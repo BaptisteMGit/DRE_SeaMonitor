@@ -24,10 +24,14 @@ elseif tBox.startDate >= lowerLimitDate_028
     motuPath = 'https://nrt.cmems-du.eu/motu-web/Motu'; % NRT server
     dbName = 'GLOBAL_ANALYSIS_FORECAST_BIO_001_028-TDS';
     productName = 'global-analysis-forecast-bio-001-028-daily';
+    tBox.startDate.Hour = 12;
+    tBox.stopDate.Hour = 12;
 else % TODO: To be modified for dates covering both periods --> need to be fix
     motuPath = 'https://nrt.cmems-du.eu/motu-web/Motu'; % NRT server 
     dbName = 'GLOBAL_ANALYSIS_FORECAST_BIO_001_028-TDS';
     productName = 'global-analysis-forecast-bio-001-028-daily';
+    tBox.startDate.Hour = 12;
+    tBox.stopDate.Hour = 12;
 end
 
 % bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box

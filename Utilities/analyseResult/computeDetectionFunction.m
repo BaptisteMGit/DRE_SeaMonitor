@@ -115,7 +115,7 @@ switch offAxisDistribution
         k = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2);
 
         % Intermidiate function to compute the third integral: omega
-        h = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH).^2) );
+        h = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp( -1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH).^2 ) );
         
         % Detection function values ( g(r) ) 
         g = double.empty([nr, 0]);

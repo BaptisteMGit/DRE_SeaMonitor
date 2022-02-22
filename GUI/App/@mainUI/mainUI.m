@@ -15,7 +15,7 @@ classdef mainUI < handle
         handleButtons
 
         % Name of the window 
-        Name = "Detection Range Estimation";
+        Name = "MMDPM";
         % App release version 
         Version = 0.1; 
     end
@@ -116,7 +116,7 @@ classdef mainUI < handle
                         'Position', app.lPosition, ...
                         'HorizontalAlignment', 'center', ...
                         'VerticalAlignment', 'center', ...
-                        'Text', sprintf('Detection Range Estimation \nUser-Interface \nVersion %2.1f', app.Version));
+                        'Text', sprintf('Marine Mammal Detection Probability Modelling \nUser-Interface \nVersion %2.1f', app.Version));
         end
     end
 

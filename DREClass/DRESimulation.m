@@ -96,6 +96,9 @@
         availableSources
         % Available sediments that can be selected by the user 
         availableSediments
+
+        % Root to bellhop.exe
+        rootToBellhop 
     end
 
     %% Constructor 
@@ -263,6 +266,10 @@
             availableSediments{end+1} = 'New custom sediment';
             availableSediments = availableSediments(~cellfun('isempty',availableSediments));
             cd(obj.rootApp)
+        end
+
+        function rootToBellhop = get.rootToBellhop(obj)
+            rootToBellhop = fullfile(obj.rootApp, 'Bellhop', bellhop.exe');
         end
     end
 
@@ -536,7 +543,7 @@
                 case 'Narrowband'
                     fprintf(fileID, 'Directional loss approximation:\nDLnb = (2*J1(ka*sin(theta)) ./ (ka*sin(theta)) ).^2\n');
                     fprintf(fileID, 'with J1 the first-order Bessel function of the first kind and ka = 10^(DI/20)\n');
-                    fprintf(fileID, 'Please note that this piston model is modifed to reduced to mainly first lobe.\n');
+                    fprintf(fileID, 'Please note that this piston model is modified to reduced to mainly first lobe.\n');
                     fprintf(fileID, 'For more information on the exact model read the attach documentation.\n\n');
             end
             fprintf(fileID, 'Off-axis distribution: %s\n', obj.offAxisDistribution);
@@ -671,7 +678,10 @@
             fprintf('Running Bellhop')
             current = pwd;
             cd(obj.rootOutputFiles)
-            bellhop( nameProfile )
+%             cmd = sprintf('%s %s', obj.rootToBellhop, nameProfile);
+%             [status, cmdout] = system(cmd);           
+            bellhop( nameProfile ) % Stop using the function from AT to
+%             fix issues with standalone app 
             cd(current)
             fprintf('\n--> DONE <--\n');
         end
