@@ -294,7 +294,7 @@
         end
 
         function rootToBellhop = get.rootToBellhop(obj)
-            rootToBellhop = fullfile(obj.rootApp, 'Bellhop', bellhop.exe');
+            rootToBellhop = fullfile(obj.rootApp, 'Bellhop', 'bellhop.exe');
         end
 
         function rootUserConfiguration = get.rootUserConfiguration(obj)
@@ -722,9 +722,9 @@
             fprintf('Running Bellhop')
             current = pwd;
             cd(obj.rootOutputFiles)
-%             cmd = sprintf('%s %s', obj.rootToBellhop, nameProfile);
-%             [status, cmdout] = system(cmd);           
-            bellhop( nameProfile ) % Stop using the function from AT to
+            cmd = sprintf('%s %s', obj.rootToBellhop, nameProfile);
+            [status, cmdout] = system(cmd);           
+%             bellhop( nameProfile ) % Stop using the function from AT to
 %             fix issues with standalone app 
             cd(current)
             fprintf('\n--> DONE <--\n');

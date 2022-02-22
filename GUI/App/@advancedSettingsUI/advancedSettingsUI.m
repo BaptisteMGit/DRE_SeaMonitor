@@ -158,9 +158,9 @@ classdef advancedSettingsUI < handle
                 case 'Vacuum above surface'
                     surfaceType = 'V';
                 case 'Perfectly rigid media above surface'
-                    surfaceType = R;
+                    surfaceType = 'R';
                 case 'Acoustic half-space'
-                    surfaceType = A;
+                    surfaceType = 'A';
             end 
         end
 

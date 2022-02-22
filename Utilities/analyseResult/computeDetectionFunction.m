@@ -73,7 +73,7 @@ FOM0 = SL0 - F0; % Nominal figure of merit
 
 %% Detection probability 
 switch offAxisDistribution
-    case 'Uniformly distributed on a sphere (random off-axis)'
+    case 'Uniformly distributed on a sphere'
         % Here we consider that the off-axis angle is uniformly distributed
         % on a sphere. That is to say that the marine mammal (= the
         % acoustic source)  is not necessarily heading toward the
