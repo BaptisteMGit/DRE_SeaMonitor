@@ -28,10 +28,10 @@ classdef editMarineMammalUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 400;
-        Height = 300;
+        Width = 450;
+        Height = 400;
         % Number of components 
-        glNRow = 10;
+        glNRow = 12;
         glNCol = 5;
         
         % Labels visual properties 
@@ -76,10 +76,10 @@ classdef editMarineMammalUI < handle
             app.GridLayout.ColumnWidth{1} = 10;
             app.GridLayout.ColumnWidth{2} = 170;
             app.GridLayout.ColumnWidth{3} = 5;
-            app.GridLayout.ColumnWidth{4} = 150;
+            app.GridLayout.ColumnWidth{4} = 200;
             app.GridLayout.ColumnWidth{5} = 5;
 
-            app.GridLayout.RowHeight{9} = 5;
+            app.GridLayout.RowHeight{11} = 5;
 
             % Labels 
             addLabel(app, 'Marine mammal', 1, [1, 2], 'title')
@@ -91,10 +91,12 @@ classdef editMarineMammalUI < handle
 
             addLabel(app, 'Centroid frequency', 4, 2, 'text')
             addLabel(app, 'Source level', 5, 2, 'text')
-        
-            addLabel(app, 'Maximum detection range', 6, 2, 'text')
-            addLabel(app, 'Living depth', 7, 2, 'text')
-            addLabel(app, 'Range around living depth', 8, 2, 'text')
+            addLabel(app, 'Std source level', 6, 2, 'text')
+            addLabel(app, 'Directivity index', 7, 2, 'text')
+
+            addLabel(app, 'Maximum detection range', 8, 2, 'text')
+            addLabel(app, 'Living depth', 9, 2, 'text')
+            addLabel(app, 'Range around living depth', 10, 2, 'text')
 
             % Edit field
             % Marine mammal
@@ -106,20 +108,26 @@ classdef editMarineMammalUI < handle
             addEditField(app, app.Simulation.marineMammal.sourceLevel, 5, 4, [], 'numeric', @app.editFieldChanged) % Source level 
             set(app.handleEditField(3), 'ValueDisplayFormat', '%d dB re 1uPa at 1m')
 
-            addEditField(app, app.Simulation.marineMammal.rMax, 6, 4, [], 'numeric', @app.editFieldChanged) % rMax
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d m')
-            
-            addEditField(app, app.Simulation.marineMammal.livingDepth, 7, 4, [], 'numeric', @app.editFieldChanged) % livingDepth
-            set(app.handleEditField(5), 'ValueDisplayFormat', '%d m')
+            addEditField(app, app.Simulation.marineMammal.sigmaSourceLevel, 6, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
+            set(app.handleEditField(4), 'ValueDisplayFormat', '%d dB')
 
-            addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 8, 4, [], 'numeric', @app.editFieldChanged) % deltaLivingDepth
-            set(app.handleEditField(6), 'ValueDisplayFormat', '%d m') 
+            addEditField(app, app.Simulation.marineMammal.directivityIndex, 7, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
+            set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB')
+
+            addEditField(app, app.Simulation.marineMammal.rMax, 8, 4, [], 'numeric', @app.editFieldChanged) % rMax
+            set(app.handleEditField(6), 'ValueDisplayFormat', '%d m')
+            
+            addEditField(app, app.Simulation.marineMammal.livingDepth, 9, 4, [], 'numeric', @app.editFieldChanged) % livingDepth
+            set(app.handleEditField(7), 'ValueDisplayFormat', '%d m')
+
+            addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 10, 4, [], 'numeric', @app.editFieldChanged) % deltaLivingDepth
+            set(app.handleEditField(8), 'ValueDisplayFormat', '%d m') 
             
             % Drop down 
             addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 2, 4, @app.specieChanged) 
 
             % Save settings 
-            addButton(app, 'Save', 10, [2, 4], @app.saveSettings)
+            addButton(app, 'Save', 12, [2, 4], @app.saveSettings)
 
             % Set editable properties 
             app.updateSpecieNameEditField()
@@ -199,7 +207,7 @@ classdef editMarineMammalUI < handle
                     uialert(app.Figure, 'Custom source has no name, please enter a name.', 'No name selected', 'Icon', 'info')
                 else
                     msg = 'You have created a new type of acoustic source. Do you want to save it in order to re-use it later ?';
-                    title = 'Save  new source ?';
+                    title = 'Save new source ?';
                     app.saveModalWindow(msg, title);
                 end
 
@@ -249,9 +257,11 @@ classdef editMarineMammalUI < handle
             app.Simulation.marineMammal.name = get(app.handleEditField(1), 'Value');
             app.Simulation.marineMammal.centroidFrequency = get(app.handleEditField(2), 'Value');
             app.Simulation.marineMammal.sourceLevel = get(app.handleEditField(3), 'Value');
-            app.Simulation.marineMammal.rMax = get(app.handleEditField(4), 'Value');
-            app.Simulation.marineMammal.livingDepth = get(app.handleEditField(5), 'Value');
-            app.Simulation.marineMammal.deltaLivingDepth = get(app.handleEditField(6), 'Value');
+            app.Simulation.marineMammal.sigmaSourceLevel = get(app.handleEditField(4), 'Value');
+            app.Simulation.marineMammal.directivityIndex = get(app.handleEditField(5), 'Value');
+            app.Simulation.marineMammal.rMax = get(app.handleEditField(6), 'Value');
+            app.Simulation.marineMammal.livingDepth = get(app.handleEditField(7), 'Value');
+            app.Simulation.marineMammal.deltaLivingDepth = get(app.handleEditField(8), 'Value');
             app.Simulation.marineMammal.setSignal(); % Update signal with new values
         end
 
@@ -259,9 +269,11 @@ classdef editMarineMammalUI < handle
             set(app.handleEditField(1), 'Value', app.Simulation.marineMammal.name);
             set(app.handleEditField(2), 'Value', app.Simulation.marineMammal.centroidFrequency);
             set(app.handleEditField(3), 'Value', app.Simulation.marineMammal.sourceLevel);
-            set(app.handleEditField(4), 'Value', app.Simulation.marineMammal.rMax);
-            set(app.handleEditField(5), 'Value', app.Simulation.marineMammal.livingDepth);
-            set(app.handleEditField(6), 'Value', app.Simulation.marineMammal.deltaLivingDepth);
+            set(app.handleEditField(4), 'Value', app.Simulation.marineMammal.sigmaSourceLevel);
+            set(app.handleEditField(5), 'Value', app.Simulation.marineMammal.directivityIndex);
+            set(app.handleEditField(6), 'Value', app.Simulation.marineMammal.rMax);
+            set(app.handleEditField(7), 'Value', app.Simulation.marineMammal.livingDepth);
+            set(app.handleEditField(8), 'Value', app.Simulation.marineMammal.deltaLivingDepth);
         end 
 
     end

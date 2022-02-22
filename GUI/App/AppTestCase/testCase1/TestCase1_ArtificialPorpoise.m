@@ -70,7 +70,7 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             
             %% Off-axis 
             % Omnidirectional transducer 
-            obj.offAxisDistribution = 'Uniformly distributed on a sphere (random off-axis)';
+            obj.offAxisDistribution = 'Uniformly distributed on a sphere';
             obj.offAxisAttenuation = 'Broadband';
 
             %% Simulation parameters 

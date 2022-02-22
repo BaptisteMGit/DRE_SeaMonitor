@@ -31,7 +31,7 @@ classdef configEnvironmentUI < handle
         Width = 575;
         Height = 700;
         % Number of components 
-        glNRow = 21;
+        glNRow = 22;
         glNCol = 9;
         
         % Labels visual properties 
@@ -79,7 +79,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{20} = 30;
+            app.GridLayout.RowHeight{21} = 30;
 
 
             %%% Labels %%%
@@ -120,13 +120,18 @@ classdef configEnvironmentUI < handle
             addLabel(app, 'Detection range', 17, [1, 2], 'title')
             addLabel(app, 'Threshold', 18, 2, 'text')
             addLabel(app, 'Off-axis distribution', 19, 2, 'text')
+            addLabel(app, 'Off-axis attenuation', 20, 2, 'text')
 
 
             %%% Edit field %%%
             % Mooring
             addEditField(app, app.Simulation.mooring.mooringName, 4, [4, 7], 'Name of the simulation', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % X Pos 
-            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % Y Pos 
+            
+            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % lon 
+            set(app.handleEditField(2), 'ValueDisplayFormat', '%.2f°') 
+            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % lat
+            set(app.handleEditField(3), 'ValueDisplayFormat', '%.2f°') 
+
             addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             set(app.handleEditField(4), 'ValueDisplayFormat', '%.1f m') 
             addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 12, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
@@ -136,7 +141,7 @@ classdef configEnvironmentUI < handle
             % Bathymetry 
             addDropDown(app, {'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
             % Hydrophone
-            addDropDown(app, {'CPOD', 'FPOD', 'SoundTrap'}, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
+            addDropDown(app, app.Simulation.availableDetectors, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
             % Specie
             addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 9, [4, 7], @app.specieChanged)
             % Noise level model
@@ -145,7 +150,8 @@ classdef configEnvironmentUI < handle
             addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
             % Detection range 
             addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
-            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 9], @app.offAxisDistributionChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 20, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
 
             %%% Buttons %%%
             % Edit hydrophone
@@ -160,7 +166,7 @@ classdef configEnvironmentUI < handle
             % Advanced settings 
             addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Close', 21, [4, 7], @app.closeUI)
+            addButton(app, 'Close', 22, [4, 7], @app.closeUI)
         end
     end
     
@@ -230,14 +236,33 @@ classdef configEnvironmentUI < handle
         function detectorChanged(app, hObject, eventData)
             switch hObject.Value
                 case 'CPOD'
-                    newDetector = CPOD;
+                    app.Simulation.detector = CPOD;
                 case 'FPOD'
-                    newDetector = FPOD;
+                    app.Simulation.detector = FPOD;
                case 'SoundTrap'
-                    newDetector = SoundTrap;
+                    app.Simulation.detector = SoundTrap;
+                case 'New custom detector'
+                    app.Simulation.detector = Detector;
+                    app.editDetectorProperties()
+                otherwise
+                    app.loadDetector(hObject.Value)
             end
-            app.Simulation.detector = newDetector;
         end
+
+        function loadDetector(app, detectorName) % Load properties of a custom detector 
+            % Create a default detector
+            app.Simulation.detector = Detector;
+            % Load custom properties 
+            file = sprintf('%s.mat', detectorName);
+            structDetector= importdata(fullfile(app.Simulation.rootDetectors, file));
+            props = fieldnames(structDetector);
+            for i=1:numel(props)
+                property = props{i};
+                app.Simulation.detector.(property) = structDetector.(property);
+            end
+            cd(app.Simulation.rootApp)
+        end
+
 
         function noiseOptionChanged(app, hObject, eventData)
             app.Simulation.noiseEnvironment.computingMethod = hObject.Value;
@@ -305,12 +330,12 @@ classdef configEnvironmentUI < handle
             end
         end
 
-        function editMarineMammalProperties(app, hOject, eventData)
-            app.subWindows{end+1} = editMarineMammalUI(app.Simulation, app.handleDropDown(3));        
+        function editDetectorProperties(app, hObject, eventData)
+            app.subWindows{end+1} = editDetectorUI(app.Simulation, app.handleDropDown(2));
         end
 
-        function editDetectorProperties(app, hObject, eventData)
-            % Open editUI
+        function editMarineMammalProperties(app, hOject, eventData)
+            app.subWindows{end+1} = editMarineMammalUI(app.Simulation, app.handleDropDown(3));        
         end
 
         function editSedimentProperties(app, hObject, eventData)
@@ -323,6 +348,10 @@ classdef configEnvironmentUI < handle
         
         function offAxisDistributionChanged(app, hObject, eventData)
             app.Simulation.offAxisDistribution = hObject.Value;
+        end
+
+        function offAxisAttenuationChanged(app, hObject, eventData)
+            app.Simulation.offAxisAttenuation = hObject.Value;
         end
 
         function editNoiseLevelPorperties(app, hObject, eventData)

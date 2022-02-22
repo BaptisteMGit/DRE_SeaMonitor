@@ -23,26 +23,35 @@
         listDetectionFunction
         % Root used to launch app 
         rootApp
-        % Folder to save the result 
-        rootResult 
-        % Folder to store Simulation objects 
-        rootSaveSimulation
-        % Folder to store custom sources 
-        rootSources
-        % Folder to store custom sediment
-        rootSediments
+
+        % Implemented detectors 
+        implementedDetectors
         % Implemented sources 
         implementedSources
         % Implemented sediments
         implementedSediments
+
         % CPU time 
         CPUtime
         % Bathymetry data (not hidden to be saved when clicking save)
         dataBathy
+
+        % Threshold that can be used to derived detection range from
+        % detection function (detection probability along profile) 
+        availableDRThreshold = {'25%', '50%', '75%', '99%'};
+        detectionRangeThreshold = '50%';
+        % OffAxisDistribution
+        availableOffAxisDistribution = {'Uniformly distributed on a sphere', 'Near on-axis'}
+        offAxisDistribution = 'Uniformly distributed on a sphere';
+        % OffAxisAttenuation
+        availableOffAxisAttenuation = {'Broadband', 'Narrowband'}
+        offAxisAttenuation = 'Narrowband';
+        % std for head mouvement used when considering narrowband model 
+        sigmaH = 15; % [°]
+
     end
     
     properties (Hidden)
-        
         % Bellhop parameters 
         bottom
         ssp
@@ -59,19 +68,6 @@
         appUIFigure 
         %Ssp 
         SoundCelerity
-
-        % Threshold that can be used to derived detection range from
-        % detection function (detection probability along profile) 
-        availableDRThreshold = {'25%', '50%', '75%', '99%'};
-        detectionRangeThreshold = '50%';
-
-        availableOffAxisDistribution = {'Uniformly distributed on a sphere (random off-axis)', 'Near on-axis'}
-        offAxisDistribution = 'Uniformly distributed on a sphere (random off-axis)';
-
-        availableOffAxisAttenuation = {'Broadband', 'Narrowband'}
-        offAxisAttenuation = 'Narrowband';
-
-        sigmaH = 15; % [°]
     end
 
     properties (Dependent, Hidden=true)
@@ -92,6 +88,8 @@
         tBox % Time box
         dBox % Depth box 
         
+        % Available detectors that can be selected by the user 
+        availableDetectors
         % Available sources that can be selected by the user 
         availableSources
         % Available sediments that can be selected by the user 
@@ -99,6 +97,20 @@
 
         % Root to bellhop.exe
         rootToBellhop 
+        
+        % Folder for user-defined config 
+        rootUserConfiguration;
+        % Folder to store Simulation objects 
+        rootSaveSimulation
+        % Folder to store custom detectors
+        rootDetectors
+        % Folder to store custom sources 
+        rootSources
+        % Folder to store custom sediment
+        rootSediments
+
+        % Folder to save the result 
+        rootResult 
     end
 
     %% Constructor 
@@ -131,6 +143,7 @@
             obj.seabedEnvironment = SeabedEnvironment;
             obj.bellhopEnvironment = BellhopEnvironment;
             obj.listAz = 0.1:10:360.1;
+            obj.implementedDetectors = {'CPOD', 'FPOD', 'SoundTrap'};
             obj.implementedSources = {'Common dolphin', 'Bottlenose dolphin', 'Porpoise'};
             obj.implementedSediments = {'Boulders and bedrock', 'Coarse sediment', 'Mixed sediment', 'Muddy sand and sand', 'Mud and sandy mud'};
         end
@@ -243,6 +256,18 @@
         function dBox = get.dBox(obj)
             dBox = getdBox(0, obj.maxBathyDepth);
         end
+        
+        function availableDetectors = get.availableDetectors(obj)            
+            availableDetectors = obj.implementedDetectors;
+            cd(obj.rootDetectors)
+            customDetectors = dir('*.mat');
+            for i=1:numel(customDetectors)
+                availableDetectors{end+i} = customDetectors(i).name(1:end-4);
+            end
+            availableDetectors{end+1} = 'New custom detector';
+            availableDetectors = availableDetectors(~cellfun('isempty',availableDetectors));
+            cd(obj.rootApp)
+        end
 
         function availableSources = get.availableSources(obj)            
             availableSources = obj.implementedSources;
@@ -270,6 +295,25 @@
 
         function rootToBellhop = get.rootToBellhop(obj)
             rootToBellhop = fullfile(obj.rootApp, 'Bellhop', bellhop.exe');
+        end
+
+        function rootUserConfiguration = get.rootUserConfiguration(obj)
+            rootUserConfiguration = fullfile(obj.rootApp, "UserConfiguration");
+        end 
+        function rootResult = get.rootResult(obj)
+            rootResult = fullfile(obj.rootApp, 'Output');
+        end 
+        function rootSaveSimulation = get.rootSaveSimulation(obj)
+            rootSaveSimulation = fullfile(obj.rootUserConfiguration, 'Simulation');
+        end 
+        function rootDetectors = get.rootDetectors(obj)
+            rootDetectors = fullfile(obj.rootUserConfiguration, 'Detector');
+        end
+        function rootSources = get.rootSources(obj)
+            rootSources = fullfile(obj.rootUserConfiguration, 'Source');
+        end
+        function rootSediments = get.rootSediments(obj)
+            rootSediments = fullfile(obj.rootUserConfiguration, 'Sediment');
         end
     end
 

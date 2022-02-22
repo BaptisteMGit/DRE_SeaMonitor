@@ -17,6 +17,7 @@ classdef Porpoise < MarineMammal
             % Shared properties 
             obj.centroidFrequency = 130 * 1e3; % Centroid frequency in Hz
             obj.sourceLevel = 165; % Source level in dB 
+            obj.sigmaSourceLevel = 5; % TODO: check this value 
             obj.directivityIndex = 22; % Directivity index in dB 
 
             % Signal
