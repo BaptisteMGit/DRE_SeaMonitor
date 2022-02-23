@@ -8,8 +8,8 @@ global Bdry
 global xBot tBot nBot tBotNode nBotNode RLenBot kappaBot NbtyPts btyType
 
 if ( BotBTY == '*' || BotBTY == '~' )
-   fprintf( '\n_______________________ \n' )
-   disp( 'Using bottom-bathymetry file' )
+%    fprintf( '\n_______________________ \n' )
+%    disp( 'Using bottom-bathymetry file' )
    
    if ( strcmp( btyfil, 'BTYFIL' ) == 0 &&  ~contains( btyfil, '.bty' )  )
       btyfil = [ btyfil '.bty' ]; % append extension
@@ -28,9 +28,9 @@ if ( BotBTY == '*' || BotBTY == '~' )
    
    switch ( btyType( 1 : 1 ) )
       case ( 'L' )
-         disp( 'Piecewise-linear approximation to bathymetry' )
+%          disp( 'Piecewise-linear approximation to bathymetry' )
       case ( 'C' )
-         disp( 'Curvilinear approximation to bathymetry' )
+%          disp( 'Curvilinear approximation to bathymetry' )
       otherwise
          fclose all;
          disp( btyType )
@@ -38,8 +38,8 @@ if ( BotBTY == '*' || BotBTY == '~' )
    end
    
    NbtyPts = fscanf( fid, '%i', 1 );
-   fprintf( 'Number of bathymetry points = %i \n\n', NbtyPts )
-   fprintf( ' Range (km)     Depth (m) \n' )
+%    fprintf( 'Number of bathymetry points = %i \n\n', NbtyPts )
+%    fprintf( ' Range (km)     Depth (m) \n' )
    
    % btymat  = fscanf( fid, '%f', [ 2 NbtyPts ] );
    
@@ -48,11 +48,11 @@ if ( BotBTY == '*' || BotBTY == '~' )
    for ii = 1 : NbtyPts
       xBot( :, ii+1 ) = fscanf( fid, '%f', 2 );
       if ( ii == NbtyPts && ii > 11 )
-         disp( '    ...' )
+%          disp( '    ...' )
       end
       
       if ( ii < 11 || ii == NbtyPts )   % echo up to 11 values
-         fprintf( '%9.5g    %9.5g \n', xBot( :, ii+1 ) );
+%          fprintf( '%9.5g    %9.5g \n', xBot( :, ii+1 ) );
       end
       
       if ( xBot( 2, ii ) > depthB )

@@ -28,7 +28,7 @@ classdef BellhopEnvironment < handle
         runType1Default = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
         runType2Default = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
         NbeamsDefault = 5001; % Number of launching angles
-        alphaDefault = [-80, 80]; % Launching angles in degrees
+        alphaDefault = [-89, 89]; % Launching angles in degrees
         deltasDefault = 0; % Ray-step (m) used in the integration of the ray and dynamic equations, 0 let bellhop choose 
     end
 
@@ -69,7 +69,21 @@ classdef BellhopEnvironment < handle
         function [bool, msg] = checkParametersValidity(obj)
             bool = 1;
             msg = {};
+            
+            if abs(obj.beam.alpha(1)) > 89
+                bool = 0;
+                msg{end+1} = 'Angle aperture must be smaller than 89°. Value has been set to default 89°.';
+                obj.beam.alpha = obj.alphaDefault;
+            end
+
+            if obj.beam.Nbeams < 100
+                bool = 0;
+                msg{end+1} = 'Number of beams must be greater than 100. Value has been set to minimum 100.';
+                obj.beam.Nbeams = 100;
+            end
+            
         end
+
     end 
 
     methods 

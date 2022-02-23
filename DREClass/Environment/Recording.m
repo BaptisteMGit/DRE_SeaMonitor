@@ -63,7 +63,7 @@ classdef Recording < handle
             end
             
             if ~isempty(obj.listRecordingFile)
-                [~, fs] = audioread(obj.recordingFile, [1:2]);
+                [~, fs] = audioread(obj.listRecordingFile{1}, [1:2]);
                 fNyquist = fs/2;
                 if obj.frequencyRange.max > fNyquist
                     bool = 0;

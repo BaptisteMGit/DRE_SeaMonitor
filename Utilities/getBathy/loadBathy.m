@@ -10,6 +10,7 @@ Lon = M(:,2);
 Hgt_MSL = M(:,3); % Referenced to Mean Sea Level 
 
 % Convert into heights referenced to the WGS84 ellipsoid 
+% [lon_wrapped, Lon] = wraplongitude(Lon,'deg','360'); % Wrap before calling the geoidheight function to avoir warning in the app 
 Hgt_WGS84 = Hgt_MSL + geoidheight(Lat, Lon);
 
 % Convert to ENU 

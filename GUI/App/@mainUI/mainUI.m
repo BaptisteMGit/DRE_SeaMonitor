@@ -137,6 +137,7 @@ classdef mainUI < handle
         function exitAppButtonPushed(app, hObject, eventData)
             hObject = app.Figure;
             closeWindowCallback(hObject, eventData)
+            close all % Make sure all figures are closed 
         end
 
         function configEnvironmentButtonPushed(app, hObject, eventData)

@@ -45,7 +45,9 @@ oceanoArgin = {'dbName', dbName, 'productName', productName, ...
                 'variables', variables, 'outputDir', outputDir, ...
                 'outputFile', outputFile, 'motuPath', motuPath};
 
+fprintf('Querying T, S from CMEMS')
 getDataFromCMEMS(oceanoArgin{:})
+fprintf(' > DONE\n');
 
 %% Read data
 fileNETCDF = fullfile(outputDir, outputFile);

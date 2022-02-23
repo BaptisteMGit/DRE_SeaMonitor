@@ -112,8 +112,10 @@ classdef selectRecordingUI < handle
 
             addEditField(app, app.fmax, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
             set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
+
+            app.updateFrequencyRange() % Initialise frequencyRange 
             app.updateFrequencyRangeVisualAspect()
-            
+
             addEditField(app, app.Simulation.noiseEnvironment.recording.calibrationCoefficient, 7, 4, [], 'numeric', {@app.editFieldChanged, 'calCoeff'}) % fmax
 
             % Drop down 

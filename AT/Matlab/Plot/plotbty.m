@@ -13,7 +13,7 @@ global units
 BotBTY = '*';   % flag to read from bty file
 depthB = inf;
 rBox   = inf;
-readbty( btyfil, BotBTY, depthB, rBox ) % read the bathymetry data
+readbty( btyfil, BotBTY, depthB, rBox ); % read the bathymetry data
 
 % copy, removing +/- inf values
 NbtyPts = NbtyPts - 2;

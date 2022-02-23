@@ -47,7 +47,9 @@ oceanoArgin = {'dbName', dbName, 'productName', productName, ...
                 'bBox', bBox, 'tBox', tBox, 'dBox', dBox, 'variables', variables, ...
                 'outputDir', outputDir, 'outputFile', outputFile, 'motuPath', motuPath};
 
+fprintf('Querying pH from CMEMS')
 getDataFromCMEMS(oceanoArgin{:})
+fprintf(' > DONE\n');
 
 %% Read data
 fileNETCDF = fullfile(outputDir, outputFile);

@@ -48,7 +48,7 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             deploymentDate.startDate = '2020-04-26'; % 26/04/2012 07:23 
             deploymentDate.stopDate = '2020-05-04'; % 04/05/2012 16:57
 
-            mooringName = 'TestCase1_RecordedPorpoise';
+            mooringName = 'TestCase1-RecordedPorpoise';
             hydroDepth = -1.5; % Negative hydroDepth = depth reference to the seafloor 
             % -> hydrophone 1.5 meter over the seafloor 
             

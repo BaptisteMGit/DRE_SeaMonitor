@@ -404,6 +404,8 @@
                 end 
                 obj.addDetectionFunction(nameProfile)
 
+                fprintf('...\n');
+
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
 
@@ -469,7 +471,7 @@
 
                 % Update progress, report current estimate
                 d.Value = i_theta/length(obj.listAz);
-                d.Message = sprintf('Computing detection range for azimuth = %2.1f ° ...', theta);
+                d.Message = sprintf('Computing detection range for azimuth = %2.1f° ...', theta);
 
                 nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
@@ -534,7 +536,7 @@
 
             fprintf('Loading bathymetry dataset');
             obj.dataBathy = loadBathy(obj.rootSaveInput, fileCSV, obj.bBoxENU, obj.mooring.mooringPos);
-            fprintf('\n--> DONE <--\n');
+            fprintf(' > DONE\n');
         end
         
         %% Log
@@ -553,8 +555,10 @@
 
             fprintf(fileID, 'Animal\n\n');
             fprintf(fileID, '\t%s emitting %s\n', obj.marineMammal.name, obj.marineMammal.signal.name);
-            fprintf(fileID,'\tCentroid frequency:  %dHz\n', obj.marineMammal.signal.centroidFrequency);
-            fprintf(fileID,'\tDirectivity index:  %ddB\n', obj.marineMammal.signal.directivityIndex);
+            fprintf(fileID,'\tCentroid frequency: %d Hz\n', obj.marineMammal.signal.centroidFrequency);
+            fprintf(fileID,'\tSource level: %d dB\n', obj.marineMammal.signal.sourceLevel);
+            fprintf(fileID,'\tStd source level: %d dB\n', obj.marineMammal.signal.sigmaSourceLevel);
+            fprintf(fileID,'\tDirectivity index: %d dB\n', obj.marineMammal.signal.directivityIndex);
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
             fprintf(fileID, 'BELLHOP parameters\n\n');
@@ -598,7 +602,7 @@
                     fprintf(fileID, 'Woa_h = (theta / sigmaH^2) .* exp(-1/2 * ( (theta / sigmaH).^2) )\n');
                     fprintf(fileID, 'with sigmaH = %d° (standard deviation of head angle with on-axis direction)\n\n', obj.sigmaH);
             end
-            fprintf(fileID, 'Probability threshold for detection range: %s\n\n', obj.detectionRangeThreshold);
+            fprintf(fileID, 'Probability threshold used to derive detection range: %s\n\n', obj.detectionRangeThreshold);
             fprintf(fileID, '\tBearing (°)\tDetection range (m)\n\n');
             fclose(fileID);   
         end
@@ -685,7 +689,7 @@
         end
 
         function bathyProfile = getBathyProfile(obj, theta)
-            fprintf('Extraction of 2D profile, azimuth = %2.1f°', theta);
+            fprintf('Bathymetry profile extraction for azimuth = %2.1f°', theta);
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             drBathy = obj.bathyEnvironment.drBathy;
@@ -695,27 +699,27 @@
             varGetProfile = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'CRS', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
             bathyProfile = getBathy2Dprofile(varGetProfile{:});
             bathyProfile = table2array(bathyProfile);
-            fprintf('\n--> DONE <--\n');
+            fprintf(' > DONE\n');
         end
         
         %% Write environment files 
         function writeBtyFile(obj, nameProfile, bathyProfile)
 %             nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
             BTYfilename = sprintf('%s.bty', nameProfile);
-            fprintf('Creation of bty file \n\tfilename = %s', BTYfilename);
+            fprintf('Writing %s', BTYfilename);
             writebdry(fullfile(obj.rootOutputFiles, BTYfilename), obj.bellhopEnvironment.interpMethodBTY, bathyProfile)
-            fprintf('\n--> DONE <--\n');
+            fprintf(' > DONE\n');
         end
 
         function writeEnvirnoment(obj, nameProfile)
-            fprintf('Writing environment file')
             envfile = fullfile(obj.rootOutputFiles, nameProfile);
+            fprintf('Writing %s.env', nameProfile)
 
             freq = obj.marineMammal.signal.centroidFrequency;
             varEnv = {'envfil', envfile, 'freq', freq, 'SSP', obj.ssp, 'Pos', obj.receiverPos,...
                 'Beam', obj.bellhopEnvironment.beam, 'BOTTOM', obj.bottom, 'SspOption', obj.bellhopEnvironment.SspOption, 'TitleEnv', nameProfile};
             writeEnvDRE(varEnv{:})
-            fprintf('\n--> DONE <--\n');
+            fprintf(' > DONE\n');
         end
 
         function runBellhop(obj, nameProfile)
@@ -727,7 +731,7 @@
 %             bellhop( nameProfile ) % Stop using the function from AT to
 %             fix issues with standalone app 
             cd(current)
-            fprintf('\n--> DONE <--\n');
+            fprintf(' > DONE\n');
         end
         
         %% Plot functions
@@ -786,6 +790,7 @@
             SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
              plotSE(SEArgin{:});
+            title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
 
             if bathyBool
                 plotbty( nameProfile );
