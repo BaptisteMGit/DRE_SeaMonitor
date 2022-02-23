@@ -404,7 +404,7 @@
                 end 
                 obj.addDetectionFunction(nameProfile)
 
-                fprintf('...\n');
+                fprintf('-----------------------------------------------------------\n');
 
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
@@ -689,7 +689,8 @@
         end
 
         function bathyProfile = getBathyProfile(obj, theta)
-            fprintf('Bathymetry profile extraction for azimuth = %2.1f°', theta);
+            promptMsg = sprintf('Bathymetry profile extraction for azimuth = %3.1f°', theta);
+            fprintf(promptMsg)
             rootBathy = obj.bathyEnvironment.rootBathy;
             bathyFile = obj.bathyEnvironment.bathyFile;
             drBathy = obj.bathyEnvironment.drBathy;
@@ -699,31 +700,37 @@
             varGetProfile = {'rootBathy', rootBathy, 'bathyFile', bathyFile, 'CRS', 'ENU', 'dr', drBathy, 'data', data, 'theta', theta, 'rMax', rMax};
             bathyProfile = getBathy2Dprofile(varGetProfile{:});
             bathyProfile = table2array(bathyProfile);
-            fprintf(' > DONE\n');
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
         end
         
         %% Write environment files 
         function writeBtyFile(obj, nameProfile, bathyProfile)
 %             nameProfile = sprintf('%s%2.1f', obj.mooring.mooringName, theta);
             BTYfilename = sprintf('%s.bty', nameProfile);
-            fprintf('Writing %s', BTYfilename);
+            promptMsg = sprintf('Writing %s', BTYfilename);
+            fprintf(promptMsg)
             writebdry(fullfile(obj.rootOutputFiles, BTYfilename), obj.bellhopEnvironment.interpMethodBTY, bathyProfile)
-            fprintf(' > DONE\n');
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
         end
 
         function writeEnvirnoment(obj, nameProfile)
             envfile = fullfile(obj.rootOutputFiles, nameProfile);
-            fprintf('Writing %s.env', nameProfile)
+            promptMsg = sprintf('Writing %s.env', nameProfile);
+            fprintf(promptMsg)
 
             freq = obj.marineMammal.signal.centroidFrequency;
             varEnv = {'envfil', envfile, 'freq', freq, 'SSP', obj.ssp, 'Pos', obj.receiverPos,...
                 'Beam', obj.bellhopEnvironment.beam, 'BOTTOM', obj.bottom, 'SspOption', obj.bellhopEnvironment.SspOption, 'TitleEnv', nameProfile};
             writeEnvDRE(varEnv{:})
-            fprintf(' > DONE\n');
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
         end
 
         function runBellhop(obj, nameProfile)
-            fprintf('Running Bellhop')
+            promptMsg = 'Running Bellhop';
+            fprintf(promptMsg)
             current = pwd;
             cd(obj.rootOutputFiles)
             cmd = sprintf('%s %s', obj.rootToBellhop, nameProfile);
@@ -731,7 +738,8 @@
 %             bellhop( nameProfile ) % Stop using the function from AT to
 %             fix issues with standalone app 
             cd(current)
-            fprintf(' > DONE\n');
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
         end
         
         %% Plot functions

@@ -86,7 +86,7 @@ classdef bathyAdvancedSettingsUI < handle
            
             % Edit field
             % Bathy
-            addEditField(app, app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], '', 'text') % Bathy file 
+            addEditField(app, app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], 'Bathymetry file (csv, netdcf)', 'text') % Bathy file 
             addEditField(app, app.Simulation.bathyEnvironment.drBathy, 4, 4, [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
            
             % Drop down 
@@ -108,16 +108,18 @@ classdef bathyAdvancedSettingsUI < handle
             [file, path, indx] = uigetfile({'*.nc', 'NETCDF'; ...
                                             '*.csv;*.txt','Text File'}, ...
                                             'Select a file');
-            if indx == 1 % File is a csv
-                app.Simulation.bathyEnvironment.bathyFileType = 'CSV';                
-            elseif indx == 2 % File is a netcdf
-                app.Simulation.bathyEnvironment.bathyFileType = 'NETCDF';
-            end 
- 
-            app.Simulation.bathyEnvironment.rootBathy = path;
-            app.Simulation.bathyEnvironment.bathyFile = file;
-            
-            set(app.handleEditField(1), 'Value', file)
+            if ~isnumeric(file) % Check if a file has been selected 
+                if indx == 1 % File is a csv
+                    app.Simulation.bathyEnvironment.bathyFileType = 'CSV';                
+                elseif indx == 2 % File is a netcdf
+                    app.Simulation.bathyEnvironment.bathyFileType = 'NETCDF';
+                end 
+     
+                app.Simulation.bathyEnvironment.rootBathy = path;
+                app.Simulation.bathyEnvironment.bathyFile = file;
+                
+                set(app.handleEditField(1), 'Value', file)
+            end
         end
         
         function referenceFrameChanged(app, hObject, eventData)

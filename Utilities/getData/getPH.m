@@ -47,9 +47,11 @@ oceanoArgin = {'dbName', dbName, 'productName', productName, ...
                 'bBox', bBox, 'tBox', tBox, 'dBox', dBox, 'variables', variables, ...
                 'outputDir', outputDir, 'outputFile', outputFile, 'motuPath', motuPath};
 
-fprintf('Querying pH from CMEMS')
+promptMsg = 'Downloading pH from CMEMS';
+fprintf(promptMsg)
 getDataFromCMEMS(oceanoArgin{:})
-fprintf(' > DONE\n');
+linePts = repelem('.', 53 - numel(promptMsg));
+fprintf(' %s DONE\n', linePts);
 
 %% Read data
 fileNETCDF = fullfile(outputDir, outputFile);

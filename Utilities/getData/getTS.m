@@ -45,9 +45,12 @@ oceanoArgin = {'dbName', dbName, 'productName', productName, ...
                 'variables', variables, 'outputDir', outputDir, ...
                 'outputFile', outputFile, 'motuPath', motuPath};
 
-fprintf('Querying T, S from CMEMS')
+promptMsg = 'Downloading T, S from CMEMS';
+fprintf(promptMsg)
 getDataFromCMEMS(oceanoArgin{:})
-fprintf(' > DONE\n');
+linePts = repelem('.', 53 - numel(promptMsg));
+fprintf(' %s DONE\n', linePts);
+
 
 %% Read data
 fileNETCDF = fullfile(outputDir, outputFile);

@@ -183,15 +183,17 @@ classdef mainUI < handle
             cd(app.Simulation.rootSaveSimulation)
             [file, path, ~] = uigetfile({'*.mat', 'Simulation file'}, ...
                                             'Select file');
-            structSimu = importdata(fullfile(path, file));
-            props = fieldnames(structSimu);
-            for i=1:numel(props)
-                property = props{i};
-                app.Simulation.(property) = structSimu.(property);
+            if ~isnumeric(file) % Check if a file has been selected 
+                structSimu = importdata(fullfile(path, file));
+                props = fieldnames(structSimu);
+                for i=1:numel(props)
+                    property = props{i};
+                    app.Simulation.(property) = structSimu.(property);
+                end
+                % Mark simulation as previous simu to allow recomputing without
+                % simulation 
+                app.rootToPreviousSimulation = app.Simulation.rootSaveResult;
             end
-            % Mark simulation as previous simu to allow recomputing without
-            % simulation 
-            app.rootToPreviousSimulation = app.Simulation.rootSaveResult;
             cd(app.Simulation.rootApp)
         end 
 

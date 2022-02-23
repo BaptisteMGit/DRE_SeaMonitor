@@ -137,12 +137,16 @@ classdef selectRecordingUI < handle
             [file, path, indx] = uigetfile({'*.wav', 'Sound file'}, ...
                                             'Select file(s)', ...
                                             'MultiSelect','on');
-             if iscell(file)
-                set(app.handleEditField(1), 'Value', file{1})
-                app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, file);  
+            if isnumeric(file) % No file selected 
+                set(app.handleEditField(1), 'Value', '')
             else
-                set(app.handleEditField(1), 'Value', file)
-                app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, {file});  
+                if iscell(file)
+                    set(app.handleEditField(1), 'Value', file{1})
+                    app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, file);  
+                else
+                    set(app.handleEditField(1), 'Value', file)
+                    app.Simulation.noiseEnvironment.recording.listRecordingFile = fullfile(path, {file});  
+                end
             end
         end
         
