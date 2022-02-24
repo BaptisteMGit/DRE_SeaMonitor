@@ -354,18 +354,26 @@
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
 
+            % Initial guess for remaining time based on default config 
+            Tr = struct('hour', 1, 'min', 20); 
+
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
+                
+                % Starting time for current iteration 
+                t0 = tic;
 
                 % Check for Cancel button press
                 if d.CancelRequested
                     flagBreak = ~flagBreak;
+                    fprintf('Execution canceled by user.')
                     break
                 end
 
-                % Update progress, report current estimate
+                % Update progress bar
                 d.Value = i_theta/length(obj.listAz);
-                d.Message = sprintf('Computing detection range for azimuth = %2.1f ° ...', theta);
+                d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...' ...
+                    '\nAbout %dhour and %dmin remaining'], theta, Tr.hour, Tr.min);
 
                 nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
@@ -410,7 +418,13 @@
 
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
-
+                
+                % Evaluating computing time of current iteration 
+                T_iteration = toc(t0);
+                % Estimating remaining time 
+                T_remaining = T_iteration * (numel(obj.listAz) - i_theta); 
+                Tr = secondToMinuteHour(T_remaining);
+                fprintf('About %dhour and %dmin remaining\n', Tr.hour, Tr.min)
             end   
             
             close(d) 
