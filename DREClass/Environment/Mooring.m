@@ -79,6 +79,22 @@ classdef Mooring < handle
                 msg{end+1} = sprintf('Invalid dates, equipment recovery occurs before deployement! Dates have been inverted to avoid further problems.\nStart: %s, Stop: %s', ...
                     obj.deploymentDate.startDate, obj.deploymentDate.stopDate);
             end
+
+            % Check lat 
+            if obj.mooringPos.lat < -90 || obj.mooringPos.lat > 90
+                bool = 0;
+                msg{end+1} = ['Invalid latitude. ' ...
+                    'Please enter a latitude between -90° and 90°.'];
+            end
+
+            % Check lat 
+            if obj.mooringPos.lon < -180 || obj.mooringPos.lon > 180
+                bool = 0;
+                msg{end+1} = ['Invalid longitude. ' ...
+                    'Please enter a longitude between -180° and 180°.'];
+            end
+            
+
         end
     end
 end  

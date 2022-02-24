@@ -76,6 +76,60 @@ classdef MarineMammal < handle
             obj.directivityIndex = obj.directivityIndexDefault;
         end
 
+
+        function [bool, msg] = checkParametersValidity(obj)
+            bool = 1; 
+            msg = {};
+            % Abitrary source level limits (TODO: investigate)
+            slMax = 250;
+            slMin = 10; 
+            if obj.sourceLevel > slMax || obj.sourceLevel < slMin
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid source level. ' ...
+                    'Please enter a source level between %ddB and %ddB.'], slMin, slMax);
+            end
+
+            % Abitrary sigma source level limits (TODO: investigate)
+            sigmaSlMax = 50;
+            sigmaSlMin = 0; 
+            if obj.sigmaSourceLevel > sigmaSlMax || obj.sigmaSourceLevel < sigmaSlMin
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid source level standard deviation. ' ...
+                    'Please enter a source level standard deviation between %ddB and %ddB.'], sigmaSlMin, sigmaSlMax);
+            end
+
+            % Abitrary rMax limits (TODO: investigate)
+            rMaxMax = 100000; % 100 km 
+            rMaxMin = 100; % 100m 
+            if obj.rMax > rMaxMax || obj.rMax < rMaxMin
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid maximum range. ' ...
+                    'Please enter a maximum range between %dm and %dm'], rMaxMin, rMaxMax);
+            end
+
+            if obj.livingDepth <= 0 
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid living depth. ' ...
+                    'Living depth must be greater than 0m.']);
+            end
+
+
+            if obj.deltaLivingDepth <= 0 
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid range around living depth. ' ...
+                    'Range must be greater than 0m.']);
+            end
+
+
+            if obj.directivityIndex < 1
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid directivity index. ' ...
+                    'Directivity index must be greater than 1dB'], rMaxMin, rMaxMax);
+            end
+
+        end
+
+
         %% Set methods 
         function set.rMax(obj, rmax)
             if rmax < 100

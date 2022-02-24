@@ -21,19 +21,16 @@ classdef configEnvironmentUI < handle
     end 
     
     properties (Dependent)
-
         % Position of the main figure 
         fPosition 
-        % Position of the labels for Mooring Positon 
-        MooringPosLabel
     end
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 575;
-        Height = 700;
+        Width = 600;
+        Height = 725;
         % Number of components 
-        glNRow = 22;
+        glNRow = 23;
         glNCol = 9;
         
         % Labels visual properties 
@@ -58,6 +55,7 @@ classdef configEnvironmentUI < handle
             app.Simulation = simulation;
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
+                            'Icon', app.Icon, ...
                             'Visible', 'on', ...
                             'NumberTitle', 'off', ...
                             'Position', app.fPosition, ...
@@ -66,8 +64,7 @@ classdef configEnvironmentUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @closeWindowCallback, ...
-                            'Icon', app.Icon);
+                            'CloseRequestFcn', @closeWindowCallback);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -82,7 +79,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{21} = 30;
+            app.GridLayout.RowHeight{22} = 10;
 
 
             %%% Labels %%%
@@ -98,8 +95,8 @@ classdef configEnvironmentUI < handle
                     'from surface toward bottom. You can also set ', ...
                     'negative depth to reference an altitude over the seabed.'];
             addLabel(app, 'Hydrophone depth', 6, 2, 'text', 'left', hydrophoneDepthTooltip)
-            addLabel(app, app.MooringPosLabel(1), 5, 4, 'text', 'right')
-            addLabel(app, app.MooringPosLabel(2), 5, 6, 'text', 'right')          
+            addLabel(app, 'lon (dd)', 5, 4, 'text', 'right')
+            addLabel(app, 'lat (dd)', 5, 6, 'text', 'right')          
             addLabel(app, 'Hydrophone', 7, 2, 'text') % Detector
 
             % Marine mammal 
@@ -116,29 +113,34 @@ classdef configEnvironmentUI < handle
             addLabel(app, 'Sediment', 14, 2, 'text')
 
             % Bellhop 
-            addLabel(app, 'Bellhop parameters', 15, [1, 2], 'title')
-            addLabel(app, 'Settings', 16, 2, 'text')
+            addLabel(app, 'Simulation parameters', 15, [1, 2], 'title')
+            azimuthResolutionTooltip = ['The azimuth resolution is the angle between to consecutive profiles.',...
+                'Please note that reducing the resolution increases drastically the computing time.'];
+            addLabel(app, 'Azimuth resolution', 16, 2, 'text', 'left', azimuthResolutionTooltip)
+            addLabel(app, 'Bellhop settings', 17, 2, 'text')
 
             % Detection function 
-            addLabel(app, 'Detection range', 17, [1, 2], 'title')
-            addLabel(app, 'Threshold', 18, 2, 'text')
-            addLabel(app, 'Off-axis distribution', 19, 2, 'text')
-            addLabel(app, 'Off-axis attenuation', 20, 2, 'text')
+            addLabel(app, 'Detection range', 18, [1, 2], 'title')
+            addLabel(app, 'Threshold', 19, 2, 'text')
+            addLabel(app, 'Off-axis distribution', 20, 2, 'text')
+            addLabel(app, 'Off-axis attenuation', 21, 2, 'text')
 
 
             %%% Edit field %%%
             % Mooring
             addEditField(app, app.Simulation.mooring.mooringName, 4, [4, 7], 'Name of the simulation', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            
-            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'XPos'}) % lon 
+            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'lon'}) % lon 
             set(app.handleEditField(2), 'ValueDisplayFormat', '%.2f°') 
-            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'YPos'}) % lat
+            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'lat'}) % lat
             set(app.handleEditField(3), 'ValueDisplayFormat', '%.2f°') 
-
             addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             set(app.handleEditField(4), 'ValueDisplayFormat', '%.1f m') 
+            % Noise
             addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 12, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
             set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB') 
+            % Simulation 
+            addEditField(app, abs(app.Simulation.listAz(2)-app.Simulation.listAz(1)), 16, [4, 5], [], 'numeric', {@app.editFieldChanged, 'AzResolution'}) % Hydro depth
+            set(app.handleEditField(6), 'ValueDisplayFormat', '%.1f°') 
 
             %%% Drop down %%%
             % Bathymetry 
@@ -152,9 +154,9 @@ classdef configEnvironmentUI < handle
              % Sediment
             addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
             % Detection range 
-            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 18, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
-            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 19, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
-            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 20, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 19, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
+            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 20, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 21, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
 
             %%% Buttons %%%
             % Edit hydrophone
@@ -167,9 +169,9 @@ classdef configEnvironmentUI < handle
             addButton(app, 'Edit properties', 14, 9, @app.editSedimentProperties)
             
             % Advanced settings 
-            addButton(app, 'Advanced simulation settings', 16, [4, 9], @app.advancedSettings)
+            addButton(app, 'Advanced simulation settings', 17, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Close', 22, [4, 7], @app.closeUI)
+            addButton(app, 'Close', 23, [4, 7], @app.closeUI)
         end
     end
     
@@ -324,12 +326,50 @@ classdef configEnvironmentUI < handle
             switch type 
                 case 'mooringName'
                     app.Simulation.mooring.mooringName = regexprep(hObject.Value, ' ', ''); % Remove blanks
-                case 'XPos'
-                    app.Simulation.mooring.mooringPos.lat = hObject.Value;
-                case 'YPos'
+
+                case 'lon'
+                    if hObject.Value < -180 || hObject.Value > 180
+                        msg = {['Invalid longitude. ' ...
+                            'Please enter a longitude between -180° and 180°.']};
+                        assertDialogBox(app, 0, msg, 'Invalid longitude', 'warning')
+                    end
                     app.Simulation.mooring.mooringPos.lon = hObject.Value;
+
+                case 'lat'
+                    if hObject.Value < -90 || hObject.Value > 90
+                        msg = {['Invalid latitude. ' ...
+                            'Please enter a latitude between -90° and 90°.']};
+                        assertDialogBox(app, 0, msg, 'Invalid latitude', 'warning')
+                    end
+                    app.Simulation.mooring.mooringPos.lat = hObject.Value;
+
+
                 case 'hydroDepth'
                     app.Simulation.mooring.hydrophoneDepth = hObject.Value;
+
+                case 'noiseLevel'
+                    if hObject.Value < 10|| hObject.Value > 210
+                        msg = {['Invalid ambient noise level. ' ...
+                            'Ambient noise level must belong to the interval [10, 210]dB. ' ...
+                            'Noise level has been set to default value 75dB.']};
+                        assertDialogBox(app, 0, msg, 'Invalid noise level', 'warning')
+                        set(hObject, 'Value', 75)
+                        app.Simulation.noiseEnvironment.noiseLevel = 75;
+                    else
+                        app.Simulation.noiseEnvironment.noiseLevel = hObject.Value;
+                    end
+
+                case 'AzResolution'
+                    if hObject.Value < 0.1 || hObject.Value > 90
+                        msg = {['Invalid azimuth resolution. ' ...
+                            'Azimuth resolution must belong to the interval [0.1, 90]°. ' ...
+                            'Resolution has been set to default value 5°.']};
+                        assertDialogBox(app, 0, msg, 'Invalid azimuth resolution', 'warning')
+                        set(hObject, 'Value', 5)
+                        app.Simulation.listAz = 0.1:5:360.1;
+                    else
+                        app.Simulation.listAz = 0.1:hObject.Value:360.1;
+                    end
             end
         end
 
@@ -370,6 +410,8 @@ classdef configEnvironmentUI < handle
                     end
                     app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                 case 'Input value'
+                    msg = {'No editable properties for "Input value" option'};
+                    assertDialogBox(app, 0, msg, 'Edit properties failed', 'info')
             end
             % Open editUI
         end
@@ -385,9 +427,13 @@ classdef configEnvironmentUI < handle
         
         function closeUI(app, hObject, eventData)
             % Check user choices 
-            app.checkAll
-            % Close UI
-            close(app.Figure)
+            bool = app.checkAll();
+            if bool 
+                % Close UI
+                delete(app.Figure)
+            else 
+                return 
+            end
         end
 
         function sedimentType = get.sedimentType(app)
@@ -413,71 +459,67 @@ classdef configEnvironmentUI < handle
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
         end
-
-        function moorPosLabels = get.MooringPosLabel(app)
-            switch app.Simulation.bathyEnvironment.inputCRS
-                case 'WGS84'
-                    moorPosLabels = {'lat(DD)', 'lon(DD)', 'hgt(m)'};
-                case 'ENU'
-                    moorPosLabels = {'E(m)', 'N(m)', 'U(m)'};
-                otherwise
-                    moorPosLabels = {'X(m)', 'Y(m)', 'Z(m)'};
-            end
-        end
     end 
 
     %% Set methods 
     methods 
-        function set.MooringPosLabel(app, moorPosLabels)
-            set(app.handleLabel(11), 'Text', moorPosLabels(1))
-            set(app.handleLabel(12), 'Text', moorPosLabels(2))
-            set(app.handleLabel(13), 'Text', moorPosLabels(3))
-        end
     end
 
     %% Check functions 
     % Functions to ensure all parameters are fitting with the program
     % expectations 
     methods
-        function checkBathyEnvironment(app)
+        function bool = checkBathyEnvironment(app)
             [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
             assertDialogBox(app, bool, msg, 'Bathymetry environment warning', 'warning')
         end
 
-        function checkNoiseEnvironment(app)
-%             [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
-%             aassertDialogBox(app, bool, msg, 'Bathymetry environment failed', 'warning')
+        function bool = checkNoiseEnvironment(app)
+            [bool, msg] = app.Simulation.bathyEnvironment.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Bathymetry environment failed', 'warning')
+            % Information to user when using CPOD detector 
+            if any(strcmp(app.Simulation.detector.name, {'CPOD', 'FPOD'}))
+                msg = {sprintf(['You have selected a %s detector. ' ...
+                    'Please note that as no information is available on ' ...
+                    'the way ambient noise level influences CPOD and FPOD detections, ' ...
+                    'noise level will not be taken in account to derive detection probability.'],...
+                    app.Simulation.detector.name)};
+                assertDialogBox(app, 0, msg, 'Noise level information', 'info')
+            end
         end
 
 
-        function checkMooring(app)
+        function bool = checkMooring(app)
             [bool, msg] = app.Simulation.mooring.checkParametersValidity;
             assertDialogBox(app, bool, msg, 'Mooring environment warning', 'warning')
         end
 
 
-        function checkDetector(app)
-            
+        function bool = checkDetector(app)
+            [bool, msg] = app.Simulation.detector.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Bellhop environment warning', 'warning')
         end
 
 
-        function checkMarineMammal(app)
-            
+        function bool = checkMarineMammal(app)
+            [bool, msg] = app.Simulation.marineMammal.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Marine mammal warning', 'warning')
         end
 
         
-        function checkBellhopParameters(app)
-            [bool, msg] = app.Simulation.mooring.checkParametersValidity;
-            assertDialogBox(app, bool, msg, 'Mooring environment warning', 'warning')
+        function bool = checkBellhopParameters(app)
+            [bool, msg] = app.Simulation.bellhopEnvironment.checkParametersValidity;
+            assertDialogBox(app, bool, msg, 'Bellhop environment warning', 'warning')
         end
 
-        function checkAll(app)
-            app.checkBathyEnvironment
-            app.checkNoiseEnvironment
-            app.checkMooring
-            app.checkDetector
-            app.checkMarineMammal
-            app.checkBellhopParameters
+        function bool = checkAll(app)
+            b1 = app.checkBathyEnvironment();
+            b2 = app.checkNoiseEnvironment();
+            b3 = app.checkMooring();
+            b4 = app.checkDetector();
+            b5 = app.checkMarineMammal();
+            b6 = app.checkBellhopParameters();
+            bool = b1 & b2 & b3 & b4 & b5 & b6; % Assert everything is allright
         end
     end
     

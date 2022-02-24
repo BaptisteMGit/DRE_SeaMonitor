@@ -52,11 +52,50 @@ classdef SeabedEnvironment < handle
                     obj.bottom.cwa = 0.37; % dB/lambda
                 case 'New custom sediment' % Default values for custom sediment 
                     obj.bottom.c =  1700; % m/s
-                    obj.bottom.rho = 2.0; % g/cm3
+                    obj.bottom.rho = 1.7; % g/cm3 (Mean value according to https://doi.org/10.1155/2014/823296)
                     obj.bottom.cwa =  0.8; % dB/lambda
                 otherwise
                     return
             end
+        end
+
+
+        function [bool, msg] = checkParametersValidity(obj)
+            bool = 1;
+            msg = {};
+            % Arbitrary celerity limits (To investigate)
+            cMax = 10000; 
+            cMin = 1000; 
+            if obj.bottom.c < cMin || obj.bottom.c > cMax
+                    bool = 0;
+                    msg{end+1} = sprintf(['Invalid seabed sound celerity. Sound celerity must belong to the interval [%d, %d]m.s-1. ' ...
+                        'Sound celerity has been set to 1700 m.s-1.'], cMin, cMax);
+                    obj.bottom.c = 1700;
+            end
+
+            % Rho limits 
+            % Ref: Assessment of Density Variations of Marine Sediments with Ocean and Sediment Depths
+            % https://doi.org/10.1155/2014/823296
+            rhoMax = 2.6; % g/cm3
+            rhoMin = 0.9; % g/cm3
+            if obj.bottom.rho < rhoMin || obj.bottom.rho > rhoMax
+                    bool = 0;
+                    msg{end+1} = sprintf(['Invalid seabed density. Density must belong to the interval [%.1f, %.1f]g/cm3. ' ...
+                        'Density has been set to 1.7 g/cm3.'], rhoMin, rhoMax);
+                    obj.bottom.rho = 1.7;
+            end
+
+            % Arbitrary cwa limits (To investigate)
+            cwaMax = 2; 
+            cwaMin = 0.1; 
+            if obj.bottom.cwa < cwaMin || obj.bottom.cwa > cwaMax
+                    bool = 0;
+                    msg{end+1} = sprintf(['Invalid seabed sound celerity. Sound celerity must belong to the interval [%.1f, %.1f]dB/lambda. ' ...
+                        'Sound celerity has been set to 1700 m.s-1.'], cwaMin, cwaMax);
+                    obj.bottom.cwaMax = 0.8;
+            end
+
+
         end
     end
 end

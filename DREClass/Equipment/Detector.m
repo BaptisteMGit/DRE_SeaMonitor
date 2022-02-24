@@ -19,6 +19,19 @@ classdef Detector < handle
             obj.name = 'DefaultDetector';
             obj.detectionThreshold = 110; 
         end
+
+        function [bool, msg] = checkParametersValidity(obj)
+            bool = 1; 
+            msg = {};
+            % Abitrary detectionThreshold limits (TODO: investigate)
+            dtMax = 200;
+            dtMin = 1; 
+            if obj.detectionThreshold > dtMax || obj.detectionThreshold < dtMin
+                bool = 0;
+                msg{end+1} = sprintf(['Invalid detection threshold. ' ...
+                    'Please enter a detection threshold between %ddB and %ddB'], dtMin, dtMax);
+            end
+        end
     end
 
 end

@@ -37,7 +37,7 @@ classdef selectWenzUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 350;
+        Width = 450;
         Height = 300;
         % Number of components 
         glNRow = 9;
@@ -87,7 +87,7 @@ classdef selectWenzUI < handle
             app.GridLayout.ColumnWidth{1} = 10;
             app.GridLayout.ColumnWidth{2} = 120;
             app.GridLayout.ColumnWidth{3} = 5;
-            app.GridLayout.ColumnWidth{4} = 150;
+            app.GridLayout.ColumnWidth{4} = 250;
             app.GridLayout.ColumnWidth{5} = 5;
 
             app.GridLayout.RowHeight{8} = 5;
@@ -152,12 +152,12 @@ classdef selectWenzUI < handle
             % Check if centroid frequency is the same as the marine mammal
             % one. 
             if ~(app.Simulation.marineMammal.centroidFrequency == app.centroidFrequency)
-                message = sprintf(['Usually one should be interested in estimating the ambient noise level in the frequency band of interest.', ...
+                message = {sprintf(['Usually one should be interested in estimating the ambient noise level in the frequency band of interest.', ...
                     'You have selected a centroid frequency different from the centroid frequency of %s emmited by %s.', ...
                     'You should consider editing the centroid frequency either for the estimation of ambient noise ', ...
                     'level or for the studied signal associated to the specie of interest.'], ...
-                    app.Simulation.marineMammal.signal.name, app.Simulation.marineMammal.name);
-                uialert(app.Figure, message, 'Centroid frequency info', 'Icon', 'info')
+                    app.Simulation.marineMammal.signal.name, app.Simulation.marineMammal.name)};
+                assertDialogBox(app, 0, message, 'Centroid frequency info', 'info')
             end
         end
 
@@ -173,7 +173,7 @@ classdef selectWenzUI < handle
                 msg = sprintf('Estimated noise level: NL = %d dB', app.Simulation.noiseEnvironment.noiseLevel);
                 title = 'Save ambient noise';
                 selection = uiconfirm(app.Figure, msg, title, ...
-                               'Options',{'Close window', 'Reprocess recording'}, ...
+                               'Options',{'Close window', 'Recompute noise level'}, ...
                                'DefaultOption', 1, 'Icon', 'info');
                 
                 if strcmp(selection, 'Close window')
