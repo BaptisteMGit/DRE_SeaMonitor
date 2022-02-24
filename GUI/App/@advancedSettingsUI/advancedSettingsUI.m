@@ -14,6 +14,8 @@ classdef advancedSettingsUI < handle
         handleButton
         % Name of the window 
         Name = "Advanced settings";
+        % Icon
+        Icon = 'Icons\Bellhop-icon.png'
     end
     
     properties (Hidden=true)
@@ -60,7 +62,8 @@ classdef advancedSettingsUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback, ...
+                            'Icon', app.Icon);
 
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             

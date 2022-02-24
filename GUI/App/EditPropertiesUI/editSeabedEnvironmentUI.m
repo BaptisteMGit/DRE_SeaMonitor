@@ -16,6 +16,8 @@ classdef editSeabedEnvironmentUI < handle
         handleButton
         % Name of the window 
         Name = "Seabed properties";
+        % Icon 
+        Icon = 'Icons\icons8-sedimentology-128.png'
     end 
     
     properties (Dependent)
@@ -69,7 +71,8 @@ classdef editSeabedEnvironmentUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback, ...
+                            'Icon', app.Icon);
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);

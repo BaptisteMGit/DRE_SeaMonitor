@@ -15,6 +15,8 @@ classdef selectWenzUI < handle
         handleButton
         % Name of the window 
         Name = "Wenz parameters";
+        % Icon 
+        Icon = 'Icons\icons8-sea-waves-96.png'
 
         bandwidthType = '1 octave';
         centroidFrequency
@@ -77,7 +79,8 @@ classdef selectWenzUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback, ...
+                            'Icon', app.Icon);
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);

@@ -35,7 +35,10 @@ classdef Mooring < handle
                 % where N is the geoid height and H is the orthometric height 
                 % Ellipsoid height can be reduced to h = N (H = 0).  
 %                 [lon_wrapped, moorPos.lon] = wraplongitude(moorPos.lon,'deg','360'); % Wrap before calling the geoidheight function to avoir warning in the app
+                warning off all
                 obj.mooringPos.hgt = geoidheight(moorPos.lat, moorPos.lon);
+                warning on all
+
             end
 
             % hydrophoneDepth

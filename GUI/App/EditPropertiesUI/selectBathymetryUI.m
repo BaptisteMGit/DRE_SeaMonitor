@@ -1,4 +1,4 @@
-classdef bathyAdvancedSettingsUI < handle
+classdef selectBathymetryUI < handle
 % bathyAdvancedSettingsUI: App window dedicated to the configuration of the
 % bathymetry advanced settings environment 
 %
@@ -16,6 +16,8 @@ classdef bathyAdvancedSettingsUI < handle
         handleButton
         % Name of the window 
         Name = "Bathymetry advanced settings";
+        % Icon 
+        Icon = 'Icons\Bathymetry-icon.png'
     end 
     
     properties (Dependent)
@@ -47,7 +49,7 @@ classdef bathyAdvancedSettingsUI < handle
     
     %% Constructor of the class 
     methods       
-        function app = bathyAdvancedSettingsUI(simulation)
+        function app = selectBathymetryUI(simulation)
             % Pass simulation handle 
             app.Simulation = simulation;
             % Figure 
@@ -60,7 +62,9 @@ classdef bathyAdvancedSettingsUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @closeWindowCallback, ...
+                            'Icon', app.Icon);
+            
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout

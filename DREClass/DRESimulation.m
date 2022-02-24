@@ -340,6 +340,8 @@
             d.Message = 'Downloading T, S, pH data from CMEMS...';
             obj.setOceanEnvironment()     
 
+            fprintf('-----------------------------------------------------------\n');
+
             d.Message = 'Setting up the environment...';
             obj.setSource();
 
@@ -534,9 +536,11 @@
                 bathyNETCDFtoCSV(fNETCDF, fCSV)
             end 
 
-            fprintf('Loading bathymetry dataset');
+            promptMsg = 'Loading bathymetry dataset';
+            fprintf(promptMsg);
             obj.dataBathy = loadBathy(obj.rootSaveInput, fileCSV, obj.bBoxENU, obj.mooring.mooringPos);
-            fprintf(' > DONE\n');
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
         end
         
         %% Log

@@ -16,6 +16,8 @@ classdef configEnvironmentUI < handle
         handleButton
         % Name of the window 
         Name = "Configure environment";
+        % Icon 
+        Icon = 'Icons\icons8-settings-58.png'
     end 
     
     properties (Dependent)
@@ -64,7 +66,8 @@ classdef configEnvironmentUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @closeWindowCallback, ...
+                            'Icon', app.Icon);
 %             app.Figure.WindowState = 'fullscreen';
             
             % Grid Layout
@@ -197,7 +200,7 @@ classdef configEnvironmentUI < handle
             newSource =  hObject.Value;
             app.Simulation.bathyEnvironment.source = newSource;
             if strcmp(newSource, 'Userfile')
-                app.subWindows{end+1} = bathyAdvancedSettingsUI(app.Simulation);
+                app.subWindows{end+1} = selectBathymetryUI(app.Simulation);
             end
         end
 

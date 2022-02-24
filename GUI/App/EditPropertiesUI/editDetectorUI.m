@@ -14,6 +14,8 @@ classdef editDetectorUI < handle
         handleButton
         % Name of the window 
         Name = "Detector properties";
+        % Icon 
+        Icon = 'Icons\icons8-infrared-sensor-40.png'
     end 
 
     properties (Dependent)
@@ -67,7 +69,8 @@ classdef editDetectorUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback, ...
+                            'Icon', app.Icon);
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);

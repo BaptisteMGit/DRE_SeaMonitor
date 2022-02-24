@@ -16,6 +16,8 @@ classdef selectRecordingUI < handle
         handleButton
         % Name of the window 
         Name = "Select recording";
+        % Icon 
+        Icon = 'Icons\icons8-wav-file-128.png'
     end 
     
     properties (Dependent)
@@ -72,7 +74,8 @@ classdef selectRecordingUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'modal', ...
-                            'CloseRequestFcn', @app.closeWindowCallback);
+                            'CloseRequestFcn', @app.closeWindowCallback, ...
+                            'Icon', app.Icon);
             
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);

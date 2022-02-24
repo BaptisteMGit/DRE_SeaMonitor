@@ -18,6 +18,8 @@ classdef mainUI < handle
         Name = "MMDPM";
         % App release version 
         Version = 0.1; 
+        % Icon 
+        Icon = 'Icons\icons8-dolphin-64.png'
     end
     
     properties (Dependent)
@@ -92,7 +94,8 @@ classdef mainUI < handle
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
                             'WindowStyle', 'normal', ...
-                            'CloseRequestFcn', @closeWindowCallback);
+                            'CloseRequestFcn', @closeWindowCallback, ...
+                            'Icon', app.Icon);
             % Resize function must be defined after Figure is define 
             app.Figure.SizeChangedFcn = @app.resizeWindow;
 
@@ -107,7 +110,7 @@ classdef mainUI < handle
             addButton(app, 'Configure Environment',  @app.configEnvironmentButtonPushed)
             addButton(app, 'Run DRE', @app.runDREButtonPushed)
             addButton(app, 'Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
-            addButton(app, 'Plotting Tools', @app.plottingToolsButtonPushed)
+            addButton(app, 'Plotting Tools', @app.plottingToolsButtonPushed, 'off')
             addButton(app, 'Save simulation', @app.saveSimulationButtonPushed)
             addButton(app, 'Exit App', {@app.exitAppButtonPushed})
             
@@ -122,13 +125,16 @@ classdef mainUI < handle
 
     %% Set up methods 
     methods
-        function addButton(app, name, callbackFunction)
+        function addButton(app, name, callbackFunction, varargin)
             button = uibutton(app.ButtonGroup, ...
                         'Text', name, ...
                         'Position', app.bPosition, ...
                         'ButtonPushedFcn', callbackFunction);
             app.currButtonID = app.currButtonID + 1;
             app.handleButtons = [app.handleButtons, button];
+            if numel(varargin) > 0
+                set(button, 'Enable', varargin{1})
+            end
         end
     end
     
