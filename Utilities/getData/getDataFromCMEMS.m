@@ -1,6 +1,7 @@
 function getDataFromCMEMS(varargin)
 % GETDATAFROMCMEMS fetch data from CMEMS. 
 % Connection parameters 
+% TODO: change for MMDPM account 
 username = 'bmenetrier';
 password = 'Copernicus753!';
 
