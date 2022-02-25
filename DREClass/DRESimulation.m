@@ -343,9 +343,9 @@
             if obj.oceanEnvironment.connectionFailed
                 options = {'Yes, continue with default values', 'No, cancel simulation'};
                 msg = sprintf(['Connection to CMES failed. ' ...
-                            'Please ensure you are correctly connected to internet.' ...
+                            'Please ensure you are correctly connected to internet. ' ...
                             'Do you want to continue with default values:\n' ...
-                            'T = %.1f, S = %.1f, pH = %.1f'], obj.oceanEnvironment.defaultTemperatureC, ...
+                            'T = %.1fC°, S = %.1fppt, pH = %.1f'], obj.oceanEnvironment.defaultTemperatureC, ...
                             obj.oceanEnvironment.defaultSalinity, obj.oceanEnvironment.defaultpH);
                 title = 'Connection failed';
                 selection = uiconfirm(obj.appUIFigure, ...
@@ -358,6 +358,7 @@
                         obj.oceanEnvironment.setOfflineDefaultConfig()
                     otherwise
                         obj.writeLogCancelAfterConnectionFailed()
+                        flag = 0;
                         return
                 end
             end
@@ -375,9 +376,6 @@
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
 
-            % Initial guess of remaining time based on default config 
-            Tr = struct('hour', 1, 'min', 20); 
-
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
                 
@@ -393,9 +391,13 @@
 
                 % Update progress bar
                 d.Value = i_theta/length(obj.listAz);
-                d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...' ...
-                    '\nAbout %dhour and %dmin remaining'], theta, Tr.hour, Tr.min);
-
+                if i_theta == 1
+                    d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...\n', ...
+                            'Estimating time remaining ...'], theta);
+                else 
+                    d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
+                        '\nAbout %dhour and %dmin remaining'], theta, Tr.hour, Tr.min);
+                end
                 nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
                 % Bathy
@@ -582,7 +584,8 @@
         function writeLogHeader(obj)
             fileID = fopen(obj.logFile,'w');
             % Configuration 
-            fprintf(fileID,'Estimation of the detection range using BELLHOP\n\n');
+            fprintf(fileID,'MMDPM report for simulation started on %s/%s/%s %s:%s\n\n', ...
+                obj.launchDate(1:4), obj.launchDate(5:6), obj.launchDate(7:8), obj.launchDate(10:11), obj.launchDate(11:12));
 
             fprintf(fileID, 'Equipment\n\n');
             fprintf(fileID,'\tName: %s\n', obj.mooring.mooringName);
@@ -600,15 +603,29 @@
             fprintf(fileID,'\tDirectivity index: %d dB\n', obj.marineMammal.signal.directivityIndex);
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
-            fprintf(fileID, 'BELLHOP parameters\n\n');
+            fprintf(fileID, 'Simulation parameters\n\n');
             fprintf(fileID, '\tNumber of beams: %d\n', obj.bellhopEnvironment.beam.Nbeams);
             fprintf(fileID, '\tTL: %s\n', obj.bellhopEnvironment.runTypeLabel);
             fprintf(fileID, '\tBeam type: %s\n', obj.bellhopEnvironment.beamTypeLabel);
             fprintf(fileID, '\tSsp option: %s\n', obj.bellhopEnvironment.SspOption);
+            fprintf(fileID, '\tAzimuth resolution: %.1f°\n', abs(obj.listAz(2)-obj.listAz(1)));
             fprintf(fileID, '__________________________________________________________________________\n\n');
 
             fprintf(fileID, 'Environment\n\n');
-            fprintf(fileID, '\tAmbient noise level: %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
+            fprintf(fileID, '\tOcean properties ');
+            if obj.oceanEnvironment.connectionFailed
+                fprintf(fileID, 'set to default after connection failed:\n\n');
+            else
+                fprintf(fileID, 'successfully downloaded from CMES (https://resources.marine.copernicus.eu/products):\n\n');
+            end
+            fprintf(fileID, '\tz(m)   T(C°)   S(ppt)   pH   c(m.s-1)\n');
+            for i=1:numel(obj.oceanEnvironment.depth)
+                fprintf(fileID, '\t%4.1f   %5.1f   %6.1f   %2.1f   %7.1f\n', ...
+                    obj.oceanEnvironment.depth(i), obj.oceanEnvironment.temperatureC(i), ...
+                    obj.oceanEnvironment.salinity(i), obj.oceanEnvironment.pH(i), obj.SoundCelerity(i));
+            end
+
+            fprintf(fileID, '\n\tAmbient noise level: %3.2f dB\n', obj.noiseEnvironment.noiseLevel);
             switch obj.bellhopEnvironment.SspOption(3)
                 case 'M'
                     unit = 'dB/m';
@@ -650,28 +667,28 @@
             fileID = fopen(obj.logFile, 'a');
             fprintf(fileID, '\nExecution has failed.');
             fclose(fileID);
-            fprintf('\nExecution has failed.')
+            fprintf('Execution has failed.\n')
         end
 
         function writeLogCancel(obj)
             fileID = fopen(obj.logFile, 'a');
             fprintf(fileID, '\nExecution has been canceled by user.');
             fclose(fileID);
-            fprintf('\nExecution has been canceled by user.')
+            fprintf('Execution has been canceled by user.\n')
         end
 
         function writeLogCancelAfterConnectionFailed(obj)
             fileID = fopen(obj.logFile, 'a');
-            fprintf(fileID, '\nExecution canceled after connection to CMEMS failed.');
+            fprintf(fileID, 'Execution canceled after connection to CMEMS failed.');
             fclose(fileID);
-            fprintf('\nExecution canceled after connection to CMEMS failed.')
+            fprintf('\nExecution canceled by user after connection to CMEMS failed.\n')
         end
 
         function writeDRtoLogFile(obj, theta, DT)
             fileID = fopen(obj.logFile, 'a');
             fprintf(fileID, '\t%3.2f\t%6.2f\n', theta, DT);
             fclose(fileID);
-            fprintf(fileID, 'Bearing(°), Detection range (m): %3.2f, %6.2f\n', theta, DT);
+            fprintf('Bearing(°), Detection range (m): %3.2f, %6.2f\n', theta, DT);
         end
 
         function writeLogEnd(obj)
@@ -785,8 +802,6 @@
             cd(obj.rootOutputFiles)
             cmd = sprintf('%s %s', obj.rootToBellhop, nameProfile);
             [status, cmdout] = system(cmd);           
-%             bellhop( nameProfile ) % Stop using the function from AT to
-%             fix issues with standalone app 
             cd(current)
             linePts = repelem('.', 53 - numel(promptMsg));
             fprintf(' %s DONE\n', linePts);
