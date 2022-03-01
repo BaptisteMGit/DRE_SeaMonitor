@@ -375,6 +375,9 @@
                         
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
+            
+            % Initialize T_totElapsed mooving avegare 
+            T_totElapsed = 0;
 
             for i_theta = 1:length(obj.listAz)
                 theta = obj.listAz(i_theta);
@@ -396,7 +399,7 @@
                             'Estimating time remaining ...'], theta);
                 else 
                     d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
-                        '\nAbout %dhour and %dmin remaining'], theta, Tr.hour, Tr.min);
+                        '\nAbout %dh and %dmin remaining'], theta, Tr.hour, Tr.min);
                 end
                 nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
@@ -442,12 +445,14 @@
                 % Switch flag when the all process is over with no problem 
                 if i_theta == length(obj.listAz); flag = ~flag; end 
                 
-                % Evaluating computing time of current iteration 
-                T_iteration = toc(t0);
+                % Evaluating computing time of current iteration
+                t_it = toc(t0);
+                T_totElapsed = T_totElapsed + t_it;
+                T_averageIteration = T_totElapsed / i_theta; % Average computing time 
                 % Estimating remaining time 
-                T_remaining = T_iteration * (numel(obj.listAz) - i_theta); 
+                T_remaining = T_averageIteration * (numel(obj.listAz) - i_theta);
                 Tr = secondToMinuteHour(T_remaining);
-                fprintf('About %dhour and %dmin remaining\n', Tr.hour, Tr.min)
+                fprintf('About %dh and %dmin remaining\n', Tr.hour, Tr.min)
             end   
             
             close(d) 
@@ -548,6 +553,8 @@
         end
 
         function getBathyData(obj)
+            promptMsg = 'Loading bathymetry dataset';
+            fprintf(promptMsg);
             % Query subset data from GEBCO global grid 
             if strcmp(obj.bathyEnvironment.source, 'GEBCO2021')
                 bathyFile = extratBathybBoxFromGEBCOGlobal(obj.bBox, obj.rootSaveInput);
@@ -573,8 +580,6 @@
                 bathyNETCDFtoCSV(fNETCDF, fCSV)
             end 
 
-            promptMsg = 'Loading bathymetry dataset';
-            fprintf(promptMsg);
             obj.dataBathy = loadBathy(obj.rootSaveInput, fileCSV, obj.bBoxENU, obj.mooring.mooringPos);
             linePts = repelem('.', 53 - numel(promptMsg));
             fprintf(' %s DONE\n', linePts);

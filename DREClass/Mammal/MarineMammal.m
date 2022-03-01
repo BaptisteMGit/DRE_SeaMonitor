@@ -129,15 +129,6 @@ classdef MarineMammal < handle
 
         end
 
-
-        %% Set methods 
-        function set.rMax(obj, rmax)
-            if rmax < 100
-                error('Maximum detection range rMax should be greater than 100m !')
-            else 
-                obj.rMax = rmax;
-            end
-        end
     end 
     
 end
