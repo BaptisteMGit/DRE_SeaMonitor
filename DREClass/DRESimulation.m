@@ -371,7 +371,7 @@
             obj.listDetectionRange = zeros(size(obj.listAz));
             % Initialize list of detection functions 
 %             obj.listDetectionFunction = zeros(size(obj.listAz));
-            obj.listDetectionFunction = [];
+%             obj.listDetectionFunction = [];
                         
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
@@ -420,12 +420,12 @@
                 % Run
                 obj.runBellhop(nameProfile)
 
-                % Plots
-                saveBool = true;
-                bathyBool = true;
-                obj.plotTL(nameProfile, saveBool, bathyBool)
-                obj.plotSPL(nameProfile, saveBool, bathyBool)
-                obj.plotSE(nameProfile, saveBool, bathyBool)
+                % Plots - removed from 03/03/2022 to save memory
+%                 saveBool = true;
+%                 bathyBool = true;
+%                 obj.plotTL(nameProfile, saveBool, bathyBool)
+%                 obj.plotSPL(nameProfile, saveBool, bathyBool)
+%                 obj.plotSE(nameProfile, saveBool, bathyBool)
                 
                 % Derive detection range for current profile and add it to
                 % the list of detection ranges 
@@ -464,14 +464,17 @@
                 obj.plotDetectionProbability2D()
                 % Write CPU time to the log file 
                 obj.CPUtime = toc(tStart);
-                obj.writeLogEnd
+                obj.writeLogEnd()
+                % Delete prt and env files when all process is done to save memory
+                obj.deleteBellhopFiles()
+
 
             elseif flagBreak % The process has been interrupted by the user clicking cancel 
-                obj.writeLogCancel
+                obj.writeLogCancel()
 
             else % The process stoped because of an internal error 
                 % Write error message to log file  
-                obj.writeLogError
+                obj.writeLogError()
             end
         end
 
@@ -521,7 +524,7 @@
 
                 % Write log header 
                 if i_theta == 1
-                    obj.writeLogHeader
+                    obj.writeLogHeader()
                 end
 
                 % Derive detection range for current profile and add it to
@@ -541,14 +544,14 @@
                 obj.plotDR()
                 % Write CPU time to the log file 
                 obj.CPUtime = toc(tStart);
-                obj.writeLogEnd
+                obj.writeLogEnd()
 
             elseif flagBreak % The process has been interrupted by the user clicking cancel 
-                obj.writeLogCancel
+                obj.writeLogCancel()
 
             else % The process stoped because of an internal error 
                 % Write error message to log file  
-                obj.writeLogError
+                obj.writeLogError()
             end
         end
 
@@ -1057,6 +1060,36 @@
             obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
 
             cd(current)
+        end
+
+        function deleteBellhopFiles(obj)
+            cd(obj.rootOutputFiles)
+
+            listPrt = dir('*.prt');
+            listPrt = listPrt(~cellfun('isempty', {listPrt.date}));
+            listEnv = dir('*.env');
+            listEnv = listEnv(~cellfun('isempty', {listEnv.date}));
+
+            sz = size(listPrt);
+            for i=1:sz(1)
+                file = listPrt(i).name;
+                delete(file)
+            end
+
+            sz = size(listEnv);
+            for i=1:sz(1)
+                file = listEnv(i).name;
+                delete(file)
+            end
+
+            cd(obj.rootApp)
+        end
+
+        function deleteBathyFiles(obj)
+            cd(obj.rootSaveInput)
+            rmdir('2DProfile', 's')
+%             delete('Bathymetry.csv')
+            cd(obj.rootApp)
         end
     end
 end

@@ -30,7 +30,7 @@ classdef configEnvironmentUI < handle
         Width = 600;
         Height = 725;
         % Number of components 
-        glNRow = 23;
+        glNRow = 24;
         glNCol = 9;
         
         % Labels visual properties 
@@ -79,7 +79,7 @@ classdef configEnvironmentUI < handle
             app.GridLayout.ColumnWidth{8} = 5;
             app.GridLayout.ColumnWidth{9} = 110;
 
-            app.GridLayout.RowHeight{22} = 10;
+            app.GridLayout.RowHeight{23} = 10;
 
 
             %%% Labels %%%
@@ -98,32 +98,52 @@ classdef configEnvironmentUI < handle
             addLabel(app, 'lon (dd)', 5, 4, 'text', 'right')
             addLabel(app, 'lat (dd)', 5, 6, 'text', 'right')          
             addLabel(app, 'Hydrophone', 7, 2, 'text') % Detector
+            addLabel(app, 'Deployement (start-stop) ', 8, 2, 'text')
+            
+            startDatePicker = uidatepicker(app.GridLayout, ...
+                "DisplayFormat", 'yyyy-MM-dd', ...
+                "ValueChangedFcn", {@app.deployementDateChanged, 'start'}, ...
+                "Limits", [datetime('1993-01-01', 'InputFormat', 'yyyy-MM-dd'), ...
+                           datetime('today')]);
+            startDatePicker.Value = datetime(app.Simulation.mooring.deploymentDate.startDate, 'InputFormat','yyyy-MM-dd');
+
+            startDatePicker.Layout.Row = 8;
+            startDatePicker.Layout.Column = [4, 5];
+
+            stopDatePicker = uidatepicker(app.GridLayout, ...
+                "DisplayFormat", 'yyyy-MM-dd', ...
+                "ValueChangedFcn", {@app.deployementDateChanged, 'stop'}, ...
+                "Limits", [startDatePicker.Value, ...
+                           datetime('today')], ...
+                "Value", datetime(app.Simulation.mooring.deploymentDate.stopDate, 'InputFormat', 'yyyy-MM-dd'));
+            stopDatePicker.Layout.Row = 8;
+            stopDatePicker.Layout.Column = [6, 7];
 
             % Marine mammal 
-            addLabel(app, 'Marine mammal', 8, [1, 2], 'title')
-            addLabel(app, 'Specie', 9, 2, 'text')
+            addLabel(app, 'Marine mammal', 9, [1, 2], 'title')
+            addLabel(app, 'Specie', 10, 2, 'text')
 
             % Noise level 
-            addLabel(app, 'Ambient noise', 10, [1, 2], 'title')
-            addLabel(app, 'Option', 11, 2, 'text')
-            addLabel(app, 'Noise level', 12, 2, 'text')  
+            addLabel(app, 'Ambient noise', 11, [1, 2], 'title')
+            addLabel(app, 'Option', 12, 2, 'text')
+            addLabel(app, 'Noise level', 13, 2, 'text')  
             
             % Seabed 
-            addLabel(app, 'Seabed', 13, [1, 2], 'title')
-            addLabel(app, 'Sediment', 14, 2, 'text')
+            addLabel(app, 'Seabed', 14, [1, 2], 'title')
+            addLabel(app, 'Sediment', 15, 2, 'text')
 
             % Bellhop 
-            addLabel(app, 'Simulation parameters', 15, [1, 2], 'title')
+            addLabel(app, 'Simulation parameters', 16, [1, 2], 'title')
             azimuthResolutionTooltip = ['The azimuth resolution is the angle between to consecutive profiles.',...
                 'Please note that reducing the resolution increases drastically the computing time.'];
-            addLabel(app, 'Azimuth resolution', 16, 2, 'text', 'left', azimuthResolutionTooltip)
-            addLabel(app, 'Bellhop settings', 17, 2, 'text')
+            addLabel(app, 'Azimuth resolution', 17, 2, 'text', 'left', azimuthResolutionTooltip)
+            addLabel(app, 'Bellhop settings', 18, 2, 'text')
 
             % Detection function 
-            addLabel(app, 'Detection range', 18, [1, 2], 'title')
-            addLabel(app, 'Threshold', 19, 2, 'text')
-            addLabel(app, 'Off-axis distribution', 20, 2, 'text')
-            addLabel(app, 'Off-axis attenuation', 21, 2, 'text')
+            addLabel(app, 'Detection range', 19, [1, 2], 'title')
+            addLabel(app, 'Threshold', 20, 2, 'text')
+            addLabel(app, 'Off-axis distribution', 21, 2, 'text')
+            addLabel(app, 'Off-axis attenuation', 22, 2, 'text')
 
 
             %%% Edit field %%%
@@ -136,10 +156,10 @@ classdef configEnvironmentUI < handle
             addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
             set(app.handleEditField(4), 'ValueDisplayFormat', '%.1f m') 
             % Noise
-            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 12, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
+            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 13, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
             set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB') 
             % Simulation 
-            addEditField(app, abs(app.Simulation.listAz(2)-app.Simulation.listAz(1)), 16, [4, 5], [], 'numeric', {@app.editFieldChanged, 'AzResolution'}) % Hydro depth
+            addEditField(app, abs(app.Simulation.listAz(2)-app.Simulation.listAz(1)), 17, [4, 5], [], 'numeric', {@app.editFieldChanged, 'AzResolution'}) % Hydro depth
             set(app.handleEditField(6), 'ValueDisplayFormat', '%.1f°') 
 
             %%% Drop down %%%
@@ -148,30 +168,30 @@ classdef configEnvironmentUI < handle
             % Hydrophone
             addDropDown(app, app.Simulation.availableDetectors, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
             % Specie
-            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 9, [4, 7], @app.specieChanged)
+            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 10, [4, 7], @app.specieChanged)
             % Noise level model
-            addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 11, [4, 7], @app.noiseOptionChanged)
+            addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 12, [4, 7], @app.noiseOptionChanged)
              % Sediment
-            addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 14, [4, 7], @app.sedimentTypeChanged)
+            addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 15, [4, 7], @app.sedimentTypeChanged)
             % Detection range 
-            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 19, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
-            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 20, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
-            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 21, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 20, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
+            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 21, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
+            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 22, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
 
             %%% Buttons %%%
             % Edit hydrophone
             addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
             % Edit specie 
-            addButton(app, 'Edit properties', 9, 9, @app.editMarineMammalProperties)
+            addButton(app, 'Edit properties', 10, 9, @app.editMarineMammalProperties)
             % Edit noise level 
-            addButton(app, 'Edit properties', 11, 9, @app.editNoiseLevelPorperties)
+            addButton(app, 'Edit properties', 12, 9, @app.editNoiseLevelPorperties)
             % Edit sediment
-            addButton(app, 'Edit properties', 14, 9, @app.editSedimentProperties)
+            addButton(app, 'Edit properties', 15, 9, @app.editSedimentProperties)
             
             % Advanced settings 
-            addButton(app, 'Advanced simulation settings', 17, [4, 9], @app.advancedSettings)
+            addButton(app, 'Advanced simulation settings', 18, [4, 9], @app.advancedSettings)
             % Save settings 
-            addButton(app, 'Close', 23, [4, 7], @app.closeUI)
+            addButton(app, 'Close', 24, [4, 7], @app.closeUI)
         end
     end
     
@@ -205,7 +225,16 @@ classdef configEnvironmentUI < handle
                 app.subWindows{end+1} = selectBathymetryUI(app.Simulation);
             end
         end
-
+        
+        function deployementDateChanged(app, hObject, evendData, moment)
+            switch moment
+                case 'start'
+                    app.Simulation.mooring.deploymentDate.startDate = hObject.Value;
+                case 'stop'
+                    app.Simulation.mooring.deploymentDate.stopDate = hObject.Value;
+            end
+        end
+        
         function specieChanged(app, hObject, eventData)
             switch hObject.Value
                 case 'Common dolphin'

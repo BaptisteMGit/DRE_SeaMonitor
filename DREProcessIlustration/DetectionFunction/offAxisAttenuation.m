@@ -6,7 +6,7 @@
 clear 
 close all 
 % Constants 
-DI = 24; % Directivity index of Porpoise (PAMofC (p89)) [dB]
+DI = 20; % Directivity index of Porpoise (PAMofC (p89)) [dB]
 ka = 10^(DI/20);
 
 % Broadband
@@ -119,7 +119,7 @@ ylabel('J1(ka*sin(\theta))')
 %% Check that zeros correspond to knots with polar plot 
 %%% Applying small offsets to theta_knots for future interpolation %%%
 offset = 0.01   ;
-x_unique(1) = x_unique(1) - offset; % Reducing main lobe 
+% x_unique(1) = x_unique(1) - offset; % Reducing main lobe 
 
 dth = 0.01;
 thetadeg = -90:dth:90;
@@ -153,8 +153,12 @@ for i=1:numel(x_unique)
 end
 
 %%% Main lobe %%%
-theta_firstlobe = x_unique(1);
-idxMainLobe = (theta >= -theta_firstlobe) & (theta <= theta_firstlobe);
+idxtheta_main = theta >= -x_unique(1) & theta <= x_unique(1);
+% dl_main = DLnb(idxtheta_main);
+% theta_firstlobe = abs(theta( (DLnb < DLnb(end) - 1) & idxtheta_main ));
+idxMainLobe = (DLnb < DLnb(end) - 1) & idxtheta_main;
+theta_firstlobe = theta(find(idxMainLobe, 1, 'last'));
+% idxMainLobe = (theta >= -theta_firstlobe) & (theta <= theta_firstlobe);
 
 % Narrow band directional loss for main lobe
 DLnb_mainlobe = DLnb(idxMainLobe);
@@ -373,7 +377,10 @@ clear DLbbcart
 
 %%%% Narrowband modified %%%%
 % Main lobe
-theta_firstlobe = x_unique(1);
+% idxtheta_main = THETA >= -x_unique(1) & THETA <= x_unique(1);
+% idxMainLobe = (DLnbcart < DLnbmax - 1) & idxtheta_main;
+
+% theta_firstlobe = x_unique(1);
 idxMainLobe = (THETA >= -theta_firstlobe) & (THETA <= theta_firstlobe);
 % Narrow band directional loss for main lobe
 DLnbmodifiedcart(idxMainLobe) = DLnbcart(idxMainLobe);

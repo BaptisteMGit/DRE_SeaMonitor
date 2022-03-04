@@ -5,7 +5,8 @@ J1 = @(x) besselj(1, x);
 
 knots = findDLKnots(ka);
 offset = 0.01   ;
-knots(1) = knots(1) - offset; % Reducing main lobe 
+% knots(1) = knots(1) - offset; % Reducing main lobe % Drop on 02/03/2022
+% to avoid issue whith low DI 
 
 dth = 0.01;
 thetadeg = 0:dth:90;
@@ -22,8 +23,13 @@ DLnb(idxNotDef) = DLnbmax;
 DLnb = -10*log10(DLnb);
 
 %%% Main lobe %%%
-theta_firstlobe = knots(1);
-idxMainLobe = (theta >= -theta_firstlobe) & (theta <= theta_firstlobe);
+% Fix 02/03/2022 to avoid issue with low DI (less than 2 knots)
+% theta_firstlobe = knots(1);
+% idxMainLobe = (theta >= -theta_firstlobe) & (theta <= theta_firstlobe);
+
+idxtheta_main = theta <= knots(1);
+% We keep points within the main lobe having a DL lower than the value for 90° so that the function can be injective
+idxMainLobe = (DLnb < DLnb(end) - 1) & idxtheta_main; 
 
 % Narrow band directional loss for main lobe
 DLnb_mainlobe = DLnb(idxMainLobe);

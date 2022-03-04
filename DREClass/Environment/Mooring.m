@@ -18,7 +18,7 @@ classdef Mooring < handle
     methods 
         function obj = Mooring(moorPos, moorName, hydroDepth, depDate)
 
-            obj.setDefault
+            obj.setDefault()
 
             % mooringName 
             if nargin >= 1
