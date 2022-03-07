@@ -68,14 +68,17 @@
         appUIFigure 
         %Ssp 
         SoundCelerity
+
+        % Boolean to check if simu is loaded 
+        simuIsLoaded = 0;
     end
 
     properties (Dependent, Hidden=true)
         rootSaveResult 
         rootOutputFiles
-        rootOutputFigures
-        
+        rootOutputFigures       
         rootSaveInput
+
         logFile % log File to save logs
         resultFile % 
         cwa % Attenuation coef 
@@ -108,9 +111,11 @@
         rootSources
         % Folder to store custom sediment
         rootSediments
-
         % Folder to save the result 
         rootResult 
+
+        % Bearing step 
+        bearingStep
     end
 
     %% Constructor 
@@ -315,6 +320,10 @@
         function rootSediments = get.rootSediments(obj)
             rootSediments = fullfile(obj.rootUserConfiguration, 'Sediment');
         end
+
+        function bearingStep = get.bearingStep(obj)
+            bearingStep = abs(obj.listAz(2) - obj.listAz(1));
+        end
     end
 
     %% Simulation methods  
@@ -467,8 +476,9 @@
                 obj.writeLogEnd()
                 % Delete prt and env files when all process is done to save memory
                 obj.deleteBellhopFiles()
-
-
+                
+                obj.simuIsLoaded = 1; 
+                
             elseif flagBreak % The process has been interrupted by the user clicking cancel 
                 obj.writeLogCancel()
 
@@ -1007,6 +1017,13 @@
             close(gcf);
             cd(current)
         end
+        
+        function plotBathy1D(obj, nameProfile)
+            cd(obj.rootOutputFiles)
+            plotbty(nameProfile)
+            cd(obj.rootApp)
+        end
+
         
         function addDetectionRange(obj, nameProfile)
             current = pwd;

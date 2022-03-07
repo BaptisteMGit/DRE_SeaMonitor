@@ -6,12 +6,18 @@ classdef plottingToolsUI < handle
         % Simulation handle 
         Simulation
         % Graphics handles
-        Figure                  
+        Figure
+%         GridLayout
         ButtonGroup
         ListButtons
-        
+        handleLabel
+        handleEditField
+        handleDropDown
+        handleButton
         % Name of the window 
-        Name = "Plotting Tools";
+        Name = "Plotting tools";
+        % Icon 
+        Icon = 'Icons\PlottingTools-icon.png'
     end
     
     properties (Dependent)
@@ -64,9 +70,12 @@ classdef plottingToolsUI < handle
     
     %% Constructor
     methods
-        function app = plottingToolsUI(simulation)            
+        function app = plottingToolsUI(simulation) 
+            % Pass simulation handle 
+            app.Simulation = simulation;
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
+                            'Icon', app.Icon, ...
                             'Visible', 'on', ...
                             'NumberTitle', 'off', ...
                             'Position', app.fPosition, ...
@@ -74,7 +83,7 @@ classdef plottingToolsUI < handle
                             'MenuBar', 'none', ...
                             'Resize', 'on', ...
                             'AutoResizeChildren', 'off', ...
-                            'WindowStyle', 'normal', ...
+                            'WindowStyle', 'modal', ...
                             'CloseRequestFcn', @closeWindowCallback);
             % Resize function must be defined after Figure is define 
             app.Figure.SizeChangedFcn = @app.resizeWindow;
@@ -85,20 +94,19 @@ classdef plottingToolsUI < handle
                                     'Units', 'normalized');
 
             % Buttons
-            addButton(app, 'Plot Bathymetry 1D',  @app.plotBathy1D)
-            addButton(app, 'Plot Bathymetry 2D',  @app.plotBathy2D)
+            app.addButton('Plot Bathymetry 1D',  @app.plotBathy1D)
+            app.addButton('Plot Bathymetry 2D',  @app.plotBathy2D)
 
-            addButton(app, 'Plot TL 1D', @app.plotTL1D)
-            addButton(app, 'Plot TL 2D', @app.plotTL2D)
+            app.addButton('Plot TL 1D', @app.plotTL1D)
+            app.addButton('Plot TL 2D', @app.plotTL2D)
 
-            addButton(app, 'Plot SPL 1D', @app.plotSPL1D)
-            addButton(app, 'Plot SPL 2D', @app.plotSPL2D)
+            app.addButton('Plot SPL 1D', @app.plotSPL1D)
+            app.addButton('Plot SPL 2D', @app.plotSPL2D)
 
-            addButton(app, 'Main menu', {@app.goBackToMainUI})
+            app.addButton('Main menu', {@app.goBackToMainUI})
         end
     end
 
-    %% Set up methods 
     methods
         function addButton(app, name, callbackFunction)
             button = uibutton(app.ButtonGroup, ...
@@ -114,7 +122,7 @@ classdef plottingToolsUI < handle
     methods 
         function goBackToMainUI(app, hObject, eventData)
             % Close UI
-            close(app.Figure)
+            delete(app.Figure)
         end
 
         function resizeWindow(app, hObject, eventData)
@@ -123,7 +131,7 @@ classdef plottingToolsUI < handle
             app.Height = currentPos(4);
             pause(0.01) % To avoid freeze ending in visuals bugs           
 %             app.updateLabel
-            app.updateButtons
+            app.updateButtons()
         end
 
         function updateButtons(app)
@@ -133,10 +141,21 @@ classdef plottingToolsUI < handle
                 set(button, 'Position', app.bPosition)
             end
         end
+    end
 
-        function closeWindowCallback(app, hObject, eventData)
-            closeWindowCallback(app.subWindows, hObject, eventData)
+    methods
+        function plotBathy1D(app, hObject, eventData)
+            isLoaded = checkSimulationIsLoaded(app);
+            if isLoaded
+                app.subWindows{end+1} = plotBathy1DUI(app.Simulation);                
+            end
         end
+
+        function plotBathy2D(app, hObject, eventData)
+            app.subWindows{end+1} = plotBathy1DUI(app.Simulation);
+        end
+      
+
 
     end
 

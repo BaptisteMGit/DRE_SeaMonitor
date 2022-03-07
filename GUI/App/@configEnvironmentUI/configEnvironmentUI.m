@@ -83,22 +83,28 @@ classdef configEnvironmentUI < handle
 
 
             %%% Labels %%%
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
             % Bathymetry 
-            addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
-            addLabel(app, 'Source', 2, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bathymetry', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Source', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
 
             % Mooring
-            addLabel(app, 'Equipment', 3, [1, 2], 'title')
-            addLabel(app, 'Name of the study', 4, 2, 'text')
-            addLabel(app, 'Position', 5, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Equipment', 'LayoutPosition', struct('nRow', 3, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name of the study', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Position', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+
             hydrophoneDepthTooltip = ['Hydrophone depth is counted positive ',...
                     'from surface toward bottom. You can also set ', ...
                     'negative depth to reference an altitude over the seabed.'];
-            addLabel(app, 'Hydrophone depth', 6, 2, 'text', 'left', hydrophoneDepthTooltip)
-            addLabel(app, 'lon (dd)', 5, 4, 'text', 'right')
-            addLabel(app, 'lat (dd)', 5, 6, 'text', 'right')          
-            addLabel(app, 'Hydrophone', 7, 2, 'text') % Detector
-            addLabel(app, 'Deployement (start-stop) ', 8, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Hydrophone depth', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', hydrophoneDepthTooltip})
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'lon (dd)', 'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'lat (dd)', 'LayoutPosition', struct('nRow', 5, 'nCol', 6), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Hydrophone', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Deployement (start-stop)', 'LayoutPosition', struct('nRow', 8, 'nCol', 2), 'Font', textLabelFont})
             
             startDatePicker = uidatepicker(app.GridLayout, ...
                 "DisplayFormat", 'yyyy-MM-dd', ...
@@ -106,7 +112,6 @@ classdef configEnvironmentUI < handle
                 "Limits", [datetime('1993-01-01', 'InputFormat', 'yyyy-MM-dd'), ...
                            datetime('today')]);
             startDatePicker.Value = datetime(app.Simulation.mooring.deploymentDate.startDate, 'InputFormat','yyyy-MM-dd');
-
             startDatePicker.Layout.Row = 8;
             startDatePicker.Layout.Column = [4, 5];
 
@@ -120,78 +125,89 @@ classdef configEnvironmentUI < handle
             stopDatePicker.Layout.Column = [6, 7];
 
             % Marine mammal 
-            addLabel(app, 'Marine mammal', 9, [1, 2], 'title')
-            addLabel(app, 'Specie', 10, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Marine mammal', 'LayoutPosition', struct('nRow', 9, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Specie', 'LayoutPosition', struct('nRow', 10, 'nCol', 2), 'Font', textLabelFont})
 
             % Noise level 
-            addLabel(app, 'Ambient noise', 11, [1, 2], 'title')
-            addLabel(app, 'Option', 12, 2, 'text')
-            addLabel(app, 'Noise level', 13, 2, 'text')  
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Ambient noise', 'LayoutPosition', struct('nRow', 11, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Option', 'LayoutPosition', struct('nRow', 12, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Noise level', 'LayoutPosition', struct('nRow', 13, 'nCol', 2), 'Font', textLabelFont})
             
             % Seabed 
-            addLabel(app, 'Seabed', 14, [1, 2], 'title')
-            addLabel(app, 'Sediment', 15, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Seabed', 'LayoutPosition', struct('nRow', 14, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Sediment', 'LayoutPosition', struct('nRow', 15, 'nCol', 2), 'Font', textLabelFont})
 
             % Bellhop 
-            addLabel(app, 'Simulation parameters', 16, [1, 2], 'title')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Simulation parameters', 'LayoutPosition', struct('nRow', 16, 'nCol', [1, 2]), 'Font', titleLabelFont})
+
             azimuthResolutionTooltip = ['The azimuth resolution is the angle between to consecutive profiles.',...
                 'Please note that reducing the resolution increases drastically the computing time.'];
-            addLabel(app, 'Azimuth resolution', 17, 2, 'text', 'left', azimuthResolutionTooltip)
-            addLabel(app, 'Bellhop settings', 18, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Azimuth resolution', 'LayoutPosition', struct('nRow', 17, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', azimuthResolutionTooltip})
+            
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bellhop settings', 'LayoutPosition', struct('nRow', 18, 'nCol', 2), 'Font', textLabelFont})
 
             % Detection function 
-            addLabel(app, 'Detection range', 19, [1, 2], 'title')
-            addLabel(app, 'Threshold', 20, 2, 'text')
-            addLabel(app, 'Off-axis distribution', 21, 2, 'text')
-            addLabel(app, 'Off-axis attenuation', 22, 2, 'text')
-
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detection range', 'LayoutPosition', struct('nRow', 19, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Threshold', 'LayoutPosition', struct('nRow', 20, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Off-axis distribution', 'LayoutPosition', struct('nRow', 21, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Off-axis attenuation', 'LayoutPosition', struct('nRow', 22, 'nCol', 2), 'Font', textLabelFont})
 
             %%% Edit field %%%
             % Mooring
-            addEditField(app, app.Simulation.mooring.mooringName, 4, [4, 7], 'Name of the simulation', 'text', {@app.editFieldChanged, 'mooringName'}) % Name
-            addEditField(app, app.Simulation.mooring.mooringPos.lon, 5, 5, [], 'numeric', {@app.editFieldChanged, 'lon'}) % lon 
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%.2f°') 
-            addEditField(app, app.Simulation.mooring.mooringPos.lat, 5, 7, [], 'numeric', {@app.editFieldChanged, 'lat'}) % lat
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%.2f°') 
-            addEditField(app, app.Simulation.mooring.hydrophoneDepth, 6, [4, 5], [], 'numeric', {@app.editFieldChanged, 'hydroDepth'}) % Hydro depth
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%.1f m') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.mooring.mooringName, 'Placeholder', 'Name of the simulation', ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', [4, 7]), 'ValueChangedFcn', {@app.editFieldChanged, 'mooringName'}})
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.mooring.mooringPos.lon, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 5), 'ValueChangedFcn', {@app.editFieldChanged, 'lon'}, 'ValueDisplayFormat', '%.2f°'})
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.mooring.mooringPos.lat, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 7), 'ValueChangedFcn', {@app.editFieldChanged, 'lat'}, 'ValueDisplayFormat', '%.2f°'})
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.mooring.hydrophoneDepth, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', [4, 5]), 'ValueChangedFcn', {@app.editFieldChanged, 'hydroDepth'}, 'ValueDisplayFormat', '%.1f m'})
             % Noise
-            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 13, [4, 5], [], 'numeric', {@app.editFieldChanged, 'noiseLevel'}) % Hydro depth
-            set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.noiseEnvironment.noiseLevel, ...
+                'LayoutPosition', struct('nRow', 13, 'nCol', [4, 5]), 'ValueChangedFcn', {@app.editFieldChanged, 'noiseLevel'}, 'ValueDisplayFormat', '%d dB'})
             % Simulation 
-            addEditField(app, abs(app.Simulation.listAz(2)-app.Simulation.listAz(1)), 17, [4, 5], [], 'numeric', {@app.editFieldChanged, 'AzResolution'}) % Hydro depth
-            set(app.handleEditField(6), 'ValueDisplayFormat', '%.1f°') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.bearingStep, ...
+                'LayoutPosition', struct('nRow', 17, 'nCol', [4, 5]), 'ValueChangedFcn', {@app.editFieldChanged, 'AzResolution'}, 'ValueDisplayFormat', '%.1f°'})
 
             %%% Drop down %%%
             % Bathymetry 
-            addDropDown(app, {'GEBCO2021', 'Userfile'}, app.Simulation.bathyEnvironment.source, 2, [4, 7], @app.bathySourceChanged) % Auto loaded bathy 
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'GEBCO2021', 'Userfile'}, 'Value', app.Simulation.bathyEnvironment.source, ...
+                'ValueChangedFcn', @app.bathySourceChanged, 'LayoutPosition',  struct('nRow', 2, 'nCol', [4, 7])})
             % Hydrophone
-            addDropDown(app, app.Simulation.availableDetectors, app.Simulation.detector.name, 7, [4, 7], @app.detectorChanged)
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableDetectors, 'Value', app.Simulation.detector.name, ...
+                'ValueChangedFcn', @app.detectorChanged, 'LayoutPosition',  struct('nRow', 7, 'nCol', [4, 7])})
             % Specie
-            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 10, [4, 7], @app.specieChanged)
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSources, 'Value', app.marineMammalName, ...
+                'ValueChangedFcn', @app.specieChanged, 'LayoutPosition',  struct('nRow', 10, 'nCol', [4, 7])})
             % Noise level model
-            addDropDown(app, {'Derived from recording', 'Derived from Wenz model', 'Input value'}, app.Simulation.noiseEnvironment.computingMethod, 12, [4, 7], @app.noiseOptionChanged)
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'Derived from recording', 'Derived from Wenz model', 'Input value'}, 'Value', app.Simulation.noiseEnvironment.computingMethod, ...
+                'ValueChangedFcn', @app.noiseOptionChanged, 'LayoutPosition',  struct('nRow', 12, 'nCol', [4, 7])})
              % Sediment
-            addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 15, [4, 7], @app.sedimentTypeChanged)
+             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSediments, 'Value', app.sedimentType, ...
+                'ValueChangedFcn', @app.sedimentTypeChanged, 'LayoutPosition',  struct('nRow', 15, 'nCol', [4, 7])})
             % Detection range 
-            addDropDown(app, app.Simulation.availableDRThreshold, app.Simulation.detectionRangeThreshold, 20, [4, 7], @app.detectionRangeThresholdChanged) % criterion 
-            addDropDown(app, app.Simulation.availableOffAxisDistribution, app.Simulation.offAxisDistribution, 21, [4, 7], @app.offAxisDistributionChanged) % Off-axis distribution  
-            addDropDown(app, app.Simulation.availableOffAxisAttenuation, app.Simulation.offAxisAttenuation, 22, [4, 7], @app.offAxisAttenuationChanged) % Off-axis distribution  
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableDRThreshold, 'Value', app.Simulation.detectionRangeThreshold, ...
+                'ValueChangedFcn', @app.detectionRangeThresholdChanged, 'LayoutPosition',  struct('nRow', 20, 'nCol', [4, 7])})
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableOffAxisDistribution, 'Value', app.Simulation.offAxisDistribution, ...
+                'ValueChangedFcn', @app.offAxisDistributionChanged, 'LayoutPosition',  struct('nRow', 21, 'nCol', [4, 7])})
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableOffAxisAttenuation, 'Value', app.Simulation.offAxisAttenuation, ...
+                'ValueChangedFcn', @app.offAxisAttenuationChanged, 'LayoutPosition',  struct('nRow', 22, 'nCol', [4, 7])})
 
             %%% Buttons %%%
             % Edit hydrophone
-            addButton(app, 'Edit properties', 7, 9, @app.editDetectorProperties)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Edit properties', 'ButtonPushedFcn', @app.editDetectorProperties, 'LayoutPosition', struct('nRow', 7, 'nCol', 9)})
             % Edit specie 
-            addButton(app, 'Edit properties', 10, 9, @app.editMarineMammalProperties)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Edit properties', 'ButtonPushedFcn', @app.editMarineMammalProperties, 'LayoutPosition', struct('nRow', 10, 'nCol', 9)})
             % Edit noise level 
-            addButton(app, 'Edit properties', 12, 9, @app.editNoiseLevelPorperties)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Edit properties', 'ButtonPushedFcn', @app.editNoiseLevelPorperties, 'LayoutPosition', struct('nRow', 12, 'nCol', 9)})
             % Edit sediment
-            addButton(app, 'Edit properties', 15, 9, @app.editSedimentProperties)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Edit properties', 'ButtonPushedFcn', @app.editSedimentProperties, 'LayoutPosition', struct('nRow', 15, 'nCol', 9)})
             
             % Advanced settings 
-            addButton(app, 'Advanced simulation settings', 18, [4, 9], @app.advancedSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Advanced simulation settings', 'ButtonPushedFcn', @app.advancedSettings, 'LayoutPosition', struct('nRow', 18, 'nCol', [4, 9])})
             % Save settings 
-            addButton(app, 'Close', 24, [4, 7], @app.closeUI)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Close', 'ButtonPushedFcn', @app.closeUI, 'LayoutPosition', struct('nRow', 24, 'nCol', [4, 7])})
         end
     end
     
