@@ -93,42 +93,74 @@ classdef selectWenzUI < handle
             app.GridLayout.RowHeight{8} = 5;
 
             % Labels 
-            addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Ambient noise', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+%             addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
+
             trafficIntensityTooltip = ['Traffic intensity is evaluated on a scale from 0 to 3.', ...
                 'This parameter only contribute to noise background in the very low frequency band (10Hz - 1kHz).'];
-            addLabel(app, 'Traffic intensity', 2, 2, 'text', 'left', trafficIntensityTooltip)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Traffic intensity', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', trafficIntensityTooltip})
+%             addLabel(app, 'Traffic intensity', 2, 2, 'text', 'left', trafficIntensityTooltip)
+
             windSpeedTooltip = ['Wind speed in m.s-1.', ...
                 'This parameter contribute to noise background in the low to high frequency band (1kHz - 100kHz).'];
-            addLabel(app, 'Wind speed', 3, 2, 'text', 'left', windSpeedTooltip)
-            addLabel(app, 'Centroid frequency', 4, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Wind speed', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', windSpeedTooltip})
+%             addLabel(app, 'Wind speed', 3, 2, 'text', 'left', windSpeedTooltip)
 
-            addLabel(app, 'Bandwidth', 5, 2, 'text')
-            addLabel(app, 'fMin', 6, 2, 'text')
-            set(app.handleLabel(6), 'HorizontalAlignment', 'right')
-            addLabel(app, 'fMax', 7, 2, 'text')
-            set(app.handleLabel(7), 'HorizontalAlignment', 'right')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Centroid frequency', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Centroid frequency', 4, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bandwidth', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Bandwidth', 5, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'fMin', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+%             addLabel(app, 'fMin', 6, 2, 'text')
+%             set(app.handleLabel(6), 'HorizontalAlignment', 'right')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'fMax', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+%             addLabel(app, 'fMax', 7, 2, 'text')
+%             set(app.handleLabel(7), 'HorizontalAlignment', 'right')
 
             % Edit field
             % Recording
-            addEditField(app, app.Simulation.noiseEnvironment.wenzModel.windSpeed, 3, 4, 'Wind speed in m.s-1', 'numeric', {@app.editFieldChanged, 'windSpeed'}) 
-            set(app.handleEditField(1), 'ValueDisplayFormat', '%d m.s-1') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.noiseEnvironment.wenzModel.windSpeed, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'windSpeed'}, ...
+                'ValueDisplayFormat', '%d m.s-1'})
+%             addEditField(app, app.Simulation.noiseEnvironment.wenzModel.windSpeed, 3, 4, 'Wind speed in m.s-1', 'numeric', {@app.editFieldChanged, 'windSpeed'}) 
+%             set(app.handleEditField(1), 'ValueDisplayFormat', '%d m.s-1') 
 
-            addEditField(app, app.centroidFrequency, 4, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.centroidFrequency, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'centroidFrequency'}, ...
+                'ValueDisplayFormat', '%d Hz'})
+%             addEditField(app, app.centroidFrequency, 4, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
+%             set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
 
-            addEditField(app, app.fmin, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.fmin, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'fmin'}, ...
+                'ValueDisplayFormat', '%d Hz'})
+%             addEditField(app, app.fmin, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
+%             set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
 
-            addEditField(app, app.fmax, 7, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.fmax, ...
+                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'fmax'}, ...
+                'ValueDisplayFormat', '%d Hz'})
+%             addEditField(app, app.fmax, 7, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
+%             set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
             
             % Drop down 
-            addDropDown(app, {'Quiet', 'Low', 'Medium', 'Heavy'}, app.trafficIntensityLabel, 2, 4, @app.trafficIntensityChanged) 
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'Quiet', 'Low', 'Medium', 'Heavy'}, 'Value', app.trafficIntensityLabel, ...
+                'ValueChangedFcn', @app.trafficIntensityChanged, 'LayoutPosition',  struct('nRow', 2, 'nCol', 4)})
+%             addDropDown(app, {'Quiet', 'Low', 'Medium', 'Heavy'}, app.trafficIntensityLabel, 2, 4, @app.trafficIntensityChanged) 
             % Bandwidth
-            addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.bandwidthType, 5, 4, @app.bandwidthTypeChanged) % Auto loaded bathy
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'1/3 octave', '1 octave', 'ManuallyDefined'}, 'Value', app.bandwidthType, ...
+                'ValueChangedFcn', @app.bandwidthTypeChanged, 'LayoutPosition',  struct('nRow', 5, 'nCol', 4)})
+%             addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.bandwidthType, 5, 4, @app.bandwidthTypeChanged) % Auto loaded bathy
 
             % Save settings 
-            addButton(app, 'Compute noise level', 9, [2, 4], @app.computeNoiseLevel)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Compute noise level', 'ButtonPushedFcn', @app.computeNoiseLevel, ...
+                'LayoutPosition', struct('nRow', 9, 'nCol', [2, 4])})
+%             addButton(app, 'Compute noise level', 9, [2, 4], @app.computeNoiseLevel)
 
             % Set editable properties 
             app.updateWindTrafficVisualAspect()
