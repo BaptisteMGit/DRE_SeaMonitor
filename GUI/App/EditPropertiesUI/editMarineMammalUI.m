@@ -84,53 +84,87 @@ classdef editMarineMammalUI < handle
 
             app.GridLayout.RowHeight{11} = 5;
 
-            % Labels 
-            addLabel(app, 'Marine mammal', 1, [1, 2], 'title')
+            % Labels
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Marine mammal', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+%             addLabel(app, 'Marine mammal', 1, [1, 2], 'title')
+
             specieToolTip = ['This is the list of pre-defined species.',...
                 'If you are interested in another one please consider defining your own specie model and saving it.',...
                 'Do not hesitate to contact me in order to add new specie to later releases (baptiste.menetrierpro@gmail.com).'];
-            addLabel(app, 'Specie', 2, 2, 'text', 'left', specieToolTip)
-            addLabel(app, 'Name', 3, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Specie', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', specieToolTip})
+%             addLabel(app, 'Specie', 2, 2, 'text', 'left', specieToolTip)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Name', 3, 2, 'text')
 
-            addLabel(app, 'Centroid frequency', 4, 2, 'text')
-            addLabel(app, 'Source level', 5, 2, 'text')
-            addLabel(app, 'Std source level', 6, 2, 'text')
-            addLabel(app, 'Directivity index', 7, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Centroid frequency', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Centroid frequency', 4, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Source level', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Source level', 5, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Std source level', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Std source level', 6, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Directivity index', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Directivity index', 7, 2, 'text')
 
-            addLabel(app, 'Maximum detection range', 8, 2, 'text')
-            addLabel(app, 'Living depth', 9, 2, 'text')
-            addLabel(app, 'Range around living depth', 10, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Maximum detection range', 'LayoutPosition', struct('nRow', 8, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Maximum detection range', 8, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Living depth', 'LayoutPosition', struct('nRow', 9, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Living depth', 9, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Range around living depth', 'LayoutPosition', struct('nRow', 10, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Range around living depth', 10, 2, 'text')
 
             % Edit field
             % Marine mammal
-            addEditField(app, app.Simulation.marineMammal.name, 3, 4, 'Name', 'text', @app.editFieldChanged) 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.marineMammal.name, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'Placeholder', 'Name'})
+%             addEditField(app, app.Simulation.marineMammal.name, 3, 4, 'Name', 'text', @app.editFieldChanged) 
     
-            addEditField(app, app.Simulation.marineMammal.centroidFrequency, 4, 4, [], 'numeric', @app.editFieldChanged) % Centroid frequency
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.centroidFrequency, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d Hz'}) % Centroid frequency
+%             addEditField(app, app.Simulation.marineMammal.centroidFrequency, 4, 4, [], 'numeric', @app.editFieldChanged) % Centroid frequency
+%             set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
 
-            addEditField(app, app.Simulation.marineMammal.sourceLevel, 5, 4, [], 'numeric', @app.editFieldChanged) % Source level 
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%d dB re 1uPa at 1m')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sourceLevel, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB re 1uPa at 1m'}) % Source level 
+%             addEditField(app, app.Simulation.marineMammal.sourceLevel, 5, 4, [], 'numeric', @app.editFieldChanged) 
+%             set(app.handleEditField(3), 'ValueDisplayFormat', '%d dB re 1uPa at 1m')
 
-            addEditField(app, app.Simulation.marineMammal.sigmaSourceLevel, 6, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d dB')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sigmaSourceLevel, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB'}) % SL std
+%             addEditField(app, app.Simulation.marineMammal.sigmaSourceLevel, 6, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
+%             set(app.handleEditField(4), 'ValueDisplayFormat', '%d dB')
 
-            addEditField(app, app.Simulation.marineMammal.directivityIndex, 7, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
-            set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.directivityIndex, ...
+                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB'}) % Directivity index
+%             addEditField(app, app.Simulation.marineMammal.directivityIndex, 7, 4, [], 'numeric', @app.editFieldChanged) % Directivity index
+%             set(app.handleEditField(5), 'ValueDisplayFormat', '%d dB')
 
-            addEditField(app, app.Simulation.marineMammal.rMax, 8, 4, [], 'numeric', @app.editFieldChanged) % rMax
-            set(app.handleEditField(6), 'ValueDisplayFormat', '%d m')
-            
-            addEditField(app, app.Simulation.marineMammal.livingDepth, 9, 4, [], 'numeric', @app.editFieldChanged) % livingDepth
-            set(app.handleEditField(7), 'ValueDisplayFormat', '%d m')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.rMax, ...
+                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'})
+%             addEditField(app, app.Simulation.marineMammal.rMax, 8, 4, [], 'numeric', @app.editFieldChanged) % rMax
+%             set(app.handleEditField(6), 'ValueDisplayFormat', '%d m')
 
-            addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 10, 4, [], 'numeric', @app.editFieldChanged) % deltaLivingDepth
-            set(app.handleEditField(8), 'ValueDisplayFormat', '%d m') 
-            
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.livingDepth, ...
+                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'})% Living depth
+%             addEditField(app, app.Simulation.marineMammal.livingDepth, 9, 4, [], 'numeric', @app.editFieldChanged) % livingDepth
+%             set(app.handleEditField(7), 'ValueDisplayFormat', '%d m')
+
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.deltaLivingDepth, ...
+                'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'}) % Delta living depth
+%             addEditField(app, app.Simulation.marineMammal.deltaLivingDepth, 10, 4, [], 'numeric', @app.editFieldChanged) % deltaLivingDepth
+%             set(app.handleEditField(8), 'ValueDisplayFormat', '%d m') 
+             
             % Drop down 
-            addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 2, 4, @app.specieChanged) 
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSources, 'Value', app.marineMammalName, ...
+                'ValueChangedFcn', @app.specieChanged, 'LayoutPosition',  struct('nRow', 2, 'nCol', 4)})
+%             addDropDown(app, app.Simulation.availableSources, app.marineMammalName, 2, 4, @app.specieChanged) 
 
             % Save settings 
-            addButton(app, 'Save', 12, [2, 4], @app.saveSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Save', 'ButtonPushedFcn', @app.saveSettings, 'LayoutPosition', struct('nRow', 12, 'nCol', [2, 4])})
+%             addButton(app, 'Save', 12, [2, 4], @app.saveSettings)
 
             % Set editable properties 
             app.updateSpecieNameEditField()

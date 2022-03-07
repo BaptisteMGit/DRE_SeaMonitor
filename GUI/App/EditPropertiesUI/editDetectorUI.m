@@ -88,11 +88,11 @@ classdef editDetectorUI < handle
 
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detector', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
 
-            specieToolTip = ['This is the list of pre-defined detector.',...
+            detectorToolTip = ['This is the list of pre-defined detector.',...
                 'If you are interested in another one please consider defining your own detector model and saving it.',...
                 'Do not hesitate to contact me in order to add new detector to later releases (baptiste.menetrierpro@gmail.com).'];
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detector', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), ...
-                'Font', textLabelFont, 'Tooltip', specieToolTip})
+                'Font', textLabelFont, 'Tooltip', detectorToolTip})
 
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detection threshold', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
