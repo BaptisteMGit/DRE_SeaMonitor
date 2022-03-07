@@ -75,40 +75,72 @@ classdef advancedSettingsUI < handle
             app.GridLayout.RowHeight{10} = 5;
 
             % Bellhop parameters 
-            addLabel(app, 'Bellhop parameters', 1, [1, 2], 'title')
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
 
-            addLabel(app, 'Horizontal resolution', 2, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, 4, [], 'numeric', @app.propertyChanged)
-            set(app.handleEditField(1), 'ValueDisplayFormat', '%.4f km') 
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bellhop parameters', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+%             addLabel(app, 'Bellhop parameters', 1, [1, 2], 'title')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Horizontal resolution', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Horizontal resolution', 2, 2, 'text')
 
-            addLabel(app, 'Vertical resolution', 3, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, 4, [], 'numeric', @app.propertyChanged)
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%.1f m')     
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.bellhopEnvironment.drSimu, ...
+                'LayoutPosition', struct('nRow', 2, 'nCol', 4), 'ValueChangedFcn', @app.propertyChanged, 'ValueDisplayFormat', '%.4f km'})
+%             addEditField(app, app.Simulation.bellhopEnvironment.drSimu, 2, 4, [], 'numeric', @app.propertyChanged)
+%             set(app.handleEditField(1), 'ValueDisplayFormat', '%.4f km') 
 
-            addLabel(app, 'SSP interpolation method', 4, 2, 'text')
-            addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, 4, @app.propertyChanged)
-            
-            addLabel(app, 'Type of surface', 5, 2, 'text')
-            addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, @app.propertyChanged)
-            set(app.handleDropDown(2), 'Enable', 'off') % Not editable for the moment 
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Vertical resolution', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Vertical resolution', 3, 2, 'text')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.bellhopEnvironment.dzSimu, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', @app.propertyChanged, 'ValueDisplayFormat', '%.1f m'})
+%             addEditField(app, app.Simulation.bellhopEnvironment.dzSimu, 3, 4, [], 'numeric', @app.propertyChanged)
+%             set(app.handleEditField(2), 'ValueDisplayFormat', '%.1f m')     
 
-            addLabel(app, 'Attenuation in the bottom', 6, 2, 'text')
-            addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, @app.propertyChanged)
-            set(app.handleDropDown(3), 'Enable', 'off') % Not editable for the moment 
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'SSP interpolation method', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'SSP interpolation method', 4, 2, 'text')
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'Cubic spline', 'C-linear', 'N-2-linear'}, 'Value', app.Simulation.bellhopEnvironment.SspInterpMethodLabel, ...
+                'ValueChangedFcn', @app.propertyChanged, 'LayoutPosition',  struct('nRow', 4, 'nCol', 4)})
+%             addDropDown(app, {'Cubic spline', 'C-linear', 'N-2-linear'}, app.Simulation.bellhopEnvironment.SspInterpMethodLabel, 4, 4, @app.propertyChanged)
 
-            addLabel(app, 'Beam type', 7, 2, 'text')
-            addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, 4, @app.propertyChanged)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Type of surface', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Type of surface', 5, 2, 'text')
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, ...
+                'Value', app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 'Enable', 'off', ...
+                'ValueChangedFcn', @app.propertyChanged, 'LayoutPosition',  struct('nRow', 5, 'nCol', 4)})
+%             addDropDown(app, {'Vacuum above surface', 'Perfectly rigid media above surface', 'Acoustic half-space'}, app.Simulation.bellhopEnvironment.SurfaceTypeLabel, 5, 4, @app.propertyChanged)
+%             set(app.handleDropDown(2), 'Enable', 'off') % Not editable for the moment 
 
-            addLabel(app, 'Number of beams', 8, 2, 'text')
-            addEditField(app, app.Simulation.bellhopEnvironment.beam.Nbeams, 8, 4, [], 'numeric', @app.propertyChanged)
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%d')     
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Attenuation in the bottom', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Attenuation in the bottom', 6, 2, 'text')
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'dB/m', 'dB/lambda'}, 'Value', app.Simulation.bellhopEnvironment.AttenuationUnitLabel, ...
+                'ValueChangedFcn', @app.propertyChanged, 'LayoutPosition',  struct('nRow', 6, 'nCol', 4), 'Enable', 'off'})
+%             addDropDown(app, {'dB/m', 'dB/lambda'}, app.Simulation.bellhopEnvironment.AttenuationUnitLabel, 6, 4, @app.propertyChanged)
+%             set(app.handleDropDown(3), 'Enable', 'off') % Not editable for the moment 
 
-            addLabel(app, 'Beam aperture', 9, 2, 'text')
-            addEditField(app, abs(app.Simulation.bellhopEnvironment.beam.alpha(1)), 9, 4, [], 'numeric', @app.propertyChanged)
-            set(app.handleEditField(4), 'ValueDisplayFormat', '+/- %.1f°')     
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Beam type', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Beam type', 7, 2, 'text')
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'Gaussian beams', 'Geometric rays'}, 'Value', app.Simulation.bellhopEnvironment.beamTypeLabel, ...
+                'ValueChangedFcn', @app.propertyChanged, 'LayoutPosition',  struct('nRow', 7, 'nCol', 4)})
+%             addDropDown(app, {'Gaussian beams', 'Geometric rays'}, app.Simulation.bellhopEnvironment.beamTypeLabel, 7, 4, @app.propertyChanged)
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Number of beams', 'LayoutPosition', struct('nRow', 8, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Number of beams', 8, 2, 'text')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.bellhopEnvironment.beam.Nbeams, ...
+                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.propertyChanged, ...
+                'ValueDisplayFormat', '%d'}) 
+%             addEditField(app, app.Simulation.bellhopEnvironment.beam.Nbeams, 8, 4, [], 'numeric', @app.propertyChanged)
+%             set(app.handleEditField(3), 'ValueDisplayFormat', '%d')     
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Beam aperture', 'LayoutPosition', struct('nRow', 9, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Beam aperture', 9, 2, 'text')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', abs(app.Simulation.bellhopEnvironment.beam.alpha(1)), ...
+                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.propertyChanged, ...
+                'ValueDisplayFormat', '+/- %.1f°'}) 
+%             addEditField(app, abs(app.Simulation.bellhopEnvironment.beam.alpha(1)), 9, 4, [], 'numeric', @app.propertyChanged)
+%             set(app.handleEditField(4), 'ValueDisplayFormat', '+/- %.1f°')     
 
             % Save settings 
-            addButton(app, 'Save settings', 11, [2, 4], @app.saveSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Save settings', 'ButtonPushedFcn', @app.saveSettings, 'LayoutPosition', struct('nRow', 11, 'nCol', [2, 4])})
+%             addButton(app, 'Save settings', 11, [2, 4], @app.saveSettings)
         end
     end
 
