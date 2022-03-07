@@ -83,27 +83,34 @@ classdef editDetectorUI < handle
             app.GridLayout.RowHeight{5} = 5;
 
             % Labels 
-            addLabel(app, 'Detector', 1, [1, 2], 'title')
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detector', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+
             specieToolTip = ['This is the list of pre-defined detector.',...
                 'If you are interested in another one please consider defining your own detector model and saving it.',...
                 'Do not hesitate to contact me in order to add new detector to later releases (baptiste.menetrierpro@gmail.com).'];
-            addLabel(app, 'Detector', 2, 2, 'text', 'left', specieToolTip)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detector', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', specieToolTip})
 
-            addLabel(app, 'Name', 3, 2, 'text')
-            addLabel(app, 'Detection threshold', 4, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detection threshold', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
 
             % Edit field
             % Detector
-            addEditField(app, app.Simulation.detector.name, 3, 4, 'Name', 'text', @app.editFieldChanged) 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.detector.name, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'Placeholder', 'Name'})
     
-            addEditField(app, app.Simulation.detector.detectionThreshold, 4, 4, [], 'numeric', @app.editFieldChanged) % Detection threshold
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%.1f dB 0 to peak')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.detector.detectionThreshold, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB 0 to peak'})
             
-            % Drop down 
-            addDropDown(app, app.Simulation.availableDetectors, app.detectorName, 2, 4, @app.detectorChanged) 
+            % Drop down
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableDetectors, 'Value', app.detectorName, ...
+                'ValueChangedFcn', @app.detectorChanged, 'LayoutPosition',  struct('nRow', 2, 'nCol', 4)})
 
             % Save settings 
-            addButton(app, 'Save', 6, [2, 4], @app.saveSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Save', 'ButtonPushedFcn', @app.saveSettings, 'LayoutPosition', struct('nRow', 6, 'nCol', [2, 4])})
 
             % Set editable properties 
             app.updateDetectorNameEditField()
