@@ -91,45 +91,52 @@ classdef selectRecordingUI < handle
             app.GridLayout.RowHeight{8} = 5;
 
             % Labels 
-            addLabel(app, 'Ambient noise', 1, [1, 2], 'title')
-            addLabel(app, 'Recording', 2, 2, 'text')
-            addLabel(app, 'Centroid frequency', 3, 2, 'text')
-%             addLabel(app, 'Hz', 3, 5, 'text')
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
 
-            addLabel(app, 'Bandwidth', 4, 2, 'text')
-            addLabel(app, 'fMin', 5, 2, 'text')
-            set(app.handleLabel(5), 'HorizontalAlignment', 'right')
-            addLabel(app, 'fMax', 6, 2, 'text')
-            set(app.handleLabel(6), 'HorizontalAlignment', 'right')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Ambient noise', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Recording', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Centroid frequency', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
 
-            addLabel(app, 'Calibration coefficient', 7, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bandwidth', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'fMin', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'fMax', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont, 'HorizontalAlignment', 'right'})
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Calibration coefficient', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont}) % TODO add unit
 
             % Edit field
             % Recording
-            addEditField(app, app.Simulation.noiseEnvironment.recording.recordingFile, 2, [4, 6], 'Filename.wav', 'text', {@app.editFieldChanged, 'filename'}) % recording file 
-            addEditField(app, app.centroidFrequency, 3, 4, 100000, 'numeric', {@app.editFieldChanged, 'centroidFrequency'}) % Centroid frequency: must be the centroid frequency of the studied signal 
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.noiseEnvironment.recording.recordingFile, ...
+                'LayoutPosition', struct('nRow', 2, 'nCol', [4, 6]), 'ValueChangedFcn', {@app.editFieldChanged, 'filename'}, ...
+                'Placeholder', 'Filename.wav'})
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.centroidFrequency, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'centroidFrequency'}, ...
+                'ValueDisplayFormat', '%d Hz'}) % Centroid frequency: must be the centroid frequency of the studied signal
 
-            addEditField(app, app.fmin, 5, 4, [], 'numeric', {@app.editFieldChanged, 'fmin'}) % fmin
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%d Hz')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.fmin, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'fmin'}, ...
+                'ValueDisplayFormat', '%d Hz'})
 
-            addEditField(app, app.fmax, 6, 4, [], 'numeric', {@app.editFieldChanged, 'fmax'}) % fmax
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%d Hz') 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.fmax, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'fmax'}, ...
+                'ValueDisplayFormat', '%d Hz'})
 
             app.updateFrequencyRange() % Initialise frequencyRange 
             app.updateFrequencyRangeVisualAspect()
 
-            addEditField(app, app.Simulation.noiseEnvironment.recording.calibrationCoefficient, 7, 4, [], 'numeric', {@app.editFieldChanged, 'calCoeff'}) % fmax
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.noiseEnvironment.recording.calibrationCoefficient, ...
+                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'calCoeff'}})
 
             % Drop down 
             % Bandwidth
-            addDropDown(app, {'1/3 octave', '1 octave', 'ManuallyDefined'}, app.Simulation.noiseEnvironment.recording.bandwidthType, 4, [4, 6], @app.bandwidthTypeChanged) % Auto loaded bathy
-
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'1/3 octave', '1 octave', 'ManuallyDefined'}, 'Value',  app.Simulation.noiseEnvironment.recording.bandwidthType, ...
+                'ValueChangedFcn', @app.bandwidthTypeChanged, 'LayoutPosition',  struct('nRow', 4, 'nCol', [4, 6])})
             % Buttons
-            addButton(app, 'Select file(s)', 2, 8, @app.selectRecording)
-
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Select file(s)', 'ButtonPushedFcn', @app.selectRecording, ...
+                'LayoutPosition', struct('nRow', 2, 'nCol', 8)})
             % Save settings 
-            addButton(app, 'Compute', 9, 5, @app.computeNoiseLevel)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Compute', 'ButtonPushedFcn', @app.computeNoiseLevel, ...
+                'LayoutPosition', struct('nRow', 9, 'nCol', 5)})
         end
     end
     
