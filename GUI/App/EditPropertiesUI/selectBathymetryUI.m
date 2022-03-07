@@ -81,28 +81,44 @@ classdef selectBathymetryUI < handle
             app.GridLayout.RowHeight{5} = 10;
 
             % Labels 
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
             % Bathymetry 
-            addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
-            addLabel(app, 'File', 2, 2, 'text')
-            addLabel(app, 'Coordinate Reference System', 3, 2, 'text')
-            addLabel(app, 'Resolution of interpolated profiles', 4, 2, 'text')
-            addLabel(app, 'm', 4, 5, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bathymetry', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+%             addLabel(app, 'Bathymetry', 1, [1, 2], 'title')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'File', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'File', 2, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Coordinate Reference System', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Coordinate Reference System', 3, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Resolution of interpolated profiles', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Resolution of interpolated profiles', 4, 2, 'text')
+%             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Source', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'm', 4, 5, 'text')
            
             % Edit field
             % Bathy
-            addEditField(app, app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], 'Bathymetry file (csv, netdcf)', 'text') % Bathy file 
-            addEditField(app, app.Simulation.bathyEnvironment.drBathy, 4, 4, [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.bathyEnvironment.bathyFile, 'Placeholder', 'Bathymetry file (csv, netdcf)', ...
+                'LayoutPosition', struct('nRow', 2, 'nCol', [4, 6])})
+%             addEditField(app, app.Simulation.bathyEnvironment.bathyFile, 2, [4, 6], 'Bathymetry file (csv, netdcf)', 'text') % Bathy file 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.bathyEnvironment.drBathy, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', {@app.editFieldChanged, 'bathy'}, 'ValueDisplayFormat', '%d m'})
+%             addEditField(app, app.Simulation.bathyEnvironment.drBathy, 4, 4, [], 'numeric', {@app.editFieldChanged, 'drBathy'}) % Bathy resolution 
            
             % Drop down 
             % CRS
-            addDropDown(app, {'WGS84'}, app.Simulation.bathyEnvironment.inputCRS, 3, [4, 5], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', {'WGS84'}, 'Value', app.Simulation.bathyEnvironment.inputCRS, ...
+                'ValueChangedFcn', @app.referenceFrameChanged, 'LayoutPosition',  struct('nRow', 3, 'nCol', [4, 5])})
+%             addDropDown(app, {'WGS84'}, app.Simulation.bathyEnvironment.inputCRS, 3, [4, 5], @app.referenceFrameChanged) % Update 20/01/2022 to limit the input crs to WGS84
 
             % Buttons
             % Bathy file
-            addButton(app, 'Select file', 2, 8, @app.selectBathyFile)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Select file', 'ButtonPushedFcn', @app.selectBathyFile, 'LayoutPosition', struct('nRow', 2, 'nCol', 8)})
+%             addButton(app, 'Select file', 2, 8, @app.selectBathyFile)
 
             % Save settings 
-            addButton(app, 'Save settings', 6, [4, 6], @app.saveSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Save settings', 'ButtonPushedFcn', @app.saveSettings, 'LayoutPosition', struct('nRow', 6, 'nCol', [4, 6])})
+%             addButton(app, 'Save settings', 6, [4, 6], @app.saveSettings)
         end
     end
 
