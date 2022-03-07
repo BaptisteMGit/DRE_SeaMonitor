@@ -85,36 +85,58 @@ classdef editSeabedEnvironmentUI < handle
             app.GridLayout.RowHeight{7} = 5;
 
             % Labels 
-            addLabel(app, 'Seabed', 1, [1, 2], 'title')
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Seabed', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+%             addLabel(app, 'Seabed', 1, [1, 2], 'title')
+
             seabedToolTip = ['This is the list of pre-defined sediment.',...
                 'If you are interested in another one please consider defining your own sediment model and saving it.',...
                 'Do not hesitate to contact me in order to add new sediment to later releases (baptiste.menetrierpro@gmail.com).'];
-            addLabel(app, 'Sediment', 2, 2, 'text', 'left', seabedToolTip)
-            addLabel(app, 'Name', 3, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Sediment', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), ...
+                'Font', textLabelFont, 'Tooltip', seabedToolTip})
+%             addLabel(app, 'Sediment', 2, 2, 'text', 'left', seabedToolTip)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Name', 3, 2, 'text')
 
-            addLabel(app, 'Sound celerity', 4, 2, 'text')
-            addLabel(app, 'Density', 5, 2, 'text')
-            addLabel(app, 'Compressional wave absorption', 6, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Sound celerity', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Sound celerity', 4, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Density', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Density', 5, 2, 'text')
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Compressional wave absorption', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont})
+%             addLabel(app, 'Compressional wave absorption', 6, 2, 'text')
 
 
             % Edit field
             % Marine mammal
-            addEditField(app, app.Simulation.seabedEnvironment.sedimentType, 3, 4, 'Name', 'text', @app.editFieldChanged) 
-    
-            addEditField(app, app.Simulation.seabedEnvironment.bottom.c, 4, 4, [], 'numeric', @app.editFieldChanged) % Sound celerity
-            set(app.handleEditField(2), 'ValueDisplayFormat', '%.3f m.s-1')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'text', 'Value', app.Simulation.seabedEnvironment.sedimentType, ...
+                'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'Placeholder', 'Name'})
+%             addEditField(app, app.Simulation.seabedEnvironment.sedimentType, 3, 4, 'Name', 'text', @app.editFieldChanged) 
 
-            addEditField(app, app.Simulation.seabedEnvironment.bottom.rho, 5, 4, [], 'numeric', @app.editFieldChanged) % Density
-            set(app.handleEditField(3), 'ValueDisplayFormat', '%.3f g.cm-3')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.seabedEnvironment.bottom.c, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.3f m.s-1'}) % Sound celerity
+%             addEditField(app, app.Simulation.seabedEnvironment.bottom.c, 4, 4, [], 'numeric', @app.editFieldChanged) 
+%             set(app.handleEditField(2), 'ValueDisplayFormat', '%.3f m.s-1')
 
-            addEditField(app, app.Simulation.seabedEnvironment.bottom.cwa, 6, 4, [], 'numeric', @app.editFieldChanged) % Compressional wave absorption
-            set(app.handleEditField(4), 'ValueDisplayFormat', '%.3f dB/lambda')
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.seabedEnvironment.bottom.rho, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.3f g.cm-3'}) % Sound celerity
+%             addEditField(app, app.Simulation.seabedEnvironment.bottom.rho, 5, 4, [], 'numeric', @app.editFieldChanged) % Density
+%             set(app.handleEditField(3), 'ValueDisplayFormat', '%.3f g.cm-3')
+
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.seabedEnvironment.bottom.cwa, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.3f dB/lambda'}) % Compressional wave absorption
+%             addEditField(app, app.Simulation.seabedEnvironment.bottom.cwa, 6, 4, [], 'numeric', @app.editFieldChanged) % Compressional wave absorption
+%             set(app.handleEditField(4), 'ValueDisplayFormat', '%.3f dB/lambda')
             
             % Drop down 
-            addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 2, 4, @app.sedimentChanged) 
+            addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSediments, 'Value', app.sedimentType, ...
+                'ValueChangedFcn', @app.sedimentChanged, 'LayoutPosition',  struct('nRow', 2, 'nCol', 4)})
+%             addDropDown(app, app.Simulation.availableSediments, app.sedimentType, 2, 4, @app.sedimentChanged) 
 
             % Save settings 
-            addButton(app, 'Save', 8, [2, 4], @app.saveSettings)
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Save', 'ButtonPushedFcn', @app.saveSettings, 'LayoutPosition', struct('nRow', 8, 'nCol', [2, 4])})
+%             addButton(app, 'Save', 8, [2, 4], @app.saveSettings)
 
             % Set editable properties 
             app.updateSedimentTypeEditField()
