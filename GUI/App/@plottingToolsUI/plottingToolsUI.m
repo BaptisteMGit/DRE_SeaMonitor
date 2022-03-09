@@ -1,3 +1,4 @@
+
 classdef plottingToolsUI < handle
     %PLOTTINGTOOLSUI Summary of this class goes here
     %   Detailed explanation goes here
@@ -55,13 +56,13 @@ classdef plottingToolsUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 300;
-        Height = 400;
+        Width = 350;
+        Height = 550;
         % Define font style
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 7;
+        nbButton = 12;
         currButtonID = 0;
 
         % Sub-windows 
@@ -94,14 +95,22 @@ classdef plottingToolsUI < handle
                                     'Units', 'normalized');
 
             % Buttons
-            app.addButton('Plot Bathymetry 1D',  @app.plotBathy1D)
-            app.addButton('Plot Bathymetry 2D',  @app.plotBathy2D)
+            
+            app.addButton('Plot Bathymetry 1D',  {@app.plot1D, 'bathy1D'})
+            app.addButton('Plot Bathymetry 2D',  {@app.plot2D, 'bathy2D'})
 
-            app.addButton('Plot TL 1D', @app.plotTL1D)
-            app.addButton('Plot TL 2D', @app.plotTL2D)
+            app.addButton('Plot TL 1D', {@app.plot1D, 'tl1D'})
+            app.addButton('Plot TL 2D', {@app.plot2D, 'tl2D'})
+           
+            app.addButton('Plot SPL 1D', {@app.plot1D, 'spl1D'})
+            app.addButton('Plot SPL 2D', {@app.plot2D, 'spl2D'})
 
-            app.addButton('Plot SPL 1D', @app.plotSPL1D)
-            app.addButton('Plot SPL 2D', @app.plotSPL2D)
+            app.addButton('Plot SE 1D',  {@app.plot1D, 'se1D'})
+            app.addButton('Plot SE 2D',  {@app.plot2D, 'se2D'})
+
+            app.addButton('Plot detection probability map',  {@app.plot2D, 'DPM'})
+            app.addButton('Plot detection range map',   {@app.plot2D, 'DRM'})
+            app.addButton('Plot detection range polarplot',   {@app.plot2D, 'DRPP'})
 
             app.addButton('Main menu', {@app.goBackToMainUI})
         end
@@ -143,28 +152,43 @@ classdef plottingToolsUI < handle
         end
     end
 
+    %% Plot functions
     methods
-        function plotBathy1D(app, hObject, eventData)
+
+        function plot1D(app, hObject, eventData, type)
             isLoaded = checkSimulationIsLoaded(app);
             if isLoaded
-                app.subWindows{end+1} = plotBathy1DUI(app.Simulation);                
+                app.subWindows{end+1} = selectProfileToPlot(app.Simulation, type);
+            end
+        end
+        
+        function plot2D(app, hObject, eventData, type)
+            isLoaded = checkSimulationIsLoaded(app);
+            if isLoaded
+                figure;
+                switch type
+                    case 'DPM'
+                        app.Simulation.plotDPM();  
+                    case 'DRM'
+                        app.Simulation.plotDRM()
+                    case 'DRPP'
+                        app.Simulation.plotDRPP()
+                    case 'bathy2D'
+                        app.Simulation.plotBathy2D()    
+                    case 'tl2D'
+                        app.Simulation.plotTL2D()
+                    case 'spl2D'
+                        app.Simulation.plotSPL2D()
+                    case 'se2D'
+                        app.Simulation.plotSE2D()
+                end
             end
         end
 
-        function plotBathy2D(app, hObject, eventData)
-            app.subWindows{end+1} = plotBathy1DUI(app.Simulation);
-        end
-      
-
-
     end
 
-    %% Get methods for dependent properties 
-    % NOTE: even if the implementation looks a bit complicated dependent
-    % properties increase app performance by saving memmory space and
-    % dependent properties can be used to maintain app proportions 
+    %% Get methods 
     methods 
-
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
         end
@@ -190,7 +214,6 @@ classdef plottingToolsUI < handle
         end
 
         function bgY = get.bgY(app)
-%             bgY = app.Height * 1/3 + app.OffsetY - app.bgHeight / 2;
             bgY = app.OffsetY;
         end
 

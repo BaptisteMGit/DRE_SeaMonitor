@@ -174,7 +174,6 @@ classdef mainUI < handle
         end
         
         function saveSimulationButtonPushed(app, hObject, eventData)            
-            current = pwd;
             cd(app.Simulation.rootSaveSimulation)
             props = properties(app.Simulation);
             for i=1:numel(props)
@@ -182,7 +181,8 @@ classdef mainUI < handle
                 structSimu.(property) = app.Simulation.(property);
             end
             uisave('structSimu', app.Simulation.mooring.mooringName)
-            cd(current)
+            fprintf('Simulation  %s successfully saved!', app.Simulation.mooring.mooringName)
+            cd(app.Simulation.rootApp)
         end
 
         function loadSimulationButtonPushed(app, hObject, event)
@@ -200,6 +200,7 @@ classdef mainUI < handle
                 % simulation 
                 app.rootToPreviousSimulation = app.Simulation.rootSaveResult;
             end
+            fprintf('Simulation  %s successfully loaded!', file)
             app.Simulation.simuIsLoaded = 1;
             cd(app.Simulation.rootApp)
         end 

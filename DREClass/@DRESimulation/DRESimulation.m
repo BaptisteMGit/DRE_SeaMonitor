@@ -23,6 +23,8 @@
         listDetectionFunction
         % Root used to launch app 
         rootApp
+        % Running date 
+        launchDate
 
         % Implemented detectors 
         implementedDetectors
@@ -35,6 +37,11 @@
         CPUtime
         % Bathymetry data (not hidden to be saved when clicking save)
         dataBathy
+        % Receiver position 
+        receiverPos
+        % Output grid 
+        zt
+        rt 
 
         % Threshold that can be used to derived detection range from
         % detection function (detection probability along profile) 
@@ -55,15 +62,21 @@
         % Bellhop parameters 
         bottom
         ssp
-        receiverPos
         % Output
         spl
-        zt
-        rt
+        % Bathy grid variables to avoid multiple call to griddata function
+        % when plotting results
+        bathyDataIsGridded = 0; % Boolean to check if data is allready gridded
+        Xgrid
+        Ygrid
+        Zgrid
+        % TL grid data to avoid multiple call to griddata function 
+        TLDataIsGridded = 0; % Boolean to check if data is allready gridded
+        TLgrid
+        % Color bar limits 
+        tlmin
+        tlmax 
 
-        % run date and time 
-        launchDate 
-        
         % Figure for the app 
         appUIFigure 
         %Ssp 
@@ -71,6 +84,7 @@
 
         % Boolean to check if simu is loaded 
         simuIsLoaded = 0;
+        
     end
 
     properties (Dependent, Hidden=true)
@@ -378,10 +392,7 @@
 
             % Initialize list of detection ranges 
             obj.listDetectionRange = zeros(size(obj.listAz));
-            % Initialize list of detection functions 
-%             obj.listDetectionFunction = zeros(size(obj.listAz));
-%             obj.listDetectionFunction = [];
-                        
+
             flag = 0; % flag to ensure the all process as terminate without error
             flagBreak = 0; % flag to write msg in log file when user cancel the simulation
             
@@ -446,6 +457,7 @@
                 % increase performances. 
                 if i_theta == 1
                     obj.listDetectionFunction = zeros([numel(obj.listAz), numel(obj.receiverPos.r.range)]);
+                    obj.readOutputGrid(nameProfile) % read rt and zt vectors 
                 end 
                 obj.addDetectionFunction(nameProfile)
 
@@ -476,7 +488,7 @@
                 obj.writeLogEnd()
                 % Delete prt and env files when all process is done to save memory
                 obj.deleteBellhopFiles()
-                
+                % Simulation is considered loaded 
                 obj.simuIsLoaded = 1; 
                 
             elseif flagBreak % The process has been interrupted by the user clicking cancel 
@@ -824,11 +836,19 @@
             linePts = repelem('.', 53 - numel(promptMsg));
             fprintf(' %s DONE\n', linePts);
         end
-        
+
+        function readOutputGrid(obj, nameProfile)
+            filename = sprintf('%s.shd', nameProfile);
+            cd(obj.rootOutputFiles)
+            [ ~, ~, ~, ~, ~, Pos, ~] = read_shd( filename );
+            obj.zt = Pos.r.z;
+            obj.rt = Pos.r.r;
+            cd(obj.rootApp)
+        end
+
         %% Plot functions
         function plotTL(obj, nameProfile, saveBool, bathyBool)
             figure('visible','off'); 
-            current = pwd;
             cd(obj.rootOutputFiles)
             plotshd( sprintf('%s.shd', nameProfile));
             a = colorbar;
@@ -845,13 +865,12 @@
                 saveas(gcf, sprintf('%s_TL.png', nameProfile));
             end
             close(gcf);
-            cd(current)
+            cd(obj.rootApp)
         end
 
         function plotSPL(obj, nameProfile, saveBool, bathyBool)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
             figure('visible','off');
-            current = pwd;
             cd(obj.rootOutputFiles)
             plotSPL(varSpl{:});
             a = colorbar;
@@ -868,11 +887,10 @@
                 saveas(gcf, sprintf('%s_SPL.png', nameProfile));
             end
             close(gcf);
-            cd(current)
+            cd(obj.rootApp)
         end
-
+    
         function plotSE(obj, nameProfile, saveBool, bathyBool)
-            current = pwd;
             cd(obj.rootOutputFiles)
             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
             [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
@@ -880,7 +898,7 @@
             figure('visible','off');
             SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
-             plotSE(SEArgin{:});
+            plotSE(SEArgin{:});
             title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
 
             if bathyBool
@@ -894,7 +912,7 @@
                 saveas(gcf, sprintf('%s_SE.png', nameProfile));
             end
             close(gcf);
-            cd(current)
+            cd(obj.rootApp)
         end
 
         function plotDR(obj)
@@ -975,9 +993,9 @@
             close(gcf)
         end
         
-        function plotDetectionFunction(obj, nameProfile, g, detectionRange)            
+        function plotDetectionFunction(obj, nameProfile, detectionFunction, detectionRange)            
             figure('visible','off');
-            plot(obj.rt, g)
+            plot(obj.rt, detectionFunction)
             xlabel('Range [m]')
             ylabel('Detection probability')
             hold on 
@@ -1007,7 +1025,7 @@
             zDep = griddata(E, N, U, X, Y);
             contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
             hold on 
-            plotDetectionProbability2D(obj.listAz, obj.rt, obj.listDetectionFunction)
+            plotDetectionProbability2D(obj.listAz*pi/180, obj.rt, obj.listDetectionFunction)
             xlim([-500, 500])
             ylim([-500, 500])
 
@@ -1018,96 +1036,44 @@
             cd(current)
         end
         
-        function plotBathy1D(obj, nameProfile)
-            cd(obj.rootOutputFiles)
-            plotbty(nameProfile)
-            cd(obj.rootApp)
-        end
-
+        %% Plotting tools functions
+        %%% 1D plots %%%%
+        plotBathy1D(obj, nameProfile)
+        plotTL1D(obj, nameProfile)
+        plotSPL1D(obj, nameProfile)
+        plotSE1D(obj, nameProfile)
+        %%% End 1D plots %%%%
         
-        function addDetectionRange(obj, nameProfile)
-            current = pwd;
-            cd(obj.rootOutputFiles)
-            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
-            [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
-            computeArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
-                'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
-            detectionRange = computeDetectionRange(computeArgin{:});
+        %%% 2D plots (map) %%%
+        % Grid data
+        gridTLData(obj)
+        gridBathyData(obj) 
+        
+        % Plot bathy
+        plotBathyContour(obj)
+        plotBathyPColor(obj)
+        
+        % Plot detection results 
+        radiusToPlot = getRadiusToPlot(obj) 
+        plotDetectionRangeContour(obj, varargin) 
+        plotDPM(obj) % Detection probability map 
+        plotDRM(obj) % Detection range map 
+        plotDRPP(obj) % Detection range polarplot
+        
+        % Plot 2D maps 
+        plotBathy2D(obj) % Bathy 2D
+        plotTL2D(obj) % Plot TL 2D
+        plotSPL2D(obj) % Plot SPL 2D
+        plotSE2D(obj) % Plot SE 2D
 
-            i = find(~obj.listDetectionRange, 1, 'first');
-            obj.listDetectionRange(i) = detectionRange;
-            obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
-            cd(current)
-        end
+        %% Derive detection capabilities 
+        addDetectionRange(obj, nameProfile)
+        addDetectionFunction(obj, nameProfile)
 
-        function addDetectionFunction(obj, nameProfile)
-            current = pwd;
-            cd(obj.rootOutputFiles)
+        %% Delete useless files to spare memory 
+        deleteBellhopFiles(obj)
+        deleteBathyFiles(obj)
 
-            % Quick fix for CPODs detector (TODO: reshape the behavior of the
-            % app) done on 16/02/2022
-            if isa(obj.detector , 'CPOD')
-                NL = 0; % Noise level have no impact on detection for CPOD
-            else
-                NL = obj.noiseEnvironment.noiseLevel;
-            end
-
-            detFunVar = {'filename',  sprintf('%s.shd', nameProfile),...
-                'SL', obj.marineMammal.signal.sourceLevel,...
-                'sigmaSL', obj.marineMammal.signal.sigmaSourceLevel,...
-                'DT', obj.detector.detectionThreshold,...
-                'NL', NL,... 
-                'zTarget', obj.marineMammal.livingDepth,...
-                'deltaZ', obj.marineMammal.deltaLivingDepth, ...
-                'DRThreshold', obj.detectionRangeThreshold, ...
-                'offAxisDistribution', obj.offAxisDistribution, ...
-                'offAxisAttenuation', obj.offAxisAttenuation, ...
-                'sigmaH', obj.sigmaH, ...
-                'DI', obj.marineMammal.signal.directivityIndex};
-
-            [detectionFunction, detectionRange] = computeDetectionFunction(detFunVar{:});
-            obj.plotDetectionFunction(nameProfile, detectionFunction, detectionRange)
-
-            i = find(~obj.listDetectionRange, 1, 'first');
-            % Detection function            
-            obj.listDetectionFunction(i, :) = detectionFunction;
-            
-            % Detection range 
-            obj.listDetectionRange(i) = detectionRange;
-            obj.writeDRtoLogFile(obj.listAz(i), detectionRange)
-
-            cd(current)
-        end
-
-        function deleteBellhopFiles(obj)
-            cd(obj.rootOutputFiles)
-
-            listPrt = dir('*.prt');
-            listPrt = listPrt(~cellfun('isempty', {listPrt.date}));
-            listEnv = dir('*.env');
-            listEnv = listEnv(~cellfun('isempty', {listEnv.date}));
-
-            sz = size(listPrt);
-            for i=1:sz(1)
-                file = listPrt(i).name;
-                delete(file)
-            end
-
-            sz = size(listEnv);
-            for i=1:sz(1)
-                file = listEnv(i).name;
-                delete(file)
-            end
-
-            cd(obj.rootApp)
-        end
-
-        function deleteBathyFiles(obj)
-            cd(obj.rootSaveInput)
-            rmdir('2DProfile', 's')
-%             delete('Bathymetry.csv')
-            cd(obj.rootApp)
-        end
     end
 end
 

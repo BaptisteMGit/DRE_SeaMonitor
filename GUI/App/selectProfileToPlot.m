@@ -1,4 +1,4 @@
-classdef plotBathy1DUI < handle 
+classdef selectProfileToPlot < handle 
     %PLOT Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -14,9 +14,11 @@ classdef plotBathy1DUI < handle
         handleButton
         handleSpinner
         % Name of the window 
-        Name = "Plot bathymetry 1D";
+        Name = "Select profile to plot";
         % Icon 
         Icon = 'Icons\plotBathy1D-icon.png'
+        % Type of plot
+    plotType
     end
 
   properties (Hidden=true)
@@ -43,9 +45,11 @@ classdef plotBathy1DUI < handle
 
     
     methods
-        function app = plotBathy1DUI(simulation)
+        function app = selectProfileToPlot(simulation, type)
             % Pass simulation handle 
             app.Simulation = simulation;
+            % Plot function
+            app.plotType = type;
             % Figure 
             app.Figure = uifigure('Name', app.Name, ...
                             'Icon', app.Icon, ...
@@ -64,8 +68,15 @@ classdef plotBathy1DUI < handle
             app.GridLayout.ColumnWidth{3} = 5;
             app.GridLayout.ColumnWidth{4} = 100;
 
-            addLabel(app, 'Plot bathymetry 1D', 1, [1, 2], 'title')
-            addLabel(app, 'Bearing', 2, 2, 'text')
+            app.GridLayout.RowHeight{3} = 5;
+
+            
+            % Label
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Select profile to plot', 'LayoutPosition', struct('nRow', 1, 'nCol', [1, 2]), 'Font', titleLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Bearing', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
             
             addSpinner(app, { 'Parent', app.GridLayout, ...
                 'Limits',[min(app.Simulation.listAz), max(app.Simulation.listAz)], ...
@@ -82,7 +93,17 @@ classdef plotBathy1DUI < handle
         function plot1D(app, hObject, eventData)
             theta = get(app.handleSpinner(1), 'Value');
             nameProfile = sprintf('%s-%2.1f', app.Simulation.mooring.mooringName, theta);
-            app.Simulation.plotBathy1D(nameProfile)
+            figure;
+            switch app.plotType 
+                    case 'bathy1D'
+                        app.Simulation.plotBathy1D(nameProfile);
+                    case 'tl1D'
+                        app.Simulation.plotTL1D(nameProfile);
+                    case 'spl1D'
+                        app.Simulation.plotSPL1D(nameProfile);
+                    case 'se1D'
+                        app.Simulation.plotSE1D(nameProfile);
+            end
         end
     end
 
