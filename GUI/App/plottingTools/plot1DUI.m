@@ -56,12 +56,12 @@ classdef plot1DUI < handle
     properties (Hidden=true)
         % Size of the main window 
         Width = 350;
-        Height = 400;
+        Height = 350;
         % Define font style
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 6;
+        nbButton = 7;
         currButtonID = 0;
 
         % Sub-windows 
@@ -99,9 +99,7 @@ classdef plot1DUI < handle
             app.addButton('Plot SPL 1D', {@app.plot1D, 'spl1D'})
             app.addButton('Plot SE 1D',  {@app.plot1D, 'se1D'})
             app.addButton('Plot Detection function',  {@app.plot1D, 'df1D'})
-
             app.addButton('Plot SSP',  @app.plotSSP)
-
             app.addButton('Previous menu', {@app.goBackToPlottingToolsUI})
         end
     end

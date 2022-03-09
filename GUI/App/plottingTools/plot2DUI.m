@@ -56,12 +56,12 @@ classdef plot2DUI < handle
     properties (Hidden=true)
         % Size of the main window 
         Width = 350;
-        Height = 550;
+        Height = 400;
         % Define font style
         FontSize = 12;
         FontName = 'Arial';
         % Number of buttons to display in main window
-        nbButton = 12;
+        nbButton = 8;
         currButtonID = 0;
 
         % Sub-windows 
