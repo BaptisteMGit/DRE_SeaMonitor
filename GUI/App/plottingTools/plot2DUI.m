@@ -1,8 +1,7 @@
-
-classdef plottingToolsUI < handle
-    %PLOTTINGTOOLSUI Summary of this class goes here
+classdef plot2DUI < handle
+    %PLOT2DUI Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
         % Simulation handle 
         Simulation
@@ -16,9 +15,9 @@ classdef plottingToolsUI < handle
         handleDropDown
         handleButton
         % Name of the window 
-        Name = "Plotting tools";
+        Name = "2D plotting tools";
         % Icon 
-        Icon = 'Icons\PlottingTools-icon.png'
+        Icon = 'Icons\plot2D-icon.png'
     end
     
     properties (Dependent)
@@ -71,7 +70,7 @@ classdef plottingToolsUI < handle
     
     %% Constructor
     methods
-        function app = plottingToolsUI(simulation) 
+        function app = plot2DUI(simulation) 
             % Pass simulation handle 
             app.Simulation = simulation;
             % Figure 
@@ -95,24 +94,16 @@ classdef plottingToolsUI < handle
                                     'Units', 'normalized');
 
             % Buttons
-            
-            app.addButton('Plot Bathymetry 1D',  {@app.plot1D, 'bathy1D'})
+
             app.addButton('Plot Bathymetry 2D',  {@app.plot2D, 'bathy2D'})
-
-            app.addButton('Plot TL 1D', {@app.plot1D, 'tl1D'})
             app.addButton('Plot TL 2D', {@app.plot2D, 'tl2D'})
-           
-            app.addButton('Plot SPL 1D', {@app.plot1D, 'spl1D'})
             app.addButton('Plot SPL 2D', {@app.plot2D, 'spl2D'})
-
-            app.addButton('Plot SE 1D',  {@app.plot1D, 'se1D'})
             app.addButton('Plot SE 2D',  {@app.plot2D, 'se2D'})
-
             app.addButton('Plot detection probability map',  {@app.plot2D, 'DPM'})
             app.addButton('Plot detection range map',   {@app.plot2D, 'DRM'})
             app.addButton('Plot detection range polarplot',   {@app.plot2D, 'DRPP'})
 
-            app.addButton('Main menu', {@app.goBackToMainUI})
+            app.addButton('Previous menu', {@app.goBackToPlottingToolsUI})
         end
     end
 
@@ -129,7 +120,7 @@ classdef plottingToolsUI < handle
 
     %% Callback functions 
     methods 
-        function goBackToMainUI(app, hObject, eventData)
+        function goBackToPlottingToolsUI(app, hObject, eventData)
             % Close UI
             delete(app.Figure)
         end
@@ -139,7 +130,6 @@ classdef plottingToolsUI < handle
             app.Width = currentPos(3);
             app.Height = currentPos(4);
             pause(0.01) % To avoid freeze ending in visuals bugs           
-%             app.updateLabel
             app.updateButtons()
         end
 
@@ -154,14 +144,6 @@ classdef plottingToolsUI < handle
 
     %% Plot functions
     methods
-
-        function plot1D(app, hObject, eventData, type)
-            isLoaded = checkSimulationIsLoaded(app);
-            if isLoaded
-                app.subWindows{end+1} = selectProfileToPlot(app.Simulation, type);
-            end
-        end
-        
         function plot2D(app, hObject, eventData, type)
             isLoaded = checkSimulationIsLoaded(app);
             if isLoaded
@@ -262,4 +244,5 @@ classdef plottingToolsUI < handle
     end
 
 end
+
 

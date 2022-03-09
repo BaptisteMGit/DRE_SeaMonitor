@@ -42,6 +42,8 @@
         % Output grid 
         zt
         rt 
+        % SSP
+        ssp
 
         % Threshold that can be used to derived detection range from
         % detection function (detection probability along profile) 
@@ -61,7 +63,6 @@
     properties (Hidden)
         % Bellhop parameters 
         bottom
-        ssp
 
         % Bathy grid variables to avoid multiple call to griddata function
         % when plotting results
@@ -614,7 +615,10 @@
             fprintf(' %s DONE\n', linePts);
         end
         
-        %% Log
+        %% Write info to log file 
+        writeLogHeader(obj)
+        writeLogError(obj)
+        
         function writeLogHeader(obj)
             fileID = fopen(obj.logFile,'w');
             % Configuration 
@@ -780,7 +784,7 @@
             end
             obj.ssp = Ssp;
 
-            if i_theta == 1; obj.plotSsp; end
+            if i_theta == 1; obj.plotSSP('app'); end
         end
         
         function setReceiverPos(obj, bathyProfile)
@@ -849,8 +853,49 @@
             obj.rt = Pos.r.r;
             cd(obj.rootApp)
         end
+        %% Plotting tools functions
+        %%% 1D plots %%%%
+        plotBathy1D(obj, nameProfile)
+        plotTL1D(obj, nameProfile)
+        plotSPL1D(obj, nameProfile)
+        plotSE1D(obj, nameProfile)
+        plotDetectionFunction(obj, nameProfile)
+        plotSSP(obj, varargin)
+        %%% End 1D plots %%%%
+        
+        %%% 2D plots (map) %%%
+        % Grid data
+        gridTLData(obj) % Transmission loss (BELLHOP)
+        gridBathyData(obj) % Bathymetry (GEBCO)
+        gridDPData(obj) % Detection probability (App) 
+        
+        % Plot bathy
+        plotBathyContour(obj)
+        plotBathyPColor(obj)
+        
+        % Plot detection results 
+        radiusToPlot = getRadiusToPlot(obj) 
+        plotDetectionRangeContour(obj, varargin) 
+        plotDPM(obj) % Detection probability map 
+        plotDRM(obj) % Detection range map 
+        plotDRPP(obj) % Detection range polarplot
+        
+        % Plot 2D maps 
+        plotBathy2D(obj) % Bathy 2D
+        plotTL2D(obj) % Plot TL 2D
+        plotSPL2D(obj) % Plot SPL 2D
+        plotSE2D(obj) % Plot SE 2D
+        %%% End 2D plots (map) %%%
 
-        %% Plot functions
+        %% Derive detection capabilities 
+        addDetectionRange(obj, nameProfile)
+        addDetectionFunction(obj, nameProfile)
+
+        %% Delete useless files to spare memory 
+        deleteBellhopFiles(obj)
+        deleteBathyFiles(obj)
+
+% OLD VERSION BEFORE SEPARATING METHODS IN FILES (before 08/03/2022)
 %         function plotTL(obj, nameProfile, saveBool, bathyBool)
 %             figure('visible','off'); 
 %             cd(obj.rootOutputFiles)
@@ -919,142 +964,72 @@
 %             cd(obj.rootApp)
 %         end
 
-        function plotDR(obj)
-            % Limit
-            Rmax = max(obj.listDetectionRange);
-%             offset = 100;
-%             R = Rmax + offset;
-            %%% Polar plot %%% 
-            figure
-            polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
-            ax = gca;
-            ax.RLim = [0, Rmax+50];
-            % Save 
-            saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName)));
-            
-            %%% Map plot %%% 
-            figure
-            E = obj.dataBathy(:,1);
-            N = obj.dataBathy(:,2);
-            U = obj.dataBathy(:,3);
-            pts = 1E+3;
-
-            xGrid = linspace(-(Rmax+500), Rmax+500, pts);
-            yGrid = linspace(-(Rmax+500), Rmax+500, pts);   
-            [X,Y] = meshgrid(xGrid, yGrid);
-            zDep = griddata(E, N, U, X, Y);
-
-            pcolor(X, Y, zDep)
-            shading flat
-            hold on 
-            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
-            setBathyColormap(zDep)
-            hold on 
-            scatter(0, 0, 'filled', 'red') 
-
-            title('Simulated detection range')
-            xlabel('E [m]')
-            ylabel('N [m]')
-
-            [xx, yy] = pol2cart(obj.listAz * pi/180, obj.listDetectionRange);
-            plot(xx, yy, 'k', 'LineWidth', 2)
-            legend({'', '', 'Mooring', sprintf('%s detection range', obj.detectionRangeThreshold)})
-            % Save 
-            saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
-        end
-        
-        function plotBathyENU(obj)
-            E = obj.dataBathy(:,1);
-            N = obj.dataBathy(:,2);
-            U = obj.dataBathy(:,3);
-            pts = 1E+3;
-            xGrid = linspace(min(E), max(E), pts);
-            yGrid = linspace(min(N), max(N), pts);
-            [X,Y] = meshgrid(xGrid, yGrid);
-            zDep = griddata(E, N, U, X, Y);
-
-            pcolor(X, Y, zDep)
-            shading flat
-            hold on 
-            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
-            setBathyColormap(zDep)
-            hold on 
-            scatter(0, 0, 'filled', 'red') 
-
-            title('Simulated detection range')
-            xlabel('E [m]')
-            ylabel('N [m]')
-        end
-
-        function plotSsp(obj)
-            figure('visible','off');
-            plot(obj.ssp.c, obj.ssp.z)
-            xlabel('Celerity (m.s-1)')
-            ylabel('Depth (m)')
-            title({'Celerity profile at the mooring position', 'Derived with Mackenzie equation'})
-            set(gca, 'YDir', 'reverse')
-            saveas(gcf, fullfile(obj.rootSaveInput, 'CelerityProfile.png'))
-            close(gcf)
-        end
-        
-        function plotDetectionFunction(obj, nameProfile, detectionFunction, detectionRange)            
-            figure('visible','off');
-            plot(obj.rt, detectionFunction)
-            xlabel('Range [m]')
-            ylabel('Detection probability')
-            hold on 
-            yline(str2double(obj.detectionRangeThreshold(1:end-1))/100, '--r', 'LineWidth', 1, 'Label', sprintf('%s detection threshold', obj.detectionRangeThreshold))
-            hold on 
-            xline(detectionRange, '--g', 'LineWidth', 1, 'Label', sprintf('%s detection range = %dm', obj.detectionRangeThreshold, round(detectionRange, 0)),...
-                'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'top')
-            title({sprintf('Detection function - %s', nameProfile)})
-
-            current = pwd;
-            cd(obj.rootOutputFigures)
-            saveas(gcf, sprintf('%s_DetectionFunction.png', nameProfile));
-            close(gcf);
-            cd(current)
-        end
-
-        
-        %% Plotting tools functions
-        %%% 1D plots %%%%
-        plotBathy1D(obj, nameProfile)
-        plotTL1D(obj, nameProfile)
-        plotSPL1D(obj, nameProfile)
-        plotSE1D(obj, nameProfile)
-        %%% End 1D plots %%%%
-        
-        %%% 2D plots (map) %%%
-        % Grid data
-        gridTLData(obj) % Transmission loss (BELLHOP)
-        gridBathyData(obj) % Bathymetry (GEBCO)
-        gridDPData(obj) % Detection probability (App) 
-        
-        % Plot bathy
-        plotBathyContour(obj)
-        plotBathyPColor(obj)
-        
-        % Plot detection results 
-        radiusToPlot = getRadiusToPlot(obj) 
-        plotDetectionRangeContour(obj, varargin) 
-        plotDPM(obj) % Detection probability map 
-        plotDRM(obj) % Detection range map 
-        plotDRPP(obj) % Detection range polarplot
-        
-        % Plot 2D maps 
-        plotBathy2D(obj) % Bathy 2D
-        plotTL2D(obj) % Plot TL 2D
-        plotSPL2D(obj) % Plot SPL 2D
-        plotSE2D(obj) % Plot SE 2D
-
-        %% Derive detection capabilities 
-        addDetectionRange(obj, nameProfile)
-        addDetectionFunction(obj, nameProfile)
-
-        %% Delete useless files to spare memory 
-        deleteBellhopFiles(obj)
-        deleteBathyFiles(obj)
+%         function plotDR(obj)
+%             % Limit
+%             Rmax = max(obj.listDetectionRange);
+% %             offset = 100;
+% %             R = Rmax + offset;
+%             %%% Polar plot %%% 
+%             figure
+%             polarplot(obj.listAz * pi / 180, obj.listDetectionRange)
+%             ax = gca;
+%             ax.RLim = [0, Rmax+50];
+%             % Save 
+%             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_polarDREstimate.png', obj.mooring.mooringName)));
+%             
+%             %%% Map plot %%% 
+%             figure
+%             E = obj.dataBathy(:,1);
+%             N = obj.dataBathy(:,2);
+%             U = obj.dataBathy(:,3);
+%             pts = 1E+3;
+% 
+%             xGrid = linspace(-(Rmax+500), Rmax+500, pts);
+%             yGrid = linspace(-(Rmax+500), Rmax+500, pts);   
+%             [X,Y] = meshgrid(xGrid, yGrid);
+%             zDep = griddata(E, N, U, X, Y);
+% 
+%             pcolor(X, Y, zDep)
+%             shading flat
+%             hold on 
+%             contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
+%             setBathyColormap(zDep)
+%             hold on 
+%             scatter(0, 0, 'filled', 'red') 
+% 
+%             title('Simulated detection range')
+%             xlabel('E [m]')
+%             ylabel('N [m]')
+% 
+%             [xx, yy] = pol2cart(obj.listAz * pi/180, obj.listDetectionRange);
+%             plot(xx, yy, 'k', 'LineWidth', 2)
+%             legend({'', '', 'Mooring', sprintf('%s detection range', obj.detectionRangeThreshold)})
+%             % Save 
+%             saveas(gcf, fullfile(obj.rootOutputFigures, sprintf('%s_DREstimate.png', obj.mooring.mooringName)));
+%         end
+%         
+%         function plotBathyENU(obj)
+%             E = obj.dataBathy(:,1);
+%             N = obj.dataBathy(:,2);
+%             U = obj.dataBathy(:,3);
+%             pts = 1E+3;
+%             xGrid = linspace(min(E), max(E), pts);
+%             yGrid = linspace(min(N), max(N), pts);
+%             [X,Y] = meshgrid(xGrid, yGrid);
+%             zDep = griddata(E, N, U, X, Y);
+% 
+%             pcolor(X, Y, zDep)
+%             shading flat
+%             hold on 
+%             contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
+%             setBathyColormap(zDep)
+%             hold on 
+%             scatter(0, 0, 'filled', 'red') 
+% 
+%             title('Simulated detection range')
+%             xlabel('E [m]')
+%             ylabel('N [m]')
+%         end
 
     end
 end

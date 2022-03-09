@@ -16,9 +16,9 @@ classdef selectProfileToPlot < handle
         % Name of the window 
         Name = "Select profile to plot";
         % Icon 
-        Icon = 'Icons\plotBathy1D-icon.png'
+        Icon = 'Icons\plot1D-icon.png'
         % Type of plot
-    plotType
+        plotType
     end
 
   properties (Hidden=true)
@@ -103,6 +103,8 @@ classdef selectProfileToPlot < handle
                         app.Simulation.plotSPL1D(nameProfile);
                     case 'se1D'
                         app.Simulation.plotSE1D(nameProfile);
+                    case 'df1D'
+                        app.Simulation.plotDetectionFunction(nameProfile);   
             end
         end
     end
