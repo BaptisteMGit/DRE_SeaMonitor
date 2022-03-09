@@ -16,10 +16,6 @@ function gridTLData(obj)
         nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta_i);
         filename = sprintf('%s.shd', nameProfile);
         [tl_i, ~, ~] = computeTL(filename); % Transmission loss
-%         E_i = obj.rt * cos(theta_i*pi/180);
-%         N_i = obj.rt * sin(theta_i*pi/180);
-%         TL_i = tl_i;
-%         max(tl_i)
         [E_i, N_i, TL_i] = pol2cart(theta_i*pi/180, obj.rt, tl_i);
         
         % Median TL

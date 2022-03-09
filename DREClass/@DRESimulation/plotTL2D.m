@@ -1,7 +1,7 @@
 function plotTL2D(obj)
     if ~obj.TLDataIsGridded; obj.gridTLData; end
     % Plot TL 
-    h = pcolor(obj.Xgrid, obj.Ygrid, obj.TLgrid);
+    pcolor(obj.Xgrid, obj.Ygrid, obj.TLgrid);
     shading interp
     colormap(flipud(jet))
     a = colorbar;

@@ -1,12 +1,14 @@
 function plotSE1D(obj, nameProfile)
     cd(obj.rootOutputFiles)
     % SE
-    varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
-    [obj.spl, ~, ~] = computeSPL(varSpl{:});
+    varargin = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
+    [spl, ~, ~] = computeSPL(varargin{:});
 
-    SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
-        'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
-    plotSE(SEArgin{:});
+    varargin = {'SPL', spl, 'Depth', obj.zt, 'Range', obj.rt, ...
+        'NL', obj.noiseEnvironment.noiseLevel, 'DT', obj.detector.detectionThreshold, ...
+        'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
+    plotSE(varargin{:})
+    
     title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
     % Bathy
     plotbty(nameProfile);

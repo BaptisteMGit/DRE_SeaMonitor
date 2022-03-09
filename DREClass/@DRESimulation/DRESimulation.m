@@ -62,20 +62,24 @@
         % Bellhop parameters 
         bottom
         ssp
-        % Output
-        spl
+
         % Bathy grid variables to avoid multiple call to griddata function
         % when plotting results
         bathyDataIsGridded = 0; % Boolean to check if data is allready gridded
         Xgrid
         Ygrid
         Zgrid
+
         % TL grid data to avoid multiple call to griddata function 
         TLDataIsGridded = 0; % Boolean to check if data is allready gridded
         TLgrid
         % Color bar limits 
         tlmin
         tlmax 
+        
+        % DP grid data to avoid multiple call to griddata function 
+        DPDataIsGridded = 0; % Boolean to check if data is allready gridded
+        DPgrid
 
         % Figure for the app 
         appUIFigure 
@@ -480,9 +484,9 @@
             
             if flag % The all process terminated without any error 
                 % Plot detection range (polar plot and map) 
-                obj.plotDR()
+                obj.plotDRM()
                 % Plot detection probability 
-                obj.plotDetectionProbability2D()
+                obj.plotDPM()
                 % Write CPU time to the log file 
                 obj.CPUtime = toc(tStart);
                 obj.writeLogEnd()
@@ -847,73 +851,73 @@
         end
 
         %% Plot functions
-        function plotTL(obj, nameProfile, saveBool, bathyBool)
-            figure('visible','off'); 
-            cd(obj.rootOutputFiles)
-            plotshd( sprintf('%s.shd', nameProfile));
-            a = colorbar;
-            a.Label.String = 'Transmission Loss (dB ref 1\muPa)';
+%         function plotTL(obj, nameProfile, saveBool, bathyBool)
+%             figure('visible','off'); 
+%             cd(obj.rootOutputFiles)
+%             plotshd( sprintf('%s.shd', nameProfile));
+%             a = colorbar;
+%             a.Label.String = 'Transmission Loss (dB ref 1\muPa)';
+% 
+%             if bathyBool
+%                 plotbty( nameProfile );
+%             end
+%             
+%             scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+% 
+%             if saveBool
+%                 cd(obj.rootOutputFigures)
+%                 saveas(gcf, sprintf('%s_TL.png', nameProfile));
+%             end
+%             close(gcf);
+%             cd(obj.rootApp)
+%         end
 
-            if bathyBool
-                plotbty( nameProfile );
-            end
-            
-            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
-
-            if saveBool
-                cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%s_TL.png', nameProfile));
-            end
-            close(gcf);
-            cd(obj.rootApp)
-        end
-
-        function plotSPL(obj, nameProfile, saveBool, bathyBool)
-            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
-            figure('visible','off');
-            cd(obj.rootOutputFiles)
-            plotSPL(varSpl{:});
-            a = colorbar;
-            a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
-
-            if bathyBool
-                plotbty( nameProfile );
-            end
-
-            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
-
-            if saveBool
-                cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%s_SPL.png', nameProfile));
-            end
-            close(gcf);
-            cd(obj.rootApp)
-        end
+%         function plotSPL(obj, nameProfile, saveBool, bathyBool)
+%             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
+%             figure('visible','off');
+%             cd(obj.rootOutputFiles)
+%             plotSPL(varSpl{:});
+%             a = colorbar;
+%             a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
+% 
+%             if bathyBool
+%                 plotbty( nameProfile );
+%             end
+% 
+%             scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+% 
+%             if saveBool
+%                 cd(obj.rootOutputFigures)
+%                 saveas(gcf, sprintf('%s_SPL.png', nameProfile));
+%             end
+%             close(gcf);
+%             cd(obj.rootApp)
+%         end
     
-        function plotSE(obj, nameProfile, saveBool, bathyBool)
-            cd(obj.rootOutputFiles)
-            varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
-            [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
-            
-            figure('visible','off');
-            SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
-                'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
-            plotSE(SEArgin{:});
-            title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
-
-            if bathyBool
-                plotbty( nameProfile );
-            end
-
-            scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
-
-            if saveBool
-                cd(obj.rootOutputFigures)
-                saveas(gcf, sprintf('%s_SE.png', nameProfile));
-            end
-            close(gcf);
-            cd(obj.rootApp)
-        end
+%         function plotSE(obj, nameProfile, saveBool, bathyBool)
+%             cd(obj.rootOutputFiles)
+%             varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};
+%             [obj.spl, obj.zt, obj.rt] = computeSPL(varSpl{:});
+%             
+%             figure('visible','off');
+%             SEArgin = {'SPL', obj.spl, 'Depth', obj.zt, 'Range', obj.rt, 'NL', obj.noiseEnvironment.noiseLevel,...
+%                 'DT', obj.detector.detectionThreshold, 'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
+%             plotSE(SEArgin{:});
+%             title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
+% 
+%             if bathyBool
+%                 plotbty( nameProfile );
+%             end
+% 
+%             scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+% 
+%             if saveBool
+%                 cd(obj.rootOutputFigures)
+%                 saveas(gcf, sprintf('%s_SE.png', nameProfile));
+%             end
+%             close(gcf);
+%             cd(obj.rootApp)
+%         end
 
         function plotDR(obj)
             % Limit
@@ -1011,30 +1015,7 @@
             close(gcf);
             cd(current)
         end
-        
-        function plotDetectionProbability2D(obj)
-            figure('visible','on');
 
-            E = obj.dataBathy(:,1);
-            N = obj.dataBathy(:,2);
-            U = obj.dataBathy(:,3);
-            pts = 1E+3;
-            xGrid = linspace(min(E), max(E), pts);
-            yGrid = linspace(min(N), max(N), pts);
-            [X,Y] = meshgrid(xGrid, yGrid);
-            zDep = griddata(E, N, U, X, Y);
-            contour(X, Y, zDep, 'k', 'ShowText','on', 'LabelSpacing', 1000)
-            hold on 
-            plotDetectionProbability2D(obj.listAz*pi/180, obj.rt, obj.listDetectionFunction)
-            xlim([-500, 500])
-            ylim([-500, 500])
-
-            current = pwd;
-            cd(obj.rootOutputFigures)
-            saveas(gcf, 'DetectionProbability.png');
-            close(gcf);
-            cd(current)
-        end
         
         %% Plotting tools functions
         %%% 1D plots %%%%
@@ -1046,8 +1027,9 @@
         
         %%% 2D plots (map) %%%
         % Grid data
-        gridTLData(obj)
-        gridBathyData(obj) 
+        gridTLData(obj) % Transmission loss (BELLHOP)
+        gridBathyData(obj) % Bathymetry (GEBCO)
+        gridDPData(obj) % Detection probability (App) 
         
         % Plot bathy
         plotBathyContour(obj)

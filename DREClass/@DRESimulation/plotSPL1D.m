@@ -1,8 +1,8 @@
 function plotSPL1D(obj, nameProfile)
     cd(obj.rootOutputFiles)
     % SPL
-    varSpl = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
-    plotSPL(varSpl{:});
+    varargin = {'filename',  sprintf('%s.shd', nameProfile), 'SL', obj.marineMammal.signal.sourceLevel};            
+    plotSPL(varargin{:});
     a = colorbar;
     a.Label.String = 'Sound Pressure Level (dB ref 1\muPa)';
     % Bathy

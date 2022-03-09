@@ -11,7 +11,7 @@ function plotSE2D(obj)
     dt = obj.detector.detectionThreshold;
     SEgrid = SNRgrid - dt; 
     
-    h = pcolor(obj.Xgrid, obj.Ygrid, SEgrid);
+    pcolor(obj.Xgrid, obj.Ygrid, SEgrid);
     shading interp
     colormap(red2white)
     a = colorbar;

@@ -3,7 +3,7 @@ function plotSPL2D(obj)
     % Plot SPL
     sl = obj.marineMammal.signal.sourceLevel;
     SPLgrid = sl - obj.TLgrid;
-    h = pcolor(obj.Xgrid, obj.Ygrid, SPLgrid);
+    pcolor(obj.Xgrid, obj.Ygrid, SPLgrid);
     shading interp
     colormap(jet)
     a = colorbar;
