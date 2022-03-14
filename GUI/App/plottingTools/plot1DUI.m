@@ -149,6 +149,7 @@ classdef plot1DUI < handle
         end
 
         function plotSSP(app, hObject, eventData)
+            figure;
             app.Simulation.plotSSP()
         end
     end

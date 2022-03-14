@@ -11,7 +11,7 @@ function plotBathyPColor(obj) % Plot bathy pcolor
     setBathyColormap(obj.Zgrid)
     hold on 
     % Mooring point
-    scatter(0, 0, 'filled', 'red') 
+    scatter(0, 0, 'filled', 'dk') 
 
     title(obj.mooring.mooringName)
     xlabel('E [m]')

@@ -25,7 +25,7 @@ function writeLogHeader(obj)
     fprintf(fileID, '\tTL: %s\n', obj.bellhopEnvironment.runTypeLabel);
     fprintf(fileID, '\tBeam type: %s\n', obj.bellhopEnvironment.beamTypeLabel);
     fprintf(fileID, '\tSsp option: %s\n', obj.bellhopEnvironment.SspOption);
-    fprintf(fileID, '\tAzimuth resolution: %.1f°\n', abs(obj.listAz(2)-obj.listAz(1)));
+    fprintf(fileID, '\tBearing resolution: %.1f°\n', abs(obj.listAz(2)-obj.listAz(1)));
     fprintf(fileID, '__________________________________________________________________________\n\n');
 
     fprintf(fileID, 'Environment\n\n');

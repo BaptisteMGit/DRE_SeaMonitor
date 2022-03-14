@@ -34,8 +34,10 @@ classdef selectProfileToPlot < handle
     LabelFontSize_title = 16;
     LabelFontSize_text = 14;
     LabelFontWeight_title = 'bold';
-    LabelFontWeight_text = 'normal';
-        
+    LabelFontWeight_text = 'normal'; 
+
+    figureIsAlreadyPlot = 0;
+    lgd
     end
 
     properties (Dependent)
@@ -82,7 +84,7 @@ classdef selectProfileToPlot < handle
                 'Limits',[min(app.Simulation.listAz), max(app.Simulation.listAz)], ...
                 'Step', app.Simulation.bearingStep, 'ValueDisplayFormat', '%.1f°', ...
                 'LayoutPosition', struct('nRow', 2, 'nCol', 4), ...
-                'Editable', 'off'})
+                'Editable', 'off', 'ValueChangedFcn', @app.changedBearingFcn})
 
             addButton(app, {'Name', 'Plot', ...
                 'ButtonPushedFcn', @app.plot1D ...
@@ -104,7 +106,37 @@ classdef selectProfileToPlot < handle
                     case 'se1D'
                         app.Simulation.plotSE1D(nameProfile);
                     case 'df1D'
-                        app.Simulation.plotDetectionFunction(nameProfile);   
+                        app.Simulation.plotDetectionFunction(nameProfile);  
+                        app.lgd = {sprintf('\\theta = %.1f', theta), '', ''};
+                        legend(app.lgd)
+            end
+            app.figureIsAlreadyPlot = 1;
+        end
+
+        function changedBearingFcn(app, hObject, eventData)
+%             f = gcf;
+            if app.figureIsAlreadyPlot
+                theta = get(app.handleSpinner(1), 'Value');
+                nameProfile = sprintf('%s-%2.1f', app.Simulation.mooring.mooringName, theta);
+                switch app.plotType 
+                        case 'bathy1D'
+                            app.Simulation.plotBathy1D(nameProfile);
+                        case 'tl1D'
+                            app.Simulation.plotTL1D(nameProfile);
+                        case 'spl1D'
+                            app.Simulation.plotSPL1D(nameProfile);
+                        case 'se1D'
+                            app.Simulation.plotSE1D(nameProfile);
+                        case 'df1D'
+                            app.Simulation.plotDetectionFunction(nameProfile); 
+                            % Update legend
+                            newEntry = {sprintf('\\theta = %.1f', theta), '', ''}   ;
+                            app.lgd = [app.lgd(:)', newEntry];
+                            legend(app.lgd)
+                            lgdObject = legend;
+                            lgdObject.NumColumns = ceil(numel(lgdObject.String)/5);
+                end
+
             end
         end
     end
@@ -112,6 +144,7 @@ classdef selectProfileToPlot < handle
     methods
         function fPosition = get.fPosition(app)
             fPosition = getFigurePosition(app);
+            fPosition(2) = fPosition(2) - 250; % posY 
         end
     end
 end

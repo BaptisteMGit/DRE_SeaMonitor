@@ -27,7 +27,7 @@ classdef BellhopEnvironment < handle
         % Beam
         runType1Default = 'S'; % 'C': Coherent, 'I': Incoherent, 'S': Semi-coherent, 'R': ray, 'E': Eigenray, 'A': Amplitudes and travel times 
         runType2Default = 'B'; % 'G': Geometric beams (default), 'C': Cartesian beams, 'R': Ray-centered beams, 'B': Gaussian beam bundles.
-        NbeamsDefault = 5001; % Number of launching angles
+        NbeamsDefault = 1001; % Number of launching angles
         alphaDefault = [-89, 89]; % Launching angles in degrees
         deltasDefault = 0; % Ray-step (m) used in the integration of the ray and dynamic equations, 0 let bellhop choose 
     end

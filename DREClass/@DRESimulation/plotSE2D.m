@@ -26,8 +26,10 @@ function plotSE2D(obj)
     hold on
 
     % Add mooring position 
-    scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+    scatter(0, obj.receiverPos.s.z, 50, 'filled', 'dk')
     
     % Legend
     legend({'', '', 'Mooring'})
+    % Title 
+    title('Signal Excess Map', obj.mooring.mooringName)
 end

@@ -89,7 +89,6 @@
 
         % Boolean to check if simu is loaded 
         simuIsLoaded = 0;
-        
     end
 
     properties (Dependent, Hidden=true)
@@ -212,9 +211,9 @@
         % Plot detection results 
         radiusToPlot = getRadiusToPlot(obj) 
         plotDetectionRangeContour(obj, varargin) 
-        plotDPM(obj) % Detection probability map 
-        plotDRM(obj) % Detection range map 
-        plotDRPP(obj) % Detection range polarplot
+        plotDPM(obj, varargin) % Detection probability map 
+        plotDRM(obj, varargin) % Detection range map 
+        plotDRPP(obj, varargin) % Detection range polarplot
         
         % Plot 2D maps 
         plotBathy2D(obj) % Bathy 2D

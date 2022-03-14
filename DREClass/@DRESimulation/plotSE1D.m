@@ -8,12 +8,17 @@ function plotSE1D(obj, nameProfile)
         'NL', obj.noiseEnvironment.noiseLevel, 'DT', obj.detector.detectionThreshold, ...
         'zTarget', obj.marineMammal.livingDepth, 'deltaZ', obj.marineMammal.deltaLivingDepth};
     plotSE(varargin{:})
+    hold on
     
-    title(sprintf('Signal excess - %s', nameProfile), 'SE = SNR - DT')    
     % Bathy
     plotbty(nameProfile);
     hold on
+
     % Source point
     scatter(0, obj.receiverPos.s.z, 50, 'filled', 'k')
+
+    % Title
+    title('Signal Excess', nameProfile)
+
     cd(obj.rootApp)
 end

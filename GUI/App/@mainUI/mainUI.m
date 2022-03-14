@@ -107,12 +107,12 @@ classdef mainUI < handle
 
             % Buttons
             addButton(app, 'Load simulation', @app.loadSimulationButtonPushed)
-            addButton(app, 'Configure Environment',  @app.configEnvironmentButtonPushed)
-            addButton(app, 'Run DRE', @app.runDREButtonPushed)
-            addButton(app, 'Recompute detection range(new NL/DT)', @app.recomputeDRButtonPushed)
-            addButton(app, 'Plotting Tools', @app.plottingToolsButtonPushed)
+            addButton(app, 'Edit environment',  @app.configEnvironmentButtonPushed)
+            addButton(app, 'Run simulation', @app.runDREButtonPushed)
+            addButton(app, 'Recompute results(new NL/DT)', @app.recomputeDRButtonPushed)
+            addButton(app, 'Plotting tools', @app.plottingToolsButtonPushed)
             addButton(app, 'Save simulation', @app.saveSimulationButtonPushed)
-            addButton(app, 'Exit App', {@app.exitAppButtonPushed})
+            addButton(app, 'Exit app', {@app.exitAppButtonPushed})
             
             % Main label 
             app.Label = uilabel(app.Figure, ....

@@ -11,6 +11,9 @@ function plotSSP(obj, varargin)
         'mooring position'], 'Derived with Mackenzie equation'})
     set(gca, 'YDir', 'reverse')
 
+    % Title 
+    title('Sound Celerity Profile', obj.mooring.mooringName)
+
     if nargin > 1 && strcmp(varargin(1), 'app')
         saveas(gcf, fullfile(obj.rootSaveInput, 'CelerityProfile.png'))
         close(gcf)

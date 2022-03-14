@@ -29,7 +29,7 @@ classdef editSeabedEnvironmentUI < handle
 
     properties (Hidden=true)
         % Size of the main window 
-        Width = 400;
+        Width = 450;
         Height = 300;
         % Number of components 
         glNRow = 8;
@@ -77,7 +77,7 @@ classdef editSeabedEnvironmentUI < handle
             % Grid Layout
             app.GridLayout = uigridlayout(app.Figure, [app.glNRow, app.glNRow]);
             app.GridLayout.ColumnWidth{1} = 10;
-            app.GridLayout.ColumnWidth{2} = 170;
+            app.GridLayout.ColumnWidth{2} = 'fit';
             app.GridLayout.ColumnWidth{3} = 5;
             app.GridLayout.ColumnWidth{4} = 150;
             app.GridLayout.ColumnWidth{5} = 5;

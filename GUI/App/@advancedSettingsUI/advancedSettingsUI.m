@@ -156,7 +156,7 @@ classdef advancedSettingsUI < handle
             app.Simulation.bellhopEnvironment.beam.RunType(2) = app.beamType;
             app.Simulation.bellhopEnvironment.beam.Nbeams = get(app.handleEditField(3), 'Value');
             app.Simulation.bellhopEnvironment.beam.alpha(1) = abs(get(app.handleEditField(4), 'Value'));
-            app.Simulation.bellhopEnvironment.beam.alpha(2) = abs(get(app.handleEditField(4), 'Value'));
+            app.Simulation.bellhopEnvironment.beam.alpha(2) = -abs(get(app.handleEditField(4), 'Value'));
         end
 
         function saveSettings(app, hObject, eventData)

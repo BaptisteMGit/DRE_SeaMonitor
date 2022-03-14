@@ -64,7 +64,7 @@ function flag = runSimulation(obj)
         % Check for Cancel button press
         if d.CancelRequested
             flagBreak = ~flagBreak;
-            fprintf('Execution canceled by user.')
+%             fprintf('Execution canceled by user.')
             break
         end
 
@@ -74,8 +74,21 @@ function flag = runSimulation(obj)
             d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...\n', ...
                     'Estimating time remaining ...'], theta);
         else 
-            d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
-                '\nAbout %dh and %dmin remaining'], theta, Tr.hour, Tr.min);
+            
+            if T_remaining >= 3600
+                fprintf('About %dh and %dmin remaining\n', Tr.hour, Tr.min)
+                d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
+                                '\nAbout %dh and %dmin remaining'], theta, Tr.hour, Tr.min);
+            elseif T_remaining >= 60
+                fprintf('About %dmin remaining\n', Tr.min)
+                d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
+                                '\nAbout %dmin remaining'], theta, Tr.min);
+            else
+                fprintf('Less than 1 min remaining\n')
+                d.Message = sprintf(['Computing detection range for azimuth = %2.1f° ...', ...
+                                '\nLess than 1 min remaining'], theta);
+            end
+            
         end
         nameProfile = sprintf('%s-%2.1f', obj.mooring.mooringName, theta);
 
@@ -126,21 +139,20 @@ function flag = runSimulation(obj)
         % Estimating remaining time 
         T_remaining = T_averageIteration * (numel(obj.listAz) - i_theta);
         Tr = secondToMinuteHour(T_remaining);
-        fprintf('About %dh and %dmin remaining\n', Tr.hour, Tr.min)
     end   
-    
-    close(d) 
     
     if flag % The all process terminated without any error 
         % Plot detection range (polar plot and map) 
-        obj.plotDRM()
+        obj.plotDRM('app')
         % Plot detection probability 
-        obj.plotDPM()
+        obj.plotDPM('app')
         % Write CPU time to the log file 
         obj.CPUtime = toc(tStart);
         obj.writeLogEnd()
         % Delete prt and env files when all process is done to save memory
         obj.deleteBellhopFiles()
+        % Delete bathymetry files 
+        obj.deleteBathyFiles
         % Simulation is considered loaded 
         obj.simuIsLoaded = 1; 
         
@@ -151,4 +163,13 @@ function flag = runSimulation(obj)
         % Write error message to log file  
         obj.writeLogError()
     end
+    
+    % Open log files 
+    cd(obj.rootSaveResult)
+    open('log.txt')
+    cd(obj.rootApp)
+
+    % Close dialog box
+    close(d) 
+
 end

@@ -11,10 +11,10 @@ classdef OceanEnvironement < handle
         dBox 
         connectionFailed = 0;
 
-    % TODO: check these values to take mean ocean values 
-    defaultTemperatureC = 10;
-    defaultSalinity = 35;
-    defaultpH = 8;
+        % TODO: check these values -> ocean mean values 
+        defaultTemperatureC = 10;
+        defaultSalinity = 35;
+        defaultpH = 8;
     end
 
     %% Constructor 

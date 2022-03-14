@@ -7,10 +7,6 @@ classdef SeabedEnvironment < handle
         bottom
     end
 
-%     properties (Dependent)
-%         bottom
-%     end
-
     methods
         function obj = SeabedEnvironment(sedimentType)
             if nargin >= 1; obj.sedimentType = sedimentType; end

@@ -1,5 +1,10 @@
-function plotDPM(obj) 
+function plotDPM(obj, varargin) 
 % Detection probability map 
+
+    if nargin > 1 && strcmp(varargin(1), 'app')
+        figure('visible','off');
+    end
+
     % Detection probability   
     if ~obj.DPDataIsGridded; obj.gridDPData; end
     pcolor(obj.Xgrid, obj.Ygrid, obj.DPgrid);
@@ -9,7 +14,7 @@ function plotDPM(obj)
     c.Label.String = 'Detection probability';
     caxis([0, 1])
     hold on 
-    scatter(0, 0, 'filled', 'red') 
+    scatter(0, 0, 'filled', 'db') 
     hold on 
     % Bathy contour 
     obj.plotBathyContour()
@@ -17,7 +22,6 @@ function plotDPM(obj)
     % Detection range 
     obj.plotDetectionRangeContour('--b', 2) 
     setProbabilityColormap()
-    hold off
     % auto scale
     r = obj.getRadiusToPlot(); 
     xlim([-r, r])
@@ -27,5 +31,13 @@ function plotDPM(obj)
     xlabel('E [m]')
     ylabel('N [m]')
     legend({'', 'Mooring', '', 'Detection range'})
+    % Title 
+    title('Detection Probability Map', obj.mooring.mooringName)
 
+    hold off
+
+    if nargin > 1 && strcmp(varargin(1), 'app')
+        saveas(gcf, fullfile(obj.rootOutputFigures, 'DetectionProbabilityMap.png'))
+        close(gcf)
+    end
 end

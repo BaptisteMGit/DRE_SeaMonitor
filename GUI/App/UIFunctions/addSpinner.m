@@ -11,6 +11,7 @@ function addSpinner(app, varargin)
     step = getVararginValue(varargin, 'Step', 1);
     valueDisplayFormat = getVararginValue(varargin, 'ValueDisplayFormat', '%11.4g');
     valueChangedFcn = getVararginValue(varargin, 'ValueChangedFcn', '');
+    valueChangingFcn = getVararginValue(varargin, 'ValueChangingFcn', '');
     layoutPosition = getVararginValue(varargin, 'LayoutPosition', struct('nRow', [], 'nCol', []));
     editable = getVararginValue(varargin, 'Editable', 'on');
     enable = getVararginValue(varargin, 'Enable', 'on');
@@ -25,7 +26,11 @@ function addSpinner(app, varargin)
                 'Enable', enable);
 
     if  ~isempty(valueChangedFcn)
-        set(spinner, 'ValueChangerFcn', valueChangedFcn)
+        set(spinner, 'ValueChangedFcn', valueChangedFcn)
+    end
+    
+    if  ~isempty(valueChangingFcn)
+        set(spinner, 'ValueChangingFcn', valueChangingFcn)
     end
     
     if ~(isempty(layoutPosition.nRow) || isempty(layoutPosition.nCol))
