@@ -65,9 +65,9 @@ classdef Recording < handle
             if ~isempty(obj.listRecordingFile)
                 [~, fs] = audioread(obj.listRecordingFile{1}, [1:2]);
                 fNyquist = fs/2;
-                if obj.frequencyRange.max > fNyquist
+                if obj.frequencyRange.max >= fNyquist
                     bool = 0;
-                    msg{end+1} = sprintf('Maximum frequency exceed Nyquist frequency %.2fHz for the selected file. Please select another sound file or change frequency band.', fNyquist) ;
+                    msg{end+1} = sprintf('Frequency band upper bound exceeds Nyquist frequency %.2fHz for the selected file. Please select another sound file or change frequency band.', fNyquist) ;
                 end
             end
         end

@@ -187,10 +187,13 @@ classdef configEnvironmentUI < handle
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSediments, 'Value', app.sedimentType, ...
                 'ValueChangedFcn', @app.sedimentTypeChanged, 'LayoutPosition',  struct('nRow', 15, 'nCol', [4, 7])})
             % Detection range 
+            % Threshold
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableDRThreshold, 'Value', app.Simulation.detectionRangeThreshold, ...
                 'ValueChangedFcn', @app.detectionRangeThresholdChanged, 'LayoutPosition',  struct('nRow', 20, 'nCol', [4, 7])})
+            % Off-axis distribution
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableOffAxisDistribution, 'Value', app.Simulation.offAxisDistribution, ...
                 'ValueChangedFcn', @app.offAxisDistributionChanged, 'LayoutPosition',  struct('nRow', 21, 'nCol', [4, 7])})
+            % Off-axis attenuation
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableOffAxisAttenuation, 'Value', app.Simulation.offAxisAttenuation, ...
                 'ValueChangedFcn', @app.offAxisAttenuationChanged, 'LayoutPosition',  struct('nRow', 22, 'nCol', [4, 7])})
 
@@ -436,6 +439,9 @@ classdef configEnvironmentUI < handle
         
         function offAxisDistributionChanged(app, hObject, eventData)
             app.Simulation.offAxisDistribution = hObject.Value;
+            if strcmp(app.Simulation.offAxisDistribution, 'Near on-axis')
+                app.subWindows{end+1} = selectSigmaHUI(app.Simulation);
+            end
         end
 
         function offAxisAttenuationChanged(app, hObject, eventData)
@@ -505,10 +511,6 @@ classdef configEnvironmentUI < handle
             fPosition = getFigurePosition(app);
         end
     end 
-
-    %% Set methods 
-    methods 
-    end
 
     %% Check functions 
     % Functions to ensure all parameters are fitting with the program

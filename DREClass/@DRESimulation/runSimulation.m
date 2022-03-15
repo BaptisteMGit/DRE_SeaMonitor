@@ -16,6 +16,9 @@ function flag = runSimulation(obj)
 
     obj.getBathyData();
     
+    d.Message = 'Checking python configuration...';
+    obj.setPythonEnv()
+
     d.Message = 'Downloading T, S, pH data from CMEMS...';
     obj.setOceanEnvironment()     
     
@@ -164,9 +167,12 @@ function flag = runSimulation(obj)
         obj.writeLogError()
     end
     
-    % Open log files 
+    % Write log content in console 
     cd(obj.rootSaveResult)
-    open('log.txt')
+    lines = readlines("log.txt");
+    fprintf('\n\n############\nLOG REPORT\n############\n\n')
+    fprintf('%s\n', lines)
+%     disp(lines)
     cd(obj.rootApp)
 
     % Close dialog box

@@ -8,5 +8,10 @@
 %         app = AppDRE;
 % end
 
-app = AppDRE(TestCase1_ArtificialPorpoise);
+fprintf('MMDPM strating ...\n')
+if isdeployed
+        app = AppDRE(TestCase1_ArtificialPorpoise);
+else
+        app = AppDRE(devQuickConfig);
+end
 

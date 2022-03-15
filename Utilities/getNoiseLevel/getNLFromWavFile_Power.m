@@ -17,10 +17,10 @@ function Lrms = getNLFromWavFile_Power(signal, cal)
     % and Windowing) 
     [PSD, f] = pwelch(y, hann(window), noverlap, nfft, fs);
     
-    % Integrate spectral density over the bandwidth
+    % Integrate power spectral density over the bandwidth
     df = fs/nfft;
-    Lrms = sum(df * PSD);
-    Lrms = sqrt(Lrms);
+    L = sum(df * PSD);
+    Lrms = sqrt(L);
     
     % Convert into dB
     Lrms = 10*log10(Lrms);

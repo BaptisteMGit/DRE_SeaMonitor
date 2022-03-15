@@ -18,13 +18,6 @@ classdef AppDRE
             % Root from where the app is executed
             rootApp = pwd;
             app.Simulation.rootApp = rootApp;
-
-%             rootUserConfiguration = fullfile(rootApp, "UserConfiguration");
-%             % Folders to store files 
-%             app.Simulation.rootResult = fullfile(rootApp, 'Output');
-%             app.Simulation.rootSaveSimulation = fullfile(rootUserConfiguration, 'Simulation');
-%             app.Simulation.rootSources = fullfile(rootUserConfiguration, 'Source');
-%             app.Simulation.rootSediments = fullfile(rootUserConfiguration, 'Sediment');
             
             % Create folders 
             if ~exist(app.Simulation.rootResult, 'dir'); mkdir(app.Simulation.rootResult);end
@@ -39,6 +32,9 @@ classdef AppDRE
             app.mainWindow = mainUI(app.Simulation);
             % Pass figure to the simulation for progress bar interactivity 
             app.Simulation.appUIFigure = app.mainWindow.Figure;
+
+            fprintf('MMDPM is ready to be used.\n')
+
         end
     end
 

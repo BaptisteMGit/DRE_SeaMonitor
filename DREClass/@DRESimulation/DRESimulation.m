@@ -96,6 +96,7 @@
         rootOutputFiles
         rootOutputFigures       
         rootSaveInput
+        
 
         logFile % log File to save logs
         resultFile % 
@@ -129,6 +130,8 @@
         rootSources
         % Folder to store custom sediment
         rootSediments
+        % Folder storing python Pipfile, Pipfile.lock 
+        rootPythonModules
         % Folder to save the result 
         rootResult 
 
@@ -400,6 +403,10 @@
         
         function rootSediments = get.rootSediments(obj)
             rootSediments = fullfile(obj.rootUserConfiguration, 'Sediment');
+        end
+
+        function rootPythonModules = get.rootPythonModules(obj)
+            rootPythonModules = fullfile(obj.rootApp, 'PythonModules');
         end
 
         function bearingStep = get.bearingStep(obj)
