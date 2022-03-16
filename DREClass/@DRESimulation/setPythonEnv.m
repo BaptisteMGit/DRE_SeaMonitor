@@ -13,6 +13,8 @@ cmd = 'python --version';
 assert(status==0, 'Python not found. Please check PATH variable or consider installing Python.')
 
 % Assert version is supported 
+% Minimum version is 2.7.9 according to Copernicus 
+% https://help.marine.copernicus.eu/en/articles/4796533-what-are-the-motu-client-motuclient-and-python-requirements
 cmdout = split(cmdout, ' ');
 version = cmdout(2);
 version = split(version, '.');
@@ -28,13 +30,10 @@ else
         v = v + num3 * 0.01; 
         cond = (v >= 2.79);
     else 
-        cond = 1;
-%         tdigit = round(num3 / 10); % tens digit 
-%         digit = num3 - 10*tdigit;
-%         v = v + tdigit*0.1 + digit*0.01;
+        cond = (v >= 2.7);
     end
     versionMsg = [sprintf('This script does not work on Python %s.%s.%s.\n', version{1}, version{2}, version{3}), ...
-            'The minimum supported Python version is 2.7.9']; 
+            'The minimum supported Python version is 2.7.9\n']; 
 end 
 assert(cond, versionMsg)
 
@@ -56,14 +55,13 @@ if ~(status==0)
     filename = 'get-pip.py';
     websave(filename, fullURL);
 
+    fprintf('\t-> Installing pip\n');
     cmd_pip = 'python get-pip.py'; 
     [status, cmdout] = system(cmd_pip);
+    fprintf(cmdout);
     if status==0
-        fprintf('\t pip successfully installed');
         promptMsg = '';
-    else 
-        fprintf(cmdout)
-    end 
+    end
     cd(obj.rootApp)
 end 
 
@@ -73,10 +71,11 @@ cmd = 'motuclient --version';
 
 if ~(status==0)
     % Install motuclient (version 1.8.4 approved by Copernicus)  
+    fprintf('\t-> Installing pip\n');
     cmd_pipinstall = 'python -m pip install motuclient==1.8.4 --no-cache-dir';
     [status, cmdout] = system(cmd_pipinstall);
     if status==0
-        fprintf('\t motuclient module successfully installed'); 
+        fprintf('\t-> motuclient module successfully installed\n'); 
         promptMsg = '';
     else 
         fprintf(cmdout)

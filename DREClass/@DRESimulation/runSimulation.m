@@ -153,6 +153,8 @@ function flag = runSimulation(obj)
         obj.CPUtime = toc(tStart);
         obj.writeLogEnd()
         % Delete prt and env files when all process is done to save memory
+        fprintf('Less than 1 min remaining\n')
+        d.Message = 'Deleting useless files to save memory ...';
         obj.deleteBellhopFiles()
         % Delete bathymetry files 
         obj.deleteBathyFiles
@@ -170,9 +172,11 @@ function flag = runSimulation(obj)
     % Write log content in console 
     cd(obj.rootSaveResult)
     lines = readlines("log.txt");
-    fprintf('\n\n############\nLOG REPORT\n############\n\n')
+    fprintf('\n\n##########################################################################\n')
+    fprintf('--------------------------------LOG REPORT--------------------------------')
+    fprintf('\n##########################################################################\n')
+
     fprintf('%s\n', lines)
-%     disp(lines)
     cd(obj.rootApp)
 
     % Close dialog box
