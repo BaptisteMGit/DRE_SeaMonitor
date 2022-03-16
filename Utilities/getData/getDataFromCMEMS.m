@@ -1,9 +1,9 @@
 function getDataFromCMEMS(varargin)
 % GETDATAFROMCMEMS fetch data from CMEMS. 
-% Connection parameters 
-% TODO: change for MMDPM account 
-username = 'bmenetrier';
-password = 'Copernicus753!';
+
+% Copernicus account login details  
+username = 'bmmdpm';
+password = 'gkhH(Yd?BNc=Dn6L';
 
 motuPath = getVararginValue(varargin, 'motuPath', '');
 dbName = getVararginValue(varargin, 'dbName', '');
