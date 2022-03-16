@@ -57,12 +57,13 @@ function recomputeDRE(obj)
         if i_theta == length(obj.listAz); flag = ~flag; end 
     end   
     
-    close(d)
     if flag % The all process terminated without any error 
+        % Reset gridded boolean values 
+        obj.setGriddedFlags()
         % Plot detection range (polar plot and map) 
-        obj.plotDRM()
+        obj.plotDRM('app')
         % Plot detection probability 
-        obj.plotDPM()
+        obj.plotDPM('app')
         % Write CPU time to the log file 
         obj.CPUtime = toc(tStart);
         obj.writeLogEnd()
@@ -74,4 +75,17 @@ function recomputeDRE(obj)
         % Write error message to log file  
         obj.writeLogError()
     end
+
+    % Write log content in console 
+    cd(obj.rootSaveResult)
+    lines = readlines("log.txt");
+    fprintf('\n\n##########################################################################\n')
+    fprintf('--------------------------------LOG REPORT--------------------------------')
+    fprintf('\n##########################################################################\n')
+
+    fprintf('%s\n', lines)
+    cd(obj.rootApp)
+
+    % Close dialog box
+    close(d) 
 end

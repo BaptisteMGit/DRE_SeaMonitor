@@ -55,7 +55,7 @@ if ~(status==0)
     filename = 'get-pip.py';
     websave(filename, fullURL);
 
-    fprintf('\t-> Installing pip\n');
+    fprintf('\n-> Installing pip\n');
     cmd_pip = 'python get-pip.py'; 
     [status, cmdout] = system(cmd_pip);
     fprintf(cmdout);
@@ -71,14 +71,12 @@ cmd = 'motuclient --version';
 
 if ~(status==0)
     % Install motuclient (version 1.8.4 approved by Copernicus)  
-    fprintf('\t-> Installing pip\n');
+    fprintf('\n-> Installing motuclient\n');
     cmd_pipinstall = 'python -m pip install motuclient==1.8.4 --no-cache-dir';
     [status, cmdout] = system(cmd_pipinstall);
+    fprintf(cmdout);
     if status==0
-        fprintf('\t-> motuclient module successfully installed\n'); 
         promptMsg = '';
-    else 
-        fprintf(cmdout)
     end 
 end 
 

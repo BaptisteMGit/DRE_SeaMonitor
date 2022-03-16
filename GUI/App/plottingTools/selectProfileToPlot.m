@@ -114,7 +114,6 @@ classdef selectProfileToPlot < handle
         end
 
         function changedBearingFcn(app, hObject, eventData)
-%             f = gcf;
             if app.figureIsAlreadyPlot
                 theta = get(app.handleSpinner(1), 'Value');
                 nameProfile = sprintf('%s-%2.1f', app.Simulation.mooring.mooringName, theta);
@@ -130,7 +129,6 @@ classdef selectProfileToPlot < handle
                     otherwise
                         app.plot1D()
                 end
-
             end
         end
     end

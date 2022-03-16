@@ -182,6 +182,7 @@
 
         %% Divers
         setDefault(obj)
+        setGriddedFlags(obj)
         getBathyData(obj)
         bathyProfile = getBathyProfile(obj, theta)
         runBellhop(obj, nameProfile)

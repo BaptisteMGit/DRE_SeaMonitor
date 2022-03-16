@@ -83,18 +83,21 @@ classdef recomputeUI < handle
             app.GridLayout.RowHeight{5} = 10;
             app.GridLayout.RowHeight{6} = 30;
 
-            % Labels 
-            addLabel(app, 'Noise level', 2, 2, 'text')
-            addLabel(app, 'dB', 2, 4, 'text')
-            addLabel(app, 'Detection threshold', 4, 2, 'text')
-            addLabel(app, 'dB', 4, 4, 'text')
-
-            % Edit field
-            addEditField(app, app.Simulation.noiseEnvironment.noiseLevel, 2, 3, [], 'numeric', {@app.editFieldChanged, 'NL'}) 
-            addEditField(app, app.Simulation.detector.detectionThreshold, 4, 3, [], 'numeric', {@app.editFieldChanged, 'DT'})
+            %%% Labels %%%
+            titleLabelFont = getLabelFont(app, 'Title');
+            textLabelFont = getLabelFont(app, 'Text');
             
-            % Button
-            addButton(app, 'Recompute', 6, [2, 4], @app.recomputeButtonPushed)
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Noise level', 'LayoutPosition', struct('nRow', 2, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Detection threshold', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
+
+            %%% Edit field %%%
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.noiseEnvironment.noiseLevel, ...
+                'LayoutPosition', struct('nRow', 2, 'nCol', 3), 'ValueChangedFcn', {@app.editFieldChanged, 'NL'}, 'ValueDisplayFormat', '%.1f dB'})            % Simulation 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.detector.detectionThreshold, ...
+                'LayoutPosition', struct('nRow', 4, 'nCol', 3), 'ValueChangedFcn', {@app.editFieldChanged, 'DT'}, 'ValueDisplayFormat', '%.1f dB'})
+            
+            %%% Button %%%
+            addButton(app, {'Parent', app.GridLayout, 'Name', 'Recompute', 'ButtonPushedFcn', @app.recomputeButtonPushed, 'LayoutPosition', struct('nRow', 6, 'nCol', [2, 4])})
 
         end
     end

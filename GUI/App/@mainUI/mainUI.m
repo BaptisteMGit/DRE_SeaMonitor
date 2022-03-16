@@ -144,6 +144,7 @@ classdef mainUI < handle
             hObject = app.Figure;
             closeWindowCallback(hObject, eventData)
             close all % Make sure all figures are closed 
+            clear     % Clear all variables 
         end
 
         function configEnvironmentButtonPushed(app, hObject, eventData)
@@ -164,7 +165,7 @@ classdef mainUI < handle
         end
         
         function recomputeDRButtonPushed(app, hObject, eventData)
-            if app.simuIsLoaded
+            if app.Simulation.simuIsLoaded
                 app.recomputeWindow = recomputeUI(app.Simulation);
                 app.subWindows{end+1} = app.configEnvironmentWindow;
             else
@@ -187,6 +188,7 @@ classdef mainUI < handle
 
         function loadSimulationButtonPushed(app, hObject, event)
             cd(app.Simulation.rootSaveSimulation)
+            app.Simulation.setGriddedFlags()
             [file, path, ~] = uigetfile({'*.mat', 'Simulation file'}, ...
                                             'Select file');
             if ~isnumeric(file) % Check if a file has been selected 

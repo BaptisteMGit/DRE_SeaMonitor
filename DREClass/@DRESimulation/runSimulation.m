@@ -145,6 +145,8 @@ function flag = runSimulation(obj)
     end   
     
     if flag % The all process terminated without any error 
+        % Reset gridded boolean values 
+        obj.setGriddedFlags()
         % Plot detection range (polar plot and map) 
         obj.plotDRM('app')
         % Plot detection probability 
