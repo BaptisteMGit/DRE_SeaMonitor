@@ -4,9 +4,26 @@ function plotDPM(obj, varargin)
     if nargin > 1 && strcmp(varargin(1), 'app')
         figure('visible','off');
     end
-
+    
     % Detection probability   
-    if ~obj.DPDataIsGridded; obj.gridDPData; end
+    %     if ~obj.DPDataIsGridded; obj.gridDPData; end
+    if ~obj.DPDataIsGridded
+        if numel(varargin) > 1
+            promptMsg = 'Gridding detection probability data';
+            fprintf(promptMsg)
+            UIFigure = varargin{2};
+            d = uiprogressdlg(UIFigure,'Title','Please Wait',...
+                    'Message','Gridding detection probability data ...', ...
+                    'Indeterminate','on');
+            obj.gridDPData;
+            close(d)
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
+        else 
+            obj.gridDPData;
+        end
+    end
+
     pcolor(obj.Xgrid, obj.Ygrid, obj.DPgrid);
     shading interp
     colormap(flipud(hot))

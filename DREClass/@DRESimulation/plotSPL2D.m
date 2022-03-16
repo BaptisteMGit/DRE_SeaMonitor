@@ -1,5 +1,21 @@
-function plotSPL2D(obj)
-    if ~obj.TLDataIsGridded; obj.gridTLData; end
+function plotSPL2D(obj, varargin)
+    if ~obj.TLDataIsGridded
+        if numel(varargin) > 1
+            promptMsg = 'Gridding TL data';
+            fprintf(promptMsg)
+            UIFigure = varargin{2};
+            d = uiprogressdlg(UIFigure,'Title','Please Wait',...
+                    'Message','Gridding TL data ...', ...
+                    'Indeterminate','on');
+            obj.gridTLData;
+            close(d)
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
+        else 
+            obj.gridTLData;
+        end
+    end
+
     % Plot SPL
     sl = obj.marineMammal.signal.sourceLevel;
     SPLgrid = sl - obj.TLgrid;

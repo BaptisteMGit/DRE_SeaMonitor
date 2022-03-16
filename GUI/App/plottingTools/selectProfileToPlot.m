@@ -119,22 +119,16 @@ classdef selectProfileToPlot < handle
                 theta = get(app.handleSpinner(1), 'Value');
                 nameProfile = sprintf('%s-%2.1f', app.Simulation.mooring.mooringName, theta);
                 switch app.plotType 
-                        case 'bathy1D'
-                            app.Simulation.plotBathy1D(nameProfile);
-                        case 'tl1D'
-                            app.Simulation.plotTL1D(nameProfile);
-                        case 'spl1D'
-                            app.Simulation.plotSPL1D(nameProfile);
-                        case 'se1D'
-                            app.Simulation.plotSE1D(nameProfile);
-                        case 'df1D'
-                            app.Simulation.plotDetectionFunction(nameProfile); 
-                            % Update legend
-                            newEntry = {sprintf('\\theta = %.1f', theta), '', ''}   ;
-                            app.lgd = [app.lgd(:)', newEntry];
-                            legend(app.lgd)
-                            lgdObject = legend;
-                            lgdObject.NumColumns = ceil(numel(lgdObject.String)/5);
+                    case 'df1D'
+                        app.Simulation.plotDetectionFunction(nameProfile); 
+                        % Update legend
+                        newEntry = {sprintf('\\theta = %.1f', theta), '', ''}   ;
+                        app.lgd = [app.lgd(:)', newEntry];
+                        legend(app.lgd)
+                        lgdObject = legend;
+                        lgdObject.NumColumns = ceil(numel(lgdObject.String)/5);
+                    otherwise
+                        app.plot1D()
                 end
 
             end

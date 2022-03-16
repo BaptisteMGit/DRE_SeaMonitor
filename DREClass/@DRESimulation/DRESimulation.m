@@ -219,10 +219,10 @@
         plotDRPP(obj, varargin) % Detection range polarplot
         
         % Plot 2D maps 
-        plotBathy2D(obj) % Bathy 2D
-        plotTL2D(obj) % Plot TL 2D
-        plotSPL2D(obj) % Plot SPL 2D
-        plotSE2D(obj) % Plot SE 2D
+        plotBathy2D(obj, varargin) % Bathy 2D
+        plotTL2D(obj, varargin) % Plot TL 2D
+        plotSPL2D(obj, varargin) % Plot SPL 2D
+        plotSE2D(obj, varargin) % Plot SE 2D
         %%% End 2D plots (map) %%%
 
         %% Derive detection capabilities 

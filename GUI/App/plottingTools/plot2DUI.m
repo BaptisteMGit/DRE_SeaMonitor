@@ -148,21 +148,22 @@ classdef plot2DUI < handle
             isLoaded = checkSimulationIsLoaded(app);
             if isLoaded
                 figure;
+                varargin = {'user', app.Figure}; % To show process bar when gridding data in order to avoid multiple calls to plot functions
                 switch type
                     case 'DPM'
-                        app.Simulation.plotDPM();  
+                        app.Simulation.plotDPM(varargin{:});  
                     case 'DRM'
-                        app.Simulation.plotDRM()
+                        app.Simulation.plotDRM(varargin{:})
                     case 'DRPP'
-                        app.Simulation.plotDRPP()
+                        app.Simulation.plotDRPP(varargin{:})
                     case 'bathy2D'
-                        app.Simulation.plotBathy2D()    
+                        app.Simulation.plotBathy2D(varargin{:})    
                     case 'tl2D'
-                        app.Simulation.plotTL2D()
+                        app.Simulation.plotTL2D(varargin{:})
                     case 'spl2D'
-                        app.Simulation.plotSPL2D()
+                        app.Simulation.plotSPL2D(varargin{:})
                     case 'se2D'
-                        app.Simulation.plotSE2D()
+                        app.Simulation.plotSE2D(varargin{:})
                 end
             end
         end

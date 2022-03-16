@@ -3,6 +3,23 @@ function plotDRM(obj, varargin)
     if nargin > 1 && strcmp(varargin(1), 'app')
         figure('visible','off');
     end
+    
+    if ~obj.bathyDataIsGridded
+        if numel(varargin) > 1
+            promptMsg = 'Gridding detection probability data';
+            fprintf(promptMsg)
+            UIFigure = varargin{2};
+            d = uiprogressdlg(UIFigure,'Title','Please Wait',...
+                    'Message','Gridding bathymetry data ...', ...
+                    'Indeterminate','on');
+            obj.gridBathyData;
+            close(d)
+            linePts = repelem('.', 53 - numel(promptMsg));
+            fprintf(' %s DONE\n', linePts);
+        else 
+            obj.gridBathyData;
+        end
+    end
 
     % Bathy colored background
     obj.plotBathyPColor()
