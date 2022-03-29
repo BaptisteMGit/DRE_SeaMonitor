@@ -153,6 +153,8 @@ function flag = runSimulation(obj)
         obj.plotDPM('app')
         % Write CPU time to the log file 
         obj.CPUtime = toc(tStart);
+        obj.writeMeanDRtoLogFile()
+        obj.writeMaxDRtoLogFile()
         obj.writeLogEnd()
         % Delete prt and env files when all process is done to save memory
         fprintf('Less than 1 min remaining\n')

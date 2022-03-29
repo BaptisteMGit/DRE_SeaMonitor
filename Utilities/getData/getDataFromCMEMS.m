@@ -37,7 +37,7 @@ else
 end 
 part6 = sprintf('--variable %s ', variables{1:end});
 part7 = sprintf('--out-dir %s --out-name %s ', outputDir, outputFile);
-part8 = sprintf('--user %s --pwd %s', username, password);
+part8 = sprintf('--user "%s" --pwd "%s"', username, password);
 
 cmd_str = [part1 part2 part3 part4 part5 part6 part7 part8];
 

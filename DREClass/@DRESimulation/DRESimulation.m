@@ -137,6 +137,11 @@
 
         % Bearing step 
         bearingStep
+        
+        % Mean effective detection range 
+        meanDR
+        % Maximum detection range - 5% probability threshold 
+        maxDR 
     end
 
     %% Constructor 
@@ -169,7 +174,9 @@
         writeLogError(obj)
         writeLogCancel(obj)
         writeLogCancelAfterConnectionFailed(obj)
-        writeDRtoLogFile(obj, theta, DT)
+        writeDRtoLogFile(obj, theta, DR)
+        writeMeanDRtoLogFile(obj)
+        writeMaxDRtoLogFile(obj)
         writeLogEnd(obj)
 
         %% Set environment 
@@ -227,7 +234,7 @@
         %%% End 2D plots (map) %%%
 
         %% Derive detection capabilities 
-        addDetectionRange(obj, nameProfile)
+%         addDetectionRange(obj, nameProfile)
         addDetectionFunction(obj, nameProfile)
 
         %% Delete useless files to spare memory 
@@ -412,6 +419,21 @@
 
         function bearingStep = get.bearingStep(obj)
             bearingStep = abs(obj.listAz(2) - obj.listAz(1));
+        end
+
+        function meanDR = get.meanDR(obj)
+            meanDR = mean(obj.listDetectionRange);
+        end
+
+        function maxDR = get.maxDR(obj)
+            maxDR = 0;
+            for idx=1:numel(obj.listAz)
+                g = obj.listDetectionFunction(idx, :);
+                DR = computeDetectionRange(g, obj.rt, '5%'); 
+                if DR >= maxDR
+                    maxDR = DR;
+                end
+            end
         end
     end
 

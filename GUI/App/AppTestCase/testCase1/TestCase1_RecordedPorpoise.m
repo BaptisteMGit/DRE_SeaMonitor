@@ -32,8 +32,8 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             obj.bathyEnvironment = BathyEnvironment(source);
 
             %% Mooring 
-            mooringPos.lat = 52.22;
-            mooringPos.lon = -4.37;
+            mooringPos.lat = 52.225;
+            mooringPos.lon = -4.370;
             % Since 25/01/2022 geoid height (= ellipsoid height) is computed using geoidheigth function   
 %             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
             
@@ -57,10 +57,18 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             %% Marine mammal 
             porpoise = Porpoise();
             porpoise.centroidFrequency = 130 * 1e3; % frequency in Hz
-            porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
+
+            % source levels between 130 and 182 dB re 1 μPa
+            % We assume that the distribution is normal 
+            % mean(SL) = (182 + 130) / 2 = 156;
+            % We assume 3*sigma = (max(SL) - min(SL)) / 2  = 26;
+            % ie std(SL) = 8.7 ~ 9;  
+            porpoise.sourceLevel = 156;    % mean(SL)
+            porpoise.sigmaSourceLevel = 9; % std(SL) 
+
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
-            porpoise.deltaLivingDepth = 2; % Arbitrary (to discuss)
-            porpoise.rMax = 500;
+            porpoise.deltaLivingDepth = 0.5; % Arbitrary (to discuss)
+            porpoise.rMax = 1500;
             % Directivity is derived from angle of main lobe given in the
             % paper: mainlobeAperture ~ 12.3° and for the narrowband direction loss considered we have 
             % mainlobeAperture = 58.9 * pi/ka (mainlobeAperture in degrees); considering DI = 20log(ka) we have 
@@ -99,19 +107,22 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             % peak-peak. As we are considering 0-peak pressures to derive
             % TL with BELLHOP model we need to consider 0-peak detection
             % threshold. To do so we assume that clicks are symetric
-            % signals which implies that 0-peak pressure Pp is equal to 1/2
-            % * peak-peak presurre Ppp i.e Ppp = 2Pp. Therefore,
+            % signals which implies that 0-peak pressure (Pp) is equal to 1/2
+            % * peak-peak presurre (Ppp) i.e Ppp = 2Pp. Therefore,
             % considering the log10 one can deduce the following relations
             % between 0-peak detection threshold and peak-peak detection
             % threshold: DTpp = DTp + 3 (dB) 
-            obj.detector.detectionThreshold = 114.5 - 3;
+
+            % Detection sensitivity of CPODs used in Nuuttila is said to be
+            % between 111 and 119 dB -> mean value 114 dB
+            obj.detector.detectionThreshold = 114 - 3;
 
             % From ref paper: The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
             % peak-to-peak (pp) across the C-PODs used in the study.
             
 
-            obj.seabedEnvironment = SeabedEnvironment('Coarse sediment');
+            obj.seabedEnvironment = SeabedEnvironment('Muddy sand and sand');
 
         end
 

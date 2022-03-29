@@ -130,7 +130,7 @@ classdef editMarineMammalUI < handle
                 'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'})% Living depth
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.deltaLivingDepth, ...
-                'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'}) % Delta living depth
+                'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'}) % Delta living depth
              
             % Drop down 
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSources, 'Value', app.marineMammalName, ...

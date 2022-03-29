@@ -13,6 +13,6 @@ if isdeployed
 %         app = AppDRE(TestCase1_ArtificialPorpoise);
         app = AppDRE(devQuickConfig);
 else
-        app = AppDRE(devQuickConfig);
+        app = AppDRE(TestCase1_ArtificialPorpoise);
 end
 

@@ -64,8 +64,8 @@ DLnbPart2 = DLnPart2WithSplope;
 % backward energy for a directionnal source modelled by a piston. The 
 % solution adopted here is a compromise between the original piston model
 % which is not an injective function on [0, 90]° and thus can't be used to
-    % model the detection function and a model with only the main lobe which
-    % seems to lead to largely underestimate detection probability according to
+% model the detection function and a model with only the main lobe which
+% seems to lead to largely underestimate detection probability according to
 % the paper. 
 % Based on results from paper High resolution three-dimensional beam radiation pattern of harbour porpoise clicks
 % with implications for passive acoustic monitoring
@@ -75,7 +75,7 @@ dth = 0.01;
 thetadeg = 0:dth:90;
 theta = thetadeg * pi/180;
 
-thetaAll = [theta_mainlobe thetaPart2 ]; % Concatenate main and last lobe 
+thetaAll = [theta_mainlobe thetaPart2]; % Concatenate main and last lobe 
 DLnbAll = [DLnb_mainlobe DLnbPart2];
 
 DLnb_interp = interp1(thetaAll, DLnbAll, theta, interpMethod); 

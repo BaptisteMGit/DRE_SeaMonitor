@@ -33,8 +33,8 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
 
             %% Mooring 
             % Position in WGS84 crs 
-            mooringPos.lat = 52.22;
-            mooringPos.lon = -4.37;
+            mooringPos.lat = 52.225;
+            mooringPos.lon = -4.370;
             % Since 25/01/2022 geoid height (= ellipsoid height) is computed using geoidheigth function   
 %             mooringPos.hgt = 54.7150; %Geoid height given by https://geographiclib.sourceforge.io/cgi-bin/GeoidEval?input=52.22+-4.37&option=Submit for this location 
             
@@ -56,14 +56,17 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             obj.mooring = Mooring(mooringPos, mooringName, hydroDepth, deploymentDate);
             
             %% Marine mammal 
-            porpoise = Porpoise();
+            porpoise = Porpoise();  
             porpoise.centroidFrequency = 130 * 1e3; % frequency in Hz
-            porpoise.sourceLevel = 176; % Maximum source level used (artificial porpoise-like signals)
-            porpoise.sigmaSourceLevel = 1; % We assumed the tranducer to be correctly calibrated and to show a little dispersion around the desired value.  
-            porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
-            porpoise.deltaLivingDepth = 1; % Arbitrary (to discuss)
             porpoise.rMax = 1500;
-            porpoise.directivityIndex  = 1;  % Transducer used is assumed to be omnidirectional 
+            porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
+            porpoise.deltaLivingDepth = 0.5; % Arbitrary (to discuss)
+
+            % SL tested: [176   173   170   167   164   161   158   155
+            % 152   149]
+            porpoise.sourceLevel = 176;       % Results given for SL = 176 dB 
+            porpoise.sigmaSourceLevel = 2;    % Reson TC4033, Teledyne RESON A/S documentation -> Transmitting sensitivity: 144dB ±2dB re 1µPa/V at 1m at 100kHz
+            porpoise.directivityIndex = 1;  % Transducer used is assumed to be omnidirectional 
             
             obj.marineMammal = porpoise;
             obj.marineMammal.setSignal(); 
@@ -101,7 +104,11 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             % considering the log10 one can deduce the following relations
             % between 0-peak detection threshold and peak-peak detection
             % threshold: DTpp = DTp + 3 (dB) 
-            obj.detector.detectionThreshold = 114.5 - 3; 
+            
+            % Detection sensitivity of CPODs used in Nuuttila is said to be
+            % between 111 and 119 dB -> mean value 114 dB
+            obj.detector.detectionThreshold = 114 - 3;
+
 
             % From ref paper: "The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
@@ -110,7 +117,7 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             % BELLHOP output considering 0 to peak pressure. 
             
 
-            obj.seabedEnvironment = SeabedEnvironment('Mud and sandy mud');
+            obj.seabedEnvironment = SeabedEnvironment('Muddy sand and sand');
 
         end
 

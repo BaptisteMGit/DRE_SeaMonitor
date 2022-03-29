@@ -122,7 +122,7 @@ for theta = listAz
     close(gcf);
     
     computeArgin = {'SPL', SPL, 'Depth', zt, 'Range', rt, 'NL', NL, 'DT', 10, 'zTarget', 15};
-    DetectionRange = computeDetectionRange(computeArgin{:});
+    DetectionRange = computeDetectionRange_old(computeArgin{:});
     listDetectionRange = [listDetectionRange DetectionRange];
 
 end
