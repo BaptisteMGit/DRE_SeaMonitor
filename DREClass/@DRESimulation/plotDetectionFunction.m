@@ -3,7 +3,8 @@ function plotDetectionFunction(obj, nameProfile)
     nameProfileParts = split(nameProfile,"-");
     theta_str = nameProfileParts(end);
     theta = str2double(theta_str);
-    idx = find(theta == obj.listAz); 
+    epsilon = 0.01;
+    idx = find(abs(theta - obj.listAz) < epsilon);
 
     detectionFunction = obj.listDetectionFunction(idx, :);
     detectionRange = obj.listDetectionRange(idx);

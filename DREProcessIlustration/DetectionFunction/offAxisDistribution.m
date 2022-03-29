@@ -73,7 +73,7 @@ Woa_a = 1/2 * sin(theta);
 plot(thetadeg, Woa_a, 'LineWidth', 1)
 lgd{end + 1} = 'W_{OA_A}';
 
-listSigmaHdeg = [1 5 10 30 50];
+listSigmaHdeg = [1 5 10 30 50 60];
 for sigmaHdeg = listSigmaHdeg
     sigmaH = sigmaHdeg * pi/180;
     Woa_h = (theta / sigmaH^2) .* exp(-1/2 * ( (theta / sigmaH).^2) );

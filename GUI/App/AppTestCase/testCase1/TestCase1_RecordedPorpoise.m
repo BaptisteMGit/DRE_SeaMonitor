@@ -63,8 +63,12 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             % mean(SL) = (182 + 130) / 2 = 156;
             % We assume 3*sigma = (max(SL) - min(SL)) / 2  = 26;
             % ie std(SL) = 8.7 ~ 9;  
-            porpoise.sourceLevel = 156;    % mean(SL)
-            porpoise.sigmaSourceLevel = 9; % std(SL) 
+
+%             porpoise.sourceLevel = 156;    % mean(SL)
+%             porpoise.sigmaSourceLevel = 9; % std(SL) 
+
+            porpoise.sourceLevel = 182;    % SL for max range in Nuutilla 
+            porpoise.sigmaSourceLevel = 2; % We assumed same std as TC4033 as no info is available for TC2130
 
             porpoise.livingDepth = 2; % Depth of the emmiting transducer used 
             porpoise.deltaLivingDepth = 0.5; % Arbitrary (to discuss)
@@ -82,7 +86,7 @@ classdef TestCase1_RecordedPorpoise < DRESimulation
             % Directional transducer 
             obj.offAxisDistribution = 'Near on-axis';
             obj.offAxisAttenuation = 'Narrowband';
-            obj.sigmaH = 60; % Large angle, the transducer is said to be turn from one side to another
+            obj.sigmaH = 30; % Large angle, the transducer is said to be turn from one side to another
 
             %% Simulation parameters 
             obj.bellhopEnvironment = BellhopEnvironment;

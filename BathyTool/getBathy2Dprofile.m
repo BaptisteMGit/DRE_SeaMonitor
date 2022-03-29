@@ -44,7 +44,7 @@ U = D(:,3);
 % Use of only one quarter of the dataset 
 % Offset permit to take a larger zone in order to avoid issues with large
 % bathymetry cells  
-dN = abs(max(diff(N))); % We assume regular grid
+dN = abs(max(diff(N))); % We assume regular gridding
 dE = abs(max(diff(E))); 
 offset = max(dE, dN); 
 

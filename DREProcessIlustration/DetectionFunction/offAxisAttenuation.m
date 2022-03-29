@@ -6,7 +6,7 @@
 clear 
 close all 
 % Constants 
-DI = 20; % Directivity index of Porpoise (PAMofC (p89)) [dB]
+DI = 23.5; % Directivity index of Porpoise (PAMofC (p89)) [dB]
 ka = 10^(DI/20);
 
 % Broadband
@@ -148,7 +148,7 @@ hold on
 for i=1:numel(x_unique)
     polarplot([x_unique(i); x_unique(i)], [0; SL0], 'k', 'LineWidth', 1, 'LineStyle', '--')  
     polarplot([-x_unique(i); -x_unique(i)], [0; SL0], 'k', 'LineWidth', 1, 'LineStyle', '--')  
-    lgd{end +1} = sprintf('lobe_{%d} = %.0f°', i, x_unique(i)*180/pi);
+    lgd{end +1} = sprintf('lobe_{%d} = %.1f°', i, x_unique(i)*180/pi);
     lgd{end +1} = '';
 end
 
@@ -255,6 +255,20 @@ xlabel('Off-axis angle [°]')
 ylabel('Off-axis attenuation [dB]')
 title('Directionnal loss approximation for narrowband signal')
 set(gca, 'YDir', 'reverse')
+
+%% Plot for userguide 
+figure 
+% Interp 
+polarplot(theta, ASLnb_interp, 'LineWidth', 2)
+hold on
+% Slope
+polarplot(thetaPart2, ASLnbPart2, 'LineWidth', 2)
+hold on
+% Main lobe 
+polarplot(theta_mainlobe, ASLnb_mainlobe, 'LineWidth', 2) 
+hold on 
+
+
 
 %% Compare models 
 dth = 0.1;
