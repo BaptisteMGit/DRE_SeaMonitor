@@ -16,7 +16,7 @@ DLmax = C1 * C2^2 / (1 + C2 + C2^2);
 % It is a piecewise-defined function 
 DLinv = @(DL)...
     0 * (DL <= 0) + ... % DL = 0
-    asin(1/(2*C2) * (DL/(DL - C1)) * real(-sqrt(1-4*(DL-C1)/DL - 1))) * (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
+    asin( -1/(2*C2) * DL/(DL - C1) * sqrt(1 - 4*(DL-C1)/DL) ) * (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
     pi * (DL >= DLmax); % DL >= DLmax
 end
 

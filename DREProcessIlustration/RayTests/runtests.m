@@ -6,47 +6,64 @@ global units
 units = 'km';
 
 
-%% Load Batymetry data 
-rootBathy = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry\ENU\2DProfile\2008 HI1240 Runabay Head to Tuns';
-bathyFile = '2DBathy_azimuth10.1.txt';
-data = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter',' ');
+% %% Load Batymetry data 
+% rootBathy = 'C:\Users\33686\Desktop\SeaMonitor\Detection range estimation\Bathymetry\ENU\2DProfile\2008 HI1240 Runabay Head to Tuns';
+% bathyFile = '2DBathy_azimuth10.1.txt';
+% data = readmatrix(fullfile(rootBathy, bathyFile), 'Delimiter',' ');
+% 
+% %% Create bty file 
+% testName = 'eqPrinciple';
+% rootBTY = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\DREProcessIlustration';
+% BTYfilename = sprintf('%s.bty', testName);
+% writebdry(fullfile(rootBTY, BTYfilename), 'L', data)
 
-%% Create bty file 
-testName = 'eqPrinciple';
-rootBTY = 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\DREProcessIlustration';
-BTYfilename = sprintf('%s.bty', testName);
-writebdry(fullfile(rootBTY, BTYfilename), 'L', data)
+cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\DREProcessIllustration';
 
-cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\DREProcessIlustration';
-
-% %% Rays
+%% Rays
 % bellhop( 'eqPrinciple_ray' ) % Run BELLHOP model for env file 
-% figure
-% plotray( 'eqPrinciple_ray' ) % Plot ray 
-% plotbty 'eqPrinciple' % Superpose bathy 
-% 
-% %% Eigenrays
+figure
+plotray( 'eqPrinciple_ray' ) % Plot ray 
+plotbty 'eqPrinciple' % Superpose bathy 
+
+%% Eigenrays
 % bellhop( 'eqPrinciple_eigenray' ) % Run BELLHOP model for env file 
-% figure
-% plotray( 'eqPrinciple_eigenray' ) % Plot ray 
-% plotbty 'eqPrinciple' % Superpose bathy 
-% scatter(0, 10, 50, 'r', 'filled')
-% scatter(2, 40, 50, 'b', 'filled')
-% 
-% %% TL 
+figure
+plotray( 'eqPrinciple_eigenray' ) % Plot ray 
+plotbty 'eqPrinciple' % Superpose bathy 
+scatter(0, 10, 50, 'r', 'filled')
+scatter(2, 40, 50, 'b', 'filled')
+legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
+    '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
+    'Source', 'Receiver'})
+title({'Reciprocity - simulated situation'})
+
+figure
+plotray( 'eqPrinciple_eigenray' ) % Plot ray 
+plotbty 'eqPrinciple' % Superpose bathy 
+scatter(0, 10, 50, 'r', 'filled')
+scatter(2, 40, 50, 'b', 'filled')
+set(gca, 'XDir', 'reverse')
+legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
+    '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
+    'Source', 'Receiver'})
+title({'Reciprocity - real situation'})
+
+
+
+%% TL 
 % bellhop( 'eqPrinciple' ) % Run BELLHOP model for env file 
-% figure
-% plotshd( 'eqPrinciple.shd' ) % Plot ray 
-% plotbty 'eqPrinciple' % Superpose bathy 
-% 
-% %% TL slices 
-% figure
-% % Range slice
-% receiverDepth = 30;
-% plottlr( 'eqPrinciple.shd', receiverDepth )
-% % Depth slice
-% receiverRange = 2.5;
-% plottld( 'eqPrinciple.shd', receiverRange )
+figure
+plotshd( 'eqPrinciple.shd' ) % Plot ray 
+plotbty 'eqPrinciple' % Superpose bathy 
+
+%% TL slices 
+figure
+% Range slice
+receiverDepth = 30;
+plottlr( 'eqPrinciple.shd', receiverDepth )
+% Depth slice
+receiverRange = 2.5;
+plottld( 'eqPrinciple.shd', receiverRange )
 
 
 % %% Range-dependent environment: SSP;

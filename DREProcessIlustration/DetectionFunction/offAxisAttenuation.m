@@ -28,7 +28,7 @@ figure
 plot(thetadeg, DLbb, 'LineWidth', 1)
 xlabel('Off-axis angle [°]')
 ylabel('Off-axis attenuation [dB]')
-title('Directionnal loss approximation for broadband signal')
+title('DLbb', sprintf('DI = %.0f dB', DI))
 set(gca, 'YDir', 'reverse')
 xlim([-90, 90])
 
@@ -86,6 +86,28 @@ DLnb(idxDef) = ( 2*J1(ka*sin(theta(idxDef))) ./ (ka*sin(theta(idxDef))) ).^2;
 DLnbmax = ( 2*J1(ka*sin(90 * pi/180)) / (ka*sin(90 * pi/180)) )^2;
 DLnb(idxNotDef) = DLnbmax;
 DLnb = -10*log10(DLnb);
+
+% Circular piston model
+figure
+plot(thetadeg, DLnb, 'LineWidth', 1)
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title('Circular piston model', sprintf('DI = %.0f dB', DI))
+set(gca, 'YDir', 'reverse')
+xlim([-90, 90])
+
+
+% Circular piston model + broadband approx
+figure
+plot(thetadeg, DLnb, 'LineWidth', 1.5)
+hold on 
+plot(thetadeg, DLbb, 'LineWidth', 1.5)
+legend({'Circular piston', 'Broadband approximation'})
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title('Circular piston model', sprintf('DI = %.1f dB', DI))
+set(gca, 'YDir', 'reverse')
+xlim([-90, 90])
 
 %% Find knots 
 % Find zeros of J1 function 
@@ -258,15 +280,68 @@ set(gca, 'YDir', 'reverse')
 
 %% Plot for userguide 
 figure 
+lgd = {};
 % Interp 
 polarplot(theta, ASLnb_interp, 'LineWidth', 2)
+lgd{end + 1} = 'ASL_{interp}';
 hold on
 % Slope
 polarplot(thetaPart2, ASLnbPart2, 'LineWidth', 2)
+lgd{end + 1} = 'ASL_{nb}';
 hold on
 % Main lobe 
 polarplot(theta_mainlobe, ASLnb_mainlobe, 'LineWidth', 2) 
+lgd{end + 1} = 'ASL_{mainlobe}';
 hold on 
+
+title({'ASL - Narrowband model', ...
+    sprintf('DI = %ddB, SL_0 = %ddB', DI, SL0)})
+legend(lgd, 'Location', 'southoutside')
+
+
+figure 
+lgd = {};
+% Interp 
+plot(theta*180/pi, DLnb_interp, 'LineWidth', 2)
+lgd{end + 1} = 'ASL_{interp}';
+hold on
+% Slope
+DLslope = DLnbPart2;
+idxNotSlope = (thetaPart2 > -theta_knot2) & (thetaPart2 < theta_knot2);
+DLslope(idxNotSlope) = nan;
+plot(thetaPart2(thetaPart2 > -theta_knot2)*180/pi, DLslope(thetaPart2 > -theta_knot2), 'r', 'LineWidth', 2)
+plot(thetaPart2(thetaPart2 < theta_knot2)*180/pi, DLslope(thetaPart2 < theta_knot2), 'r', 'LineWidth', 2)
+
+lgd{end + 1} = 'ASL_{slope}';
+lgd{end + 1} = '';
+hold on
+% Main lobe 
+plot(theta_mainlobe*180/pi, DLnb_mainlobe, 'LineWidth', 2) 
+lgd{end + 1} = 'ASL_{mainlobe}';
+hold on 
+
+set(gca, 'YDir', 'reverse')
+xlim([-90, 90])
+
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title({'DL narrowband model', ...
+    sprintf('DI = %.1fdB, SL_0 = %.0fdB', DI, SL0)})
+legend(lgd)
+
+
+% Circular piston model + narrow approx
+figure
+plot(theta*180/pi, DLnb, 'LineWidth', 1.5)
+hold on 
+plot(theta*180/pi, DLnb_interp, 'LineWidth', 1.5)
+
+legend({'Circular piston', 'Narrow-band approximation'})
+xlabel('Off-axis angle [°]')
+ylabel('Off-axis attenuation [dB]')
+title('Circular piston model', sprintf('DI = %.1f dB', DI))
+set(gca, 'YDir', 'reverse')
+xlim([-90, 90])
 
 
 
@@ -278,13 +353,13 @@ theta = thetadeg * pi/180;
 figure 
 lgd = {};
 plot(theta_DLnb_deg, DLnb, 'k', 'LineWidth', 1)
-lgd{end + 1} = 'Narrowband signal - piston model';
+lgd{end + 1} = 'DL';
 hold on 
 plot(thetadeg, DLbb, 'b', 'LineWidth', 1)
-lgd{end + 1} = 'Broadband signal';
+lgd{end + 1} = 'DL_{bb}';
 hold on 
 plot(theta_DLnb_deg, DLnb_interp, 'r', 'LineWidth', 1)
-lgd{end + 1} = 'Narrowband signal - modified piston model';
+lgd{end + 1} = 'DL_{nb}';
 
 % Compare -3dB beamwidth
 % Broadband
@@ -299,13 +374,13 @@ idxAlpha3dB = find((DLnb<3), 1, 'first');
 alpha3dB = theta_DLnb_deg(idxAlpha3dB);
 xline(alpha3dB, 'k', 'LineStyle', '--', 'LineWidth', 1)
 xline(-alpha3dB, 'k', 'LineStyle', '--', 'LineWidth', 1, ...
-    'Label', sprintf('Narrowband unmodified beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
+    'Label', sprintf('Circular piston model beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
     'LabelHorizontalAlignment','right', 'LabelOrientation', 'aligned')
 % Narrowband modified 
 idxAlpha3dB = find((DLnb_interp<3), 1, 'first');
 alpha3dB = theta_DLnb_deg(idxAlpha3dB);
 xline(alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1, ...
-    'Label', sprintf('Narrowband modified beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
+    'Label', sprintf('Narrowband beamwidth = %.1f°', 2*abs(alpha3dB)), 'LabelVerticalAlignment', 'bottom', ...
     'LabelHorizontalAlignment','left', 'LabelOrientation', 'aligned')
 xline(-alpha3dB, 'r', 'LineStyle', '--', 'LineWidth', 1)
 
@@ -316,9 +391,10 @@ xlim([-90, 90])
 xlabel('Off-axis angle [°]')
 ylabel('Off-axis attenuation [dB]')
 title({'Directionnal loss approximation', ... 
-     sprintf('DI = %ddB', DI)})
+     sprintf('DI = %.1fdB', DI)})
 set(gca, 'YDir', 'reverse')
 
+legend(lgd, 'Location', 'northwest')
 
 % Polar plot 
 % Apparent source level
@@ -336,7 +412,7 @@ polarplot(theta, ASLbb, 'LineWidth', 1)
 lgd{end+1} = sprintf('ASL - broadband');
 
 title({'Apparent source level for a narrow band signal', ...
-    sprintf('DI = %ddB, SL_0 = %ddB', DI, SL0)})
+    sprintf('DI = %.1fdB, SL_0 = %.1fdB', DI, SL0)})
 legend(lgd, 'Location', 'southoutside')
 
 
@@ -427,9 +503,14 @@ RLbb = ASLbb - TL;
 RLnb = ASLnb - TL;
 RLnbmodified = ASLnbmodified - TL;
 
+areaPixel = dx * dy;
+Area_nb = numel(RLnb(RLnb >= DTthreshold)) * areaPixel;
+Area_bb = numel(RLbb(RLbb >= DTthreshold)) * areaPixel;
+Area_nbmodified = numel(RLnbmodified(RLnbmodified >= DTthreshold)) * areaPixel;
+
 fig = figure;
 % Broadband
-subplot(1, 3, 1)
+h2 = subplot(1, 3, 2);
 imagesc(x, y, RLbb)
 % Detection threshold contour
 hold on 
@@ -438,12 +519,16 @@ colormap(jet)
 % colorbar
 caxis([100, 150])
 set(gca,'YDir','normal')
-title('Broadband approximation')
-% xlabel('x [m]')
+set(gca, 'YTick', [])
+set(gca, 'XTick', -200:200:200)
+xtickangle(gca, 45)
+
+title({'Broadband model', sprintf('Area: %.0f m^2', Area_bb)})
+xlabel('x [m]')
 % ylabel('y [m]')
 
 % Narrowband
-subplot(1, 3, 2)
+h1 = subplot(1, 3, 1);
 imagesc(x, y, RLnb)
 % Detection threshold contour
 hold on
@@ -452,30 +537,51 @@ colormap(jet)
 % colorbar
 caxis([100, 150])
 set(gca,'YDir','normal')
-title('Narrowband piston model')
+% set(gca, 'YTick', [])
+set(gca, 'XTick', -200:200:200)
+xtickangle(gca, 45)
+title({'Circular piston model', sprintf('Area: %.0f m^2', Area_nb)})
 % xlabel('x [m]')
-% ylabel('y [m]')
+ylabel('y [m]')
 
 % Narrowband modified 
-subplot(1, 3, 3)
+h3 = subplot(1, 3, 3);
 imagesc(x, y, RLnbmodified)
 % Detection threshold contour
 hold on
 contour(x, y, RLnbmodified, [0, DTthreshold], '-w', 'LineWidth', 1.5)
-colormap(jet)
-c = colorbar;
-c.Label.String = 'Received level [dB]'; 
+% colormap(jet)
+% c = colorbar;
+% c.Label.String = 'Received level [dB]'; 
 caxis([100, 150])
 set(gca,'YDir','normal')
-title('Narrowband modified piston model')
+set(gca, 'YTick', [])
+set(gca, 'XTick', -200:200:200)
+xtickangle(gca, 45)
+title({'Narrowband model', sprintf('Area: %.0f m^2', Area_nbmodified)})
 
-% Give common xlabel, ylabel and title to your figure
+width = 0.25;
+height = 0.796;
+leftSpace = 0.03;
+left0 = 0.09;
+bottom0 = 0.1100;
+
+h1.Position = [ left0               bottom0    width    height];
+h2.Position = [ left0+(width+leftSpace)     bottom0    width    height];
+h3.Position = [ left0+2*(width+leftSpace)              bottom0    width    height];
+
+% Give common xlabel, ylabel and title to figure
 han=axes(fig,'visible','off'); 
 han.Title.Visible='on';
 han.XLabel.Visible='on';
 han.YLabel.Visible='on';
-xlabel(han,'x [m]');
-ylabel(han,'y [m]');
+% xlabel(han,'x [m]');
+% ylabel(han,'y [m]');
+
+c = colorbar(han,'Position', [left0+3*(width+leftSpace/1.2) bottom0  0.02 0.796]);  % attach colorbar to h
+c.Label.String = 'Received level [dB]'; 
+colormap(c,'jet')
+caxis(han, [100, 150]);             % set colorbar limits
 
 %% Theta limit for narrow band approximation 
 dth = 0.01;

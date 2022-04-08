@@ -17,17 +17,37 @@ sigmaHdeg = getVararginValue(varargin, 'sigmaH', 10);
 DI = getVararginValue(varargin, 'DI', 22); % Directivity index 
 
 %% Transmission loss 
-[tl, zt, rt] = computeTL(filename); % Transmission loss 
-if not (isempty(zTarget) && isempty(zt))
-    izToKeep = (zt < zTarget + deltaZ) & (zt > zTarget - deltaZ);
-    tl = tl(izToKeep, :);
-end
-tl = median(tl);
+[tl, zt, rt] = computeTL(filename); % Transmission loss
 
-%% Crop tl to avoid uncoherent values in the first meters 
+% Define a validity domain to avoid values in the bottom
+validityDomain = ones(size(tl));
+btyFilename = sprintf('%sbty', filename(1:end-3));
+btyBound = readBtyBound(btyFilename, rt); 
+zBottom = btyBound.z; 
+for i=1:numel(rt)
+    idxBottom = (zt >= zBottom(i));
+    validityDomain(idxBottom, i) = 0; % set to 0 under the bottom surface 
+end
+
+% Gaussian weighted mean centered on living depth
+dz = diff(zt);
+dz = dz(end);
+idx_zTarget = find(abs(zt-zTarget) < dz, 1, "first");
+n_std = floor(deltaZ / dz);
+tl = GaussianWeightedMean(tl, idx_zTarget, n_std, validityDomain); 
+
+% if not (isempty(zTarget) && isempty(zt))
+%     izToKeep = (zt < zTarget + deltaZ) & (zt > zTarget - deltaZ);
+%     tl = tl(izToKeep, :);
+% end
+% tl = median(tl);
+
+%% Fit tl to log model to avoid uncoherent values in the first meters 
 % The first meters have import TL values which are note traducing any
-% physical phenomenon. Those value are due to the limited anglular aperture covered by
-% the rays emitted by the source ([-89; 89])
+% physical phenomenon. Those value are could be due to the limited anglular aperture covered by
+% the rays emitted by the source ([-89; 89]). Moreover the theoretical
+% assumptions on which relies BELLHOP are only valid in the far field
+% domain.
 
 epsilon = 1; % Allowed diff in DB 
 f = fittype('a*log10(x) + b*x', ... 
@@ -155,10 +175,11 @@ detectionRange = computeDetectionRange(g, rt, DRThreshold);
 
 %% Plot
 % figure
-% plot(rt, g)
-% xlabel('Range [m]')
-% ylabel('Detection probability')
-% hold on 
-% yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
+hold on 
+plot(rt, g)
+xlabel('Range [m]')
+ylabel('Detection probability')
+hold on 
+yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
 end
 

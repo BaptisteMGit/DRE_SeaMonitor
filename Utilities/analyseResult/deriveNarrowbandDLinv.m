@@ -50,7 +50,7 @@ thetaPart2 = theta(idxPart2);
 DLnbPart2 = ones(size(thetaPart2)) * DLnb(end); % Constant with value DLnb(theta=90°)
 % We add a small slope to ensure the final distribution is injective on 
 % the interval [0, 90]° so that we can inverse it 
-eps = 0.1;
+eps = 0.1; % 0.1
 a = +eps/(max(thetaPart2)-theta_knot2);
 b = -eps * (1+theta_knot2/((max(thetaPart2)-theta_knot2)));
 yoffset = a*abs(thetaPart2) + b; 
@@ -85,7 +85,22 @@ DLmax = max(DLnb_interp);
 % It is a piecewise-defined function 
 DLinv = @(DL)...
     0 * (DL <= 0) + ... % DL = 0
-    interp1(theta, DLnb_interp, DL, 'linear', 0) .* (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
+    interp1(DLnb_interp, theta, DL, 'linear', 0) .* (0 < DL & DL < DLmax) + ... % 0 < DL < DLmax
     pi * (DL >= DLmax); % DL >= DLmax
+
+% figure
+% plot(theta*180/pi, DLnb_interp, 'LineWidth', 1)
+% xlabel('Off-axis angle [°]')
+% ylabel('Off-axis attenuation [dB]')
+% set(gca, 'YDir', 'reverse')
+% xlim([-90, 90])
+% 
+% figure
+% plot(theta, DLinv(DLnb_interp), 'LineWidth', 1)
+% hold on 
+% plot(theta, theta, '--r', 'LineWidth', 1)  
+% 
+% figure
+% plot( diff(DLnb_interp) )
 end
 

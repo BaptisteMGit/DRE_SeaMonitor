@@ -426,14 +426,13 @@
         end
 
         function maxDR = get.maxDR(obj)
-            maxDR = 0;
+            listMDR = ones(1, numel(obj.listAz));
             for idx=1:numel(obj.listAz)
                 g = obj.listDetectionFunction(idx, :);
-                DR = computeDetectionRange(g, obj.rt, '5%'); 
-                if DR >= maxDR
-                    maxDR = DR;
-                end
+                DR = computeDetectionRange(g, obj.rt, '1%'); 
+                listMDR(idx) = DR;
             end
+            maxDR = mean(listMDR);
         end
     end
 
