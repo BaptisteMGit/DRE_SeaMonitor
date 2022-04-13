@@ -112,22 +112,22 @@ classdef editMarineMammalUI < handle
                 'LayoutPosition', struct('nRow', 3, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'Placeholder', 'Name'})
     
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.centroidFrequency, ...
-                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d Hz'}) % Centroid frequency
+                'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f Hz'}) % Centroid frequency
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sourceLevel, ...
-                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB re 1uPa at 1m'}) % Source level 
+                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB re 1uPa at 1m'}) % Source level 
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sigmaSourceLevel, ...
-                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB'}) % SL std
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f dB'}) % SL std
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.directivityIndex, ...
-                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d dB'}) % Directivity index
+                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB'}) % Directivity index
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.rMax, ...
-                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'})
+                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f m'})
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.livingDepth, ...
-                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%d m'})% Living depth
+                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'})% Living depth
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.deltaLivingDepth, ...
                 'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'}) % Delta living depth

@@ -32,6 +32,21 @@ classdef OceanEnvironement < handle
                 pH = repelem(pH, numel(D));
                 pH = reshape(pH, sz);
                 obj.pH = pH;
+
+                % Fix for NaN values 
+                % Temperature 
+                idxNaN = isnan(obj.temperatureC);
+                lastNotNaN = find(~idxNaN, 1, 'last');
+                obj.temperatureC(idxNaN) = obj.temperatureC(lastNotNaN);
+                % Salinity 
+                idxNaN = isnan(obj.salinity);
+                lastNotNaN = find(~idxNaN, 1, 'last');
+                obj.salinity(idxNaN) = obj.salinity(lastNotNaN);
+                % pH 
+                idxNaN = isnan(obj.pH);
+                lastNotNaN = find(~idxNaN, 1, 'last');
+                obj.pH(idxNaN) = obj.pH(lastNotNaN);
+                
             catch 
                 obj.connectionFailed = 1;
             end 

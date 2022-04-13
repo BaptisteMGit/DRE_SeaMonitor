@@ -56,7 +56,7 @@ classdef plottingToolsUI < handle
     properties (Hidden=true)
         % Size of the main window 
         Width = 350;
-        Height = 550;
+        Height = 200;
         % Define font style
         FontSize = 12;
         FontName = 'Arial';

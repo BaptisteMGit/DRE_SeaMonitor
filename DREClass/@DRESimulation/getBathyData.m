@@ -1,4 +1,4 @@
- function getBathyData(obj)
+function getBathyData(obj)
     promptMsg = 'Loading bathymetry dataset';
     fprintf(promptMsg);
     
