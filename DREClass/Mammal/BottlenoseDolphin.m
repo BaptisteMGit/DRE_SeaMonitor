@@ -7,7 +7,6 @@ classdef BottlenoseDolphin < MarineMammal
         % Properties specific to clicks 
         meanICI = 100; % Inter-click interval in ms
         peakFrequency = 100 * 1e3; % Peak frequency in Hz
-        bandWidth = 28.5 * 1e3; % Bandwidth of the signal 
 
         % Useless for the momment
 %         signalEnergy  = []; % Signal energy in Ws 
@@ -20,6 +19,11 @@ classdef BottlenoseDolphin < MarineMammal
         function obj = BottlenoseDolphin()
             % Shared properties 
             obj.centroidFrequency = 81 * 1e3; % Centroid frequency in Hz
+
+            % To be verified 
+            obj.bandwidth = 89 * 1e3; % Soundscape Characterisation and Cetacean Presence in the Porcupine Basin 
+            obj.duration = 40 * 1e-6; % (s)
+
             obj.sourceLevel = 202; % SL (dB re 1 μPa pp at 1 m)
             obj.sigmaSourceLevel = 5; % dB
             obj.directivityIndex = 26; % Directivity index in dB 
@@ -29,7 +33,7 @@ classdef BottlenoseDolphin < MarineMammal
             % Tursiops aduncus = 29 dB, Tursiops truncatus = 26 dB
 
             % Signal
-            obj.signal =  Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency, obj.directivityIndex);
+            obj.signal = Click(obj.centroidFrequency, obj.bandwidth, obj.duration, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex, obj.meanICI, obj.peakFrequency);
 
             obj.rMax = 1500; % TODO: check literature (rMax is inherited from MarineMammal)
             % TODO: check following values 
@@ -37,5 +41,10 @@ classdef BottlenoseDolphin < MarineMammal
             obj.deltaLivingDepth = 100;
             obj.name = 'Bottlenose dolphin';
         end 
+
+        function setSignal(obj)
+            obj.signal = Click(obj.centroidFrequency, obj.bandwidth, obj.duration, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex, obj.meanICI, obj.peakFrequency);
+        end
+
     end 
 end 

@@ -24,20 +24,7 @@ classdef SpermWhaleDemo < DRESimulation
             obj.mooring = Mooring(mooringPos, mooringName, hydroDepth, deploymentDate);
             
             %% Marine mammal 
-            spermWhale = MarineMammal();
-            spermWhale.name = 'SpermWhale';
-            spermWhale.centroidFrequency = 15 * 1e3; % frequency in Hz
-
-            spermWhale.sourceLevel = 230;    
-            spermWhale.sigmaSourceLevel = 5; 
-
-            spermWhale.livingDepth = 1800; 
-            spermWhale.deltaLivingDepth = 1000; 
-            spermWhale.rMax = 15000;
-            spermWhale.directivityIndex = 27;  
-            
-            obj.marineMammal = spermWhale;
-            obj.marineMammal.setSignal(); 
+            obj.marineMammal = SpermWhale;
 
             %% Off-axis 
             % Directional transducer 

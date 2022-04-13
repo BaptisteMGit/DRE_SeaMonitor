@@ -1,8 +1,11 @@
 classdef MarineMammal < handle
     properties
         name % name of the marine mammal
-
-        centroidFrequency % centroid frequency
+        
+        centroidFrequency % centroid frequency (Hz)
+        bandwidth % Signal bandwidth (freq_max - min_freq) (Hz)
+        duration % Signal duration (s)
+        
         sourceLevel % On axis average source level dB re 1uPa @ 1m 
         sigmaSourceLevel % Standard deviation of the source level 
         directivityIndex % Directivity index in dB 
@@ -22,6 +25,7 @@ classdef MarineMammal < handle
 
         % Default values 
         centroidFrequencyDefault = 100 * 1e3; % centroid frequency
+        bandwidthDefault = 20 * 1e3 % Bandwidth in Hz 
         sourceLevelDefault = 175;% source level dB re 1uPa @ 1m 
         rMaxDefault = 1500; % Maximum detection range according to literature 
         livingDepthDefault = 10; % Depth where the mammal is supposed to live 
@@ -62,12 +66,13 @@ classdef MarineMammal < handle
             else
                 sigName = obj.signalName;
             end
-            obj.signal = Signal(sigName, obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex);
+            obj.signal = Signal(sigName, obj.centroidFrequency, obj.bandwidth, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex);
         end
 
         function setDefault(obj)
             obj.name = 'DefaultMammal';
             obj.centroidFrequency =  obj.centroidFrequencyDefault;
+            obj.bandwidth = obj.bandwidthDefault;
             obj.sourceLevel = obj.sourceLevelDefault;
             obj.sigmaSourceLevel = obj.sigmaSourceLevelDefault;
             obj.rMax = obj.rMaxDefault; 
@@ -99,7 +104,8 @@ classdef MarineMammal < handle
             end
 
             % Abitrary rMax limits (TODO: investigate)
-            rMaxMax = 100000; % 100 km 
+            rMaxMax = 100000; % 125 km (Sperm whales detected up to 121km reported in Frouin-Mouy, H., S. Hipsey, S. Denes, and R. Burns. 2017. Soundscape Characterisation and 
+% Cetacean Presence in the Porcupine Basin)
             rMaxMin = 100; % 100m 
             if obj.rMax > rMaxMax || obj.rMax < rMaxMin
                 bool = 0;

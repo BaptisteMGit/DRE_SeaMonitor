@@ -15,13 +15,18 @@ classdef Porpoise < MarineMammal
     methods
         function obj = Porpoise()
             % Shared properties 
-            obj.centroidFrequency = 130 * 1e3; % Centroid frequency in Hz
+            obj.centroidFrequency = 130 * 1e3; % Centroid frequency in Hz  
+
+            % Quantifying harbour porpoise foraging behaviour in CPOD data: identification, automatic detection and potential application
+            obj.bandwidth = 40 * 1e3; 
+            obj.duration = 100 * 1e-6; % (s)
+
             obj.sourceLevel = 165; % Source level in dB 
             obj.sigmaSourceLevel = 5; % TODO: check this value 
             obj.directivityIndex = 22; % Directivity index in dB 
 
             % Signal
-            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency, obj.directivityIndex);
+            obj.signal = Click(obj.centroidFrequency, obj.bandwidth, obj.duration, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex, obj.meanICI, obj.peakFrequency);
 
 %             Estimating effective detection area of static passive acoustic 
 %             data loggers from playback experiments with cetacean 
@@ -35,7 +40,7 @@ classdef Porpoise < MarineMammal
         end
 
         function setSignal(obj)
-            obj.signal = Click(obj.centroidFrequency, obj.sourceLevel, obj.sigmaSourceLevel, obj.meanICI, obj.peakFrequency, obj.directivityIndex);
+            obj.signal = Click(obj.centroidFrequency, obj.bandwidth, obj.duration, obj.sourceLevel, obj.sigmaSourceLevel, obj.directivityIndex, obj.meanICI, obj.peakFrequency);
         end
 
     end
