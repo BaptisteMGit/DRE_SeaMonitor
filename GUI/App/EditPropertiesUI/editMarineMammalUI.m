@@ -98,13 +98,16 @@ classdef editMarineMammalUI < handle
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Name', 'LayoutPosition', struct('nRow', 3, 'nCol', 2), 'Font', textLabelFont})
 
             addLabel(app, {'Parent', app.GridLayout, 'Text', 'Centroid frequency', 'LayoutPosition', struct('nRow', 4, 'nCol', 2), 'Font', textLabelFont})
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Source level', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Std source level', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont})
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Directivity index', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Frequency bandwidth', 'LayoutPosition', struct('nRow', 5, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Signal duration', 'LayoutPosition', struct('nRow', 6, 'nCol', 2), 'Font', textLabelFont})
 
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Maximum detection range', 'LayoutPosition', struct('nRow', 8, 'nCol', 2), 'Font', textLabelFont})
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Living depth', 'LayoutPosition', struct('nRow', 9, 'nCol', 2), 'Font', textLabelFont})
-            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Range around living depth', 'LayoutPosition', struct('nRow', 10, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Source level', 'LayoutPosition', struct('nRow', 7, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Std source level', 'LayoutPosition', struct('nRow', 8, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Directivity index', 'LayoutPosition', struct('nRow', 9, 'nCol', 2), 'Font', textLabelFont})
+
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Maximum detection range', 'LayoutPosition', struct('nRow', 10, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Living depth', 'LayoutPosition', struct('nRow', 11, 'nCol', 2), 'Font', textLabelFont})
+            addLabel(app, {'Parent', app.GridLayout, 'Text', 'Range around living depth', 'LayoutPosition', struct('nRow', 12, 'nCol', 2), 'Font', textLabelFont})
 
             % Edit field
             % Marine mammal
@@ -114,23 +117,29 @@ classdef editMarineMammalUI < handle
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.centroidFrequency, ...
                 'LayoutPosition', struct('nRow', 4, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f Hz'}) % Centroid frequency
 
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.bandwidth, ...
+                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f Hz'}) % Signal bandwidth 
+
+            addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.duration * 1e6, ...
+                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f ms'}) % Signal duration
+
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sourceLevel, ...
-                'LayoutPosition', struct('nRow', 5, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB re 1uPa at 1m'}) % Source level 
+                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB re 1uPa at 1m'}) % Source level 
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.sigmaSourceLevel, ...
-                'LayoutPosition', struct('nRow', 6, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f dB'}) % SL std
+                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f dB'}) % SL std
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.directivityIndex, ...
-                'LayoutPosition', struct('nRow', 7, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB'}) % Directivity index
+                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f dB'}) % Directivity index
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.rMax, ...
-                'LayoutPosition', struct('nRow', 8, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f m'})
+                'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.0f m'})
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.livingDepth, ...
-                'LayoutPosition', struct('nRow', 9, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'})% Living depth
+                'LayoutPosition', struct('nRow', 11, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'})% Living depth
 
             addEditField(app, {'Parent', app.GridLayout, 'Style', 'numeric', 'Value', app.Simulation.marineMammal.deltaLivingDepth, ...
-                'LayoutPosition', struct('nRow', 10, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'}) % Delta living depth
+                'LayoutPosition', struct('nRow', 12, 'nCol', 4), 'ValueChangedFcn', @app.editFieldChanged, 'ValueDisplayFormat', '%.1f m'}) % Delta living depth
              
             % Drop down 
             addDropDown(app, {'Parent', app.GridLayout, 'Items', app.Simulation.availableSources, 'Value', app.marineMammalName, ...
@@ -196,6 +205,8 @@ classdef editMarineMammalUI < handle
                     app.Simulation.marineMammal = BottlenoseDolphin;
                 case 'Porpoise'
                     app.Simulation.marineMammal = Porpoise; 
+                case 'SpermWhale'
+                    app.Simulation.marineMammal = SpermWhale; 
                 case 'New custom source'
                     app.Simulation.marineMammal = MarineMammal;
             end
@@ -269,26 +280,30 @@ classdef editMarineMammalUI < handle
         end
 
         function saveProperties(app)
-            app.Simulation.marineMammal.name = get(app.handleEditField(1), 'Value');
-            app.Simulation.marineMammal.centroidFrequency = get(app.handleEditField(2), 'Value');
-            app.Simulation.marineMammal.sourceLevel = get(app.handleEditField(3), 'Value');
-            app.Simulation.marineMammal.sigmaSourceLevel = get(app.handleEditField(4), 'Value');
-            app.Simulation.marineMammal.directivityIndex = get(app.handleEditField(5), 'Value');
-            app.Simulation.marineMammal.rMax = get(app.handleEditField(6), 'Value');
-            app.Simulation.marineMammal.livingDepth = get(app.handleEditField(7), 'Value');
-            app.Simulation.marineMammal.deltaLivingDepth = get(app.handleEditField(8), 'Value');
+            app.Simulation.marineMammal.name                = get(app.handleEditField(1), 'Value');
+            app.Simulation.marineMammal.centroidFrequency   = get(app.handleEditField(2), 'Value');
+            app.Simulation.marineMammal.bandwidth           = get(app.handleEditField(3), 'Value');
+            app.Simulation.marineMammal.duration            = get(app.handleEditField(4), 'Value') * 1e-6;
+            app.Simulation.marineMammal.sourceLevel         = get(app.handleEditField(5), 'Value');
+            app.Simulation.marineMammal.sigmaSourceLevel    = get(app.handleEditField(6), 'Value');
+            app.Simulation.marineMammal.directivityIndex    = get(app.handleEditField(7), 'Value');
+            app.Simulation.marineMammal.rMax                = get(app.handleEditField(8), 'Value');
+            app.Simulation.marineMammal.livingDepth         = get(app.handleEditField(9), 'Value');
+            app.Simulation.marineMammal.deltaLivingDepth    = get(app.handleEditField(10), 'Value');
             app.Simulation.marineMammal.setSignal(); % Update signal with new values
         end
 
         function updatePropertiesValue(app)
             set(app.handleEditField(1), 'Value', app.Simulation.marineMammal.name);
             set(app.handleEditField(2), 'Value', app.Simulation.marineMammal.centroidFrequency);
-            set(app.handleEditField(3), 'Value', app.Simulation.marineMammal.sourceLevel);
-            set(app.handleEditField(4), 'Value', app.Simulation.marineMammal.sigmaSourceLevel);
-            set(app.handleEditField(5), 'Value', app.Simulation.marineMammal.directivityIndex);
-            set(app.handleEditField(6), 'Value', app.Simulation.marineMammal.rMax);
-            set(app.handleEditField(7), 'Value', app.Simulation.marineMammal.livingDepth);
-            set(app.handleEditField(8), 'Value', app.Simulation.marineMammal.deltaLivingDepth);
+            set(app.handleEditField(3), 'Value', app.Simulation.marineMammal.bandwidth);
+            set(app.handleEditField(4), 'Value', app.Simulation.marineMammal.duration * 1e6);
+            set(app.handleEditField(5), 'Value', app.Simulation.marineMammal.sourceLevel);
+            set(app.handleEditField(6), 'Value', app.Simulation.marineMammal.sigmaSourceLevel);
+            set(app.handleEditField(7), 'Value', app.Simulation.marineMammal.directivityIndex);
+            set(app.handleEditField(8), 'Value', app.Simulation.marineMammal.rMax);
+            set(app.handleEditField(9), 'Value', app.Simulation.marineMammal.livingDepth);
+            set(app.handleEditField(10), 'Value', app.Simulation.marineMammal.deltaLivingDepth);
         end 
 
     end

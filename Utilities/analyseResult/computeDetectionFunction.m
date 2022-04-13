@@ -56,8 +56,13 @@ f = fittype('a*log10(x) + b*x', ...
 % We only consider the first value for fitting in order to be as close as
 % possible to the TL computed by BELLHOP for small range (the zone where
 % the issue occurs) 
-rtCrop = rt(1:200);
-tlCrop = tl(1:200);
+
+% Define range to crop in function of 
+rFit = 0.1 * max(rt); % 10 percent 
+idxFit = find( (abs((rt - rFit)) == min(abs((rt - rFit)))), 1, 'first');
+
+rtCrop = rt(1:idxFit);
+tlCrop = tl(1:idxFit);
 [fit1,~,~] = fit(rtCrop',tlCrop',f,'StartPoint',[1 1], 'Robust','on', 'Exclude', rtCrop < 10);
 
 TLR = fit1.a*log10(rt) + fit1.b*rt; % Fitted spreading law
