@@ -39,10 +39,12 @@ function plotDPM(obj, varargin)
     % Detection range 
     obj.plotDetectionRangeContour('--b', 2) 
     setProbabilityColormap()
+
     % auto scale
-    r = obj.getRadiusToPlot(); 
-    xlim([-r, r])
-    ylim([-r, r])
+%     r = obj.getRadiusToPlot(); 
+%     xlim([-r, r])
+%     ylim([-r, r])
+
     % Labels 
     % title('Detection probability')
     xlabel('E [m]')

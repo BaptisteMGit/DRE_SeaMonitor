@@ -7,6 +7,7 @@ classdef WenzModel < handle
         windSpeed % Wind speed in m.s-1 
         trafficIntensity % traffic intensity on a scale from 0 to 3 <-> quiet, low, medium, heavy
         oceanEnvironment % Handle pH, T, S, depth
+        hydroDepth % hydrophone depth 
         frequencyRange % Bandwidth to integrate  
     end
 
@@ -21,8 +22,9 @@ classdef WenzModel < handle
     end 
     
     methods
-        function obj = WenzModel(oceanEnv)
+        function obj = WenzModel(oceanEnv, hydroDepth)
             obj.oceanEnvironment = oceanEnv;
+            obj.hydroDepth = hydroDepth;
             obj.setDefault()
         end
       
@@ -41,8 +43,8 @@ classdef WenzModel < handle
         function noiseLevel = computeNoiseLevel(obj)
             wenzArgin = {'fMin', obj.frequencyRange.min, 'fMax', obj.frequencyRange.max, ...
                 'TrafficIntensity', obj.trafficIntensity, 'WindSpeed', obj.windSpeed, ...
-                'Temperature', obj.oceanEnvironment.temperatureC, 'Salinity', obj.oceanEnvironment.salinity, ...
-                'pH', obj.oceanEnvironment.pH, 'depth', obj.oceanEnvironment.depth};
+                'Temperature', mean(obj.oceanEnvironment.temperatureC), 'Salinity', mean(obj.oceanEnvironment.salinity), ...
+                'pH', mean(obj.oceanEnvironment.pH), 'Depth', obj.hydroDepth};
             noiseLevel = getNLFromWenzModel(wenzArgin{:});
         end
 

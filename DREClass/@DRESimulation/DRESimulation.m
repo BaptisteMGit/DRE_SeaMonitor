@@ -103,6 +103,7 @@
         cwa % Attenuation coef 
 
         maxBathyDepth
+        hydroDepthRefToSurf % Hydrophone depth ref to the surface (positive toward bottom) 
 
         % Boxes 
         bBox % Boundary box in WGS84 coordinates 
@@ -191,6 +192,7 @@
         setDefault(obj)
         setGriddedFlags(obj)
         getBathyData(obj)
+        hydroDepth = getHydrophoneDepth(obj)
         bathyProfile = getBathyProfile(obj, theta)
         runBellhop(obj, nameProfile)
         readOutputGrid(obj, nameProfile)
@@ -327,6 +329,10 @@
             depth = -obj.dataBathy(:, 3); % Positive depth toward the bottom 
             bathyDepth = depth(depth > 0); % Remove topographic points to only keep bathymetry 
             maxDepth = max(bathyDepth);
+        end
+
+        function hydroDepthRefToSurf = get.hydroDepthRefToSurf(obj)
+            hydroDepthRefToSurf = obj.getHydrophoneDepth();
         end
 
         function bBox = get.bBox(obj)

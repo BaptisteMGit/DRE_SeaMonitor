@@ -332,7 +332,7 @@ classdef configEnvironmentUI < handle
                     else
                         oceanEnvironment = app.Simulation.oceanEnvironment;
                     end
-                    app.Simulation.noiseEnvironment.wenzModel = WenzModel(oceanEnvironment);
+                    app.Simulation.noiseEnvironment.wenzModel = WenzModel(oceanEnvironment, app.Simulation.hydroDepthRefToSurf);
                     
                     app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                     bool = 0;
@@ -457,7 +457,7 @@ classdef configEnvironmentUI < handle
                     app.subWindows{end+1} = selectRecordingUI(app.Simulation, app.handleEditField(5));
                 case 'Derived from Wenz model'
                     if isempty(app.Simulation.noiseEnvironment.wenzModel)
-                        app.Simulation.noiseEnvironment.wenzModel = WenzModel; 
+                        app.Simulation.noiseEnvironment.wenzModel = WenzModel(app.Simulation.oceanEnvironment, app.Simulation.hydroDepthRefToSurf); 
                     end
                     app.subWindows{end+1} = selectWenzUI(app.Simulation, app.handleEditField(5));
                 case 'Input value'

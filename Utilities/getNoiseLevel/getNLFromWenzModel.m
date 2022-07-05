@@ -14,6 +14,8 @@ S = getVararginValue(varargin, 'Salinity', 35); % Salinity in ppt
 pH = getVararginValue(varargin, 'pH', 7.8); % pH 
 Depth = getVararginValue(varargin, 'Depth', 10); % Hydrophone depth m 
 
+Depth = round(Depth, 0); 
+
 % freq = fMin:1:fMax;
 freq = 1:1:300000;
 fkHz = freq/1000;
@@ -89,7 +91,7 @@ area(freq(idxBW), NLspectrum(idxBW), 'EdgeColor', 'none', 'FaceColor', 'y', 'Fac
 
 ylim([0, 100])
 legend()
-title(sprintf('Wenz curves - hydrophone depth of %.2fm', Depth))
+title(sprintf('Wenz curves - hydrophone depth of %.0fm', Depth))
 
 
 % NIS_1 = zeros([1, numel(freq)]);

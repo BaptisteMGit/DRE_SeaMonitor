@@ -180,11 +180,11 @@ detectionRange = computeDetectionRange(g, rt, DRThreshold);
 
 %% Plot
 % figure
-hold on 
-plot(rt, g)
-xlabel('Range [m]')
-ylabel('Detection probability')
-hold on 
-yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
+% hold on 
+% plot(rt, g)
+% xlabel('Range [m]')
+% ylabel('Detection probability')
+% hold on 
+% yline(0.5, '--r', 'LineWidth', 2, 'Label', '50 % detection threshold')
 end
 
