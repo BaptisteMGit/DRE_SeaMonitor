@@ -6,7 +6,7 @@ zHydro = 10;
 removeR = 5; % Nb of range points to be removed 
 
 flagPlot = true;
-flagCompute = true;
+flagCompute = false;
 %% Forward profile 
 name = 'testEquivalence';
 if flagCompute
@@ -24,6 +24,9 @@ if flagPlot
     hold on 
     % Acoustic source 
     scatter(5000, zTarget, 50, 'filled', 'r')
+    % get labels for x-axis
+    
+
 end
 
 [ ~, ~, ~, ~, ~, Pos, pressure ] = read_shd( 'testEquivalence.shd' );
@@ -44,7 +47,6 @@ tlt = -20.0 * log10( tlt );          % so there's no error when we take the log
 tlt = tlt(:, 5:end); % Remove first meters to compute statistic 
 rt = rt(removeR:end);
 
-
 %% Backward profile 
 name = 'testEquivalenceReverse';
 if flagCompute
@@ -63,7 +65,9 @@ if flagPlot
     hold on 
     % Acoustic source 
     scatter(0, zTarget, 50, 'filled', 'r')
-    set( gca, 'XDir', 'Reverse' )
+    set(gca, 'XDir', 'Reverse')
+    rLabel = flipud(get(gca, 'XTickLabel'));
+    set(gca, 'XTickLabel', rLabel)
 
 end
 
@@ -84,6 +88,8 @@ tltReverse( tltReverse < 1e-37 ) = 1e-37;          % remove zeros
 tltReverse = -20.0 * log10( tltReverse );          % so there's no error when we take the log
 tltReverse = tltReverse(:, removeR:end); % Remove first meters to compute statistic 
 rtReverse = rtReverse(removeR:end);
+
+% xticklabels(cellstr(num2str(fliplr(rtReverse))))
 
 %% Compare result 
 % We want to make sure the level computed for the red point with the
@@ -123,6 +129,7 @@ izToKeepReverse = (ztReverse < zHydro + deltaZ) & (ztReverse > zHydro - deltaZ);
 tltAtHydroLoc = tltReverse(izToKeepReverse, :); 
 tltAtHydroLoc = median(tltAtHydroLoc);
 
+
 figure 
 plot(rt, tltAtMammalLoc)
 hold on 
@@ -141,6 +148,14 @@ stdDelta = std(delta);
 yline(medDelta)
 yline(medDelta + stdDelta, '--', 'Color', 'r')
 yline(medDelta - stdDelta, '--', 'Color', 'r')
+
+relError = delta/tltAtMammalLoc * 100;
+fprintf('Comparison of the 2 simulations :\n')
+fprintf('Mean error: %4.3f %%\n', mean(delta))
+fprintf('Median error: %4.3f %%\n', medDelta)
+fprintf('Standard deviation error: %4.3f %%\n', stdDelta)
+fprintf('Mean relative error: %4.3f %%\n', median(relError))
+
 
 legend({'\Delta median TL', '\mu', '\mu +/- \sigma'})
 xlabel('Range (m)')

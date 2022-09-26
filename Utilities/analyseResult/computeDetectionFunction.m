@@ -44,7 +44,7 @@ tl = GaussianWeightedMean(tl, idx_zTarget, n_std, validityDomain);
 
 %% Fit tl to log model to avoid uncoherent values in the first meters 
 % The first meters have import TL values which are note traducing any
-% physical phenomenon. Those value are could be due to the limited anglular aperture covered by
+% physical phenomenon. Those value  could be due to the limited anglular aperture covered by
 % the rays emitted by the source ([-89; 89]). Moreover the theoretical
 % assumptions on which relies BELLHOP are only valid in the far field
 % domain.
@@ -122,7 +122,9 @@ switch offAxisDistribution
             omega = integral(f_TL, 0, DLmax);
             
             % Total detection probability 
-            g(i_r) = phi + 1/(2*sqrt(2*pi)*sigmaSL) * omega;
+%             g(i_r) = phi + 1/(2*sqrt(2*pi)*sigmaSL) * omega;
+            g(i_r) = phi + 1 / (sigmaSL * sqrt(2*pi)) * omega; % Fix on 26/09/2022 to remove 1/2 factor 
+
         end
 
     case 'Near on-axis'
@@ -137,10 +139,14 @@ switch offAxisDistribution
         sigmaH = sigmaHdeg * pi/180;
 
         % Intermidiate function to compute the second integral: psy
-        k = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2);
+%         k = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2);
+        k = @(u, v) exp(-1/2 * ((u + v - FOM0) / sigmaSL).^2); % Fix on 26/09/2022 for more coherence with the equations describe in the manual 
+
 
         % Intermidiate function to compute the third integral: omega
-        h = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp( -1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH).^2 ) );
+%         h = @(u, v) 1 / (sigmaSL * sqrt(2*pi)) * exp( -1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH).^2 ) );
+        h = @(u, v) exp( -1/2 * ( ((u + v - FOM0) / sigmaSL).^2 + (DLinv(u) / sigmaH).^2 ) ); % Fix on 26/09/2022 for more coherence with the equations describe in the manual 
+
         
         % Detection function values ( g(r) ) 
         g = double.empty([nr, 0]);
@@ -157,10 +163,10 @@ switch offAxisDistribution
             psy = integral(l_TL, 0, DLmax);
 
             f_TL = @(u) h(u, TL);
-            omega = integral(f_TL, 0, DLmax);
+            gamma = integral(f_TL, 0, DLmax);
             
             % Total detection probability 
-            g(i_r) = phi + psy - omega;
+            g(i_r) = phi + 1 / (sigmaSL * sqrt(2*pi)) * (psy - gamma);
         end
 end
 

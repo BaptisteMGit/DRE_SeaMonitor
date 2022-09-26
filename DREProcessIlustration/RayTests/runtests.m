@@ -17,36 +17,52 @@ units = 'km';
 % BTYfilename = sprintf('%s.bty', testName);
 % writebdry(fullfile(rootBTY, BTYfilename), 'L', data)
 
-cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_MATLAB\DREProcessIllustration';
+cd 'C:\Users\33686\MATLAB\Projects\SeaMonitor\DRE_SeaMonitor\DREProcessIlustration\RayTests';
 
 %% Rays
 % bellhop( 'eqPrinciple_ray' ) % Run BELLHOP model for env file 
+% figure
+% plotray( 'eqPrinciple_ray' ) % Plot ray 
+% plotbty 'eqPrinciple' % Superpose bathy 
+
+bellhop( 'testEquivalence_ray' ) % Run BELLHOP model for env file 
 figure
-plotray( 'eqPrinciple_ray' ) % Plot ray 
-plotbty 'eqPrinciple' % Superpose bathy 
+plotray( 'testEquivalence_ray' ) % Plot ray 
+plotbty 'testEquivalence_ray' % Superpose bathy 
 
 %% Eigenrays
 % bellhop( 'eqPrinciple_eigenray' ) % Run BELLHOP model for env file 
 figure
 plotray( 'eqPrinciple_eigenray' ) % Plot ray 
 plotbty 'eqPrinciple' % Superpose bathy 
+
+% bellhop( 'testEquivalence_eigenray' ) % Run BELLHOP model for env file 
+% figure
+% plotray( 'testEquivalence_eigenray' ) % Plot ray 
+% plotbty 'testEquivalence_eigenray' % Superpose bathy 
+
 scatter(0, 10, 50, 'r', 'filled')
 scatter(2, 40, 50, 'b', 'filled')
+set(gca, 'XDir', 'reverse')
+rLabel = flipud(get(gca, 'XTickLabel'));
+set(gca, 'XTickLabel', rLabel)
 legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
     '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
     'Source', 'Receiver'})
-title({'Reciprocity - simulated situation'})
+title({'Simulated situation'})
 
 figure
 plotray( 'eqPrinciple_eigenray' ) % Plot ray 
 plotbty 'eqPrinciple' % Superpose bathy 
-scatter(0, 10, 50, 'r', 'filled')
-scatter(2, 40, 50, 'b', 'filled')
+scatter(0, 10, 50, 'b', 'filled')
+scatter(2, 40, 50, 'r', 'filled')
 set(gca, 'XDir', 'reverse')
+rLabel = flipud(get(gca, 'XTickLabel'));
+set(gca, 'XTickLabel', rLabel)
 legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
     '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
-    'Source', 'Receiver'})
-title({'Reciprocity - real situation'})
+    'Receiver', 'Source'})
+title({'Real situation'})
 
 
 

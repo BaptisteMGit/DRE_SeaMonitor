@@ -117,6 +117,8 @@ classdef Recording < handle
                 listNL = [listNL listLeq];
 
             end
+
+            %% Special treatment for glider files (SeaMonitor program) 
             % Get rid off outlayers with 95% confidence level to get rid of
             % electrical noises (at the begining of each sound file)
             muNL = mean(double(listNL));
