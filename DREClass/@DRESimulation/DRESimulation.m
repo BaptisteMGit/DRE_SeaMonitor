@@ -49,6 +49,8 @@
         % detection function (detection probability along profile) 
         availableDRThreshold = {'25%', '50%', '75%', '99%'};
         detectionRangeThreshold = '50%';
+        % Maximum detection range threhsold 
+        maximumDetectionRangeThreshold = '5%'
         % OffAxisDistribution
         availableOffAxisDistribution = {'Uniformly distributed on a sphere', 'Near on-axis'}
         offAxisDistribution = 'Uniformly distributed on a sphere';
@@ -435,7 +437,7 @@
             listMDR = ones(1, numel(obj.listAz));
             for idx=1:numel(obj.listAz)
                 g = obj.listDetectionFunction(idx, :);
-                DR = computeDetectionRange(g, obj.rt, '1%'); 
+                DR = computeDetectionRange(g, obj.rt, obj.maximumDetectionRangeThreshold); 
                 listMDR(idx) = DR;
             end
             maxDR = mean(listMDR);

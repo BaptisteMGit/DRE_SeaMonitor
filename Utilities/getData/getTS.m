@@ -24,7 +24,7 @@ elseif tBox.startDate >= lowerLimitDate_024
     productName = 'global-analysis-forecast-phy-001-024';
     tBox.startDate.Hour = 12;
     tBox.stopDate.Hour = 12;
-else % TODO: To be modified for dates covering both periods --> need to be fix 
+else % TODO: To be modified for dates covering both periods --> need to be fix Warning: the limit date is changing over time -> 2 year Moving window 
     motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu'; % NRT server 
     dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
     productName = 'global-analysis-forecast-phy-001-024';

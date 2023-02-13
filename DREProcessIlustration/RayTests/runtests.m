@@ -32,36 +32,41 @@ plotbty 'testEquivalence_ray' % Superpose bathy
 
 %% Eigenrays
 % bellhop( 'eqPrinciple_eigenray' ) % Run BELLHOP model for env file 
+% figure
+% plotray( 'eqPrinciple_eigenray' ) % Plot ray 
+% plotbty 'eqPrinciple' % Superpose bathy 
+% 
+% % bellhop( 'testEquivalence_eigenray' ) % Run BELLHOP model for env file 
+% % figure
+% % plotray( 'testEquivalence_eigenray' ) % Plot ray 
+% % plotbty 'testEquivalence_eigenray' % Superpose bathy 
+% 
+% scatter(0, 10, 50, 'k', 'filled') % Receiver 
+% scatter(2000, 40, 50, 'r', 'filled') % Source 
+% set(gca, 'XDir', 'reverse')
+% rLabel = flipud(get(gca, 'XTickLabel'));
+% set(gca, 'XTickLabel', rLabel)
+% 
+% legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
+%     '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
+%     'Receiver', 'Source'})
+% title({'Simulated situation'})
+
 figure
 plotray( 'eqPrinciple_eigenray' ) % Plot ray 
 plotbty 'eqPrinciple' % Superpose bathy 
+hold on 
+s1 = scatter(0, 10, 100, 'r', 'filled'); 
+hold on 
+s2 = scatter(2, 40, 100, 'filled');
+s2.MarkerFaceColor = 'blue';
 
-% bellhop( 'testEquivalence_eigenray' ) % Run BELLHOP model for env file 
-% figure
-% plotray( 'testEquivalence_eigenray' ) % Plot ray 
-% plotbty 'testEquivalence_eigenray' % Superpose bathy 
-
-scatter(0, 10, 50, 'r', 'filled')
-scatter(2, 40, 50, 'b', 'filled')
 set(gca, 'XDir', 'reverse')
 rLabel = flipud(get(gca, 'XTickLabel'));
 set(gca, 'XTickLabel', rLabel)
 legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
     '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
     'Source', 'Receiver'})
-title({'Simulated situation'})
-
-figure
-plotray( 'eqPrinciple_eigenray' ) % Plot ray 
-plotbty 'eqPrinciple' % Superpose bathy 
-scatter(0, 10, 50, 'b', 'filled')
-scatter(2, 40, 50, 'r', 'filled')
-set(gca, 'XDir', 'reverse')
-rLabel = flipud(get(gca, 'XTickLabel'));
-set(gca, 'XTickLabel', rLabel)
-legend({'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ...
-    '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '', '', '', ...
-    'Receiver', 'Source'})
 title({'Real situation'})
 
 

@@ -156,7 +156,7 @@ end
 if ( jkpsflag )
    set( gca, 'Units', 'centimeters' )
    set( gca, 'Position', [ 2 2 14.0  7.0 ] )
-   set(gcf, 'PaperPositionMode', 'auto');
+   set( gcf, 'PaperPositionMode', 'auto');
    
    %set( gcf, 'Units', 'centimeters' )
    %set( gcf, 'PaperPosition', [ 3 3 19.0 10.0 ] )

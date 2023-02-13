@@ -13,13 +13,18 @@ function plotDetectionFunction(obj, nameProfile)
     hold on 
     
     % Threshold lines 
-    yline(str2double(obj.detectionRangeThreshold(1:end-1))/100, '--r', 'LineWidth', 1, 'Label', sprintf('%s detection threshold', obj.detectionRangeThreshold))
+    yline(str2double(obj.detectionRangeThreshold(1:end-1))/100, '--r', 'LineWidth', 1, 'Label', sprintf('%s EDR threshold', obj.detectionRangeThreshold))
     hold on 
+%     yline(str2double(obj.maximumDetectionRangeThreshold(1:end-1))/100, '--k', 'LineWidth', 1, 'Label', sprintf('%s  MDR threshold', obj.maximumDetectionRangeThreshold))
+%     hold on
 
     % Detection range 
-    xline(detectionRange, '--g', 'LineWidth', 1, ...
-        'Label', sprintf('%s detection range = %dm', obj.detectionRangeThreshold, round(detectionRange, 0)),...
-        'LabelOrientation', 'horizontal', 'LabelVerticalAlignment', 'top')
+    xline(detectionRange, '--r', 'LineWidth', 1, ...
+        'Label', sprintf('%s EDR = %dm', obj.detectionRangeThreshold, round(detectionRange, 0)),...
+        'LabelOrientation', 'aligned', 'LabelVerticalAlignment', 'top')
+%     xline(obj.maxDR, '--k', 'LineWidth', 1, ...
+%         'Label', sprintf('%s MDR = %dm', obj.maximumDetectionRangeThreshold, round(obj.maxDR, 0)),...
+%         'LabelOrientation', 'aligned', 'LabelVerticalAlignment', 'top')
     
     % Labels 
     title({sprintf('Detection function - %s', nameProfile)})

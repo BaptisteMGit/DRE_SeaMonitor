@@ -5,6 +5,7 @@ function Alpha = FrancoisGarrison(Freq, temperatureC, Salinity, Depth, pH)
 
 TemperatureKelvin = 273.15 + temperatureC; %ambient temperatureC(Kelvin)
 speedOfSound = 1412 + 3.21 * temperatureC + 1.19 * Salinity + 0.0167 * Depth; % Calculate speed of sound (m/s) (according to Francois & Garrison, JASA 72 (6) p1886)
+% speedOfSound = MackenzieSoundSpeed(Depth/1000, Salinity, temperatureC);
 
 %Boric acid contribution
 A1 = (8.86 / speedOfSound ) * 10^(0.78 * pH - 5); % (dB/km/kHz)

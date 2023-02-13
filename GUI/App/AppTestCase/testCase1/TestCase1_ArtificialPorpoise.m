@@ -113,7 +113,7 @@ classdef TestCase1_ArtificialPorpoise < DRESimulation
             % From ref paper: "The average threshold level over the four positions was then used as the
             % calibration sensitivity, which varied from 111 dB to 119 dB re 1 μPa
             % peak-to-peak (pp) across the C-PODs used in the study."
-            % This threshold is divided by to because SPL is derived from
+            % This threshold is divided by two (in natural value) because SPL is derived from
             % BELLHOP output considering 0 to peak pressure. 
             
 

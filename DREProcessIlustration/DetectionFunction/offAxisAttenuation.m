@@ -583,6 +583,87 @@ c.Label.String = 'Received level [dB]';
 colormap(c,'jet')
 caxis(han, [100, 150]);             % set colorbar limits
 
+%% Plot only narrow-band model for Springer chapter 
+fig = figure;
+% % Broadband
+% h2 = subplot(1, 3, 2);
+% imagesc(x, y, RLbb)
+% % Detection threshold contour
+% hold on 
+% contour(x, y, RLbb, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+% colormap(jet)
+% % colorbar
+% caxis([100, 150])
+% set(gca,'YDir','normal')
+% set(gca, 'YTick', [])
+% set(gca, 'XTick', -200:200:200)
+% xtickangle(gca, 45)
+% 
+% title({'Broadband model', sprintf('Area: %.0f m^2', Area_bb)})
+% xlabel('x [m]')
+% ylabel('y [m]')
+
+% Narrowband
+h1 = subplot(1, 2, 1);
+imagesc(x, y, RLnb)
+% Detection threshold contour
+hold on
+contour(x, y, RLnb, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+colormap(jet)
+% colorbar
+caxis([100, 150])
+set(gca,'YDir','normal')
+% set(gca, 'YTick', [])
+set(gca, 'XTick', -200:200:200)
+xtickangle(gca, 45)
+title({'Circular piston model', sprintf('Area: %.0f m^2', Area_nb)})
+xlabel('x [m]')
+ylabel('y [m]')
+
+% Narrowband modified 
+h3 = subplot(1, 2, 2);
+imagesc(x, y, RLnbmodified)
+% Detection threshold contour
+hold on
+contour(x, y, RLnbmodified, [0, DTthreshold], '-w', 'LineWidth', 1.5)
+% colormap(jet)
+% c = colorbar;
+% c.Label.String = 'Received level [dB]'; 
+caxis([100, 150])
+set(gca,'YDir','normal')
+set(gca, 'YTick', [])
+set(gca, 'XTick', -200:200:200)
+xtickangle(gca, 45)
+title({'Narrowband model', sprintf('Area: %.0f m^2', Area_nbmodified)})
+xlabel('x [m]')
+
+width = 0.35;
+height = 0.796;
+leftSpace = 0.03;
+left0 = 0.09;
+bottom0 = 0.1100;
+
+h1.Position = [ left0               bottom0    width    height];
+h3.Position = [ left0 + (width+leftSpace)     bottom0    width    height];
+% h3.Position = [ left0+2*(width+leftSpace)              bottom0    width    height];
+
+% Give common xlabel, ylabel and title to figure
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+han.YLabel.Visible='on';
+% xlabel(han,'x [m]');
+% ylabel(han,'y [m]');
+
+c = colorbar(han,'Position', [left0+2*(width+leftSpace/1.2) bottom0  0.02 0.796]);  % attach colorbar to h
+% c = colorbar(h3);  % attach colorbar to h
+
+c.Label.String = 'Received level [dB]'; 
+colormap(c,'jet')
+caxis(h3, [100, 150]);             % set colorbar limits
+
+% t = tiledlayout(2,2,'TileSpacing','Compact','Padding','Compact');
+
 %% Theta limit for narrow band approximation 
 dth = 0.01;
 thetadeg = 0:dth:90;
