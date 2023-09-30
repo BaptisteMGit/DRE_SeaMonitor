@@ -12,4 +12,9 @@ function GEBCObBox = extratBathybBoxFromGEBCOGlobal(bBox, rootSaveInput)
     cmd = sprintf('%s%s%s %s %s', path_ncks, lonlim, latlim, GEBCOGlobal, fullfile(rootSaveInput, GEBCObBox));
 
     [status, cmdout] = system(cmd);
+
+    if isdeployed
+        fprintf('Status from ncks execution : %s', status)
+        fprintf('cmdout from ncks execution : %s', cmdout)
+    end
 end
