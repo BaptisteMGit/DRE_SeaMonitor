@@ -13,8 +13,7 @@ function GEBCObBox = extratBathybBoxFromGEBCOGlobal(bBox, rootSaveInput)
 
     [status, cmdout] = system(cmd);
 
-    if isdeployed
-        fprintf('Status from ncks execution : %s', status)
-        fprintf('cmdout from ncks execution : %s', cmdout)
+    if status ~= 0
+        error(cmdout)
     end
 end

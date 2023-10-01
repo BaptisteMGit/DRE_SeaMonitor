@@ -41,7 +41,7 @@ part8 = sprintf('--user "%s" --pwd "%s"', username, password);
 
 cmd_str = [part1 part2 part3 part4 part5 part6 part7 part8];
 
-[status, cmdout] = system(cmd_str)
+[status, cmdout] = system(cmd_str);
 
 if status ~= 0
     error(cmdout)

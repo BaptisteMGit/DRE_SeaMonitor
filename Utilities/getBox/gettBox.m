@@ -1,12 +1,6 @@
 function tBox = gettBox(startDate, stopDate)
-%     tBox.startDate = startDate;
-%     tBox.stopDate = stopDate;
-    
-    % Fix 21/02/2022 
-    % Switch to datetime objects for more features (comparing dates) 
-    % Drop hh-mm-ss details which leads to downloading issues and don't
-    % bring anything to the model as the physical propreties studied are
-    % assumed to be variying slowly (T, S, pH° 
-    tBox.startDate = datetime(startDate, 'InputFormat','yyyy-MM-dd');
-    tBox.stopDate = datetime(stopDate, 'InputFormat','yyyy-MM-dd');
+    full_startDate = sprintf('%s 00:00:00', startDate); 
+    tBox.startDate = datetime(full_startDate, 'InputFormat', 'yyyy-MM-dd HH:mm:ss');
+    full_stopDate = sprintf('%s 23:59:59', stopDate); 
+    tBox.stopDate = datetime(full_stopDate, 'InputFormat', 'yyyy-MM-dd HH:mm:ss');
 end

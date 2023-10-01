@@ -1,61 +1,98 @@
 function [T, S, D] = getTS(mooring, rootSaveInput, bBox, tBox, dBox)
+
+%% Used datasets
+% current_date = dd/mm/yyyy
+% GLOBAL_ANALYSISFORECAST_PHY_001_024  Analysis and Forecast product is
+% available for the period 01/mm+1/yyyy-3 to dd+10/mm/yyyy 
+% https://doi.org/10.48670/moi-00016
+
+% GLOBAL_MULTIYEAR_PHY_001_030 reanalysis product is available for the
+% period 1 Jan 1993 to 31/12/yyyy - 3 
+% https://doi.org/10.48670/moi-00021
+
+today = datetime('today');
+dd = today.Day;
+mm = today.Month;
+yyyy = today.Year;
+
+lowerLimitDate_024 = datetime(yyyy-3, mm+1, 01);
+upperLimitDate_024 = datetime(yyyy, mm, dd+9);
+
+lowerLimitDate_030 = datetime(1993, 01, 01);
+upperLimitDate_030 = datetime(yyyy-3, 12, 31);
+
+% lowerLimitDate_024 = datetime('2019-01-01', 'InputFormat', 'yyyy-MM-dd');
+% upperLimitDate_030 = datetime('2019-12-31', 'InputFormat', 'yyyy-MM-dd');
+
+
 %% Query T, S data from CMEMS
-% motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu';
-% dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
-% productName = 'global-analysis-forecast-phy-001-024';
+variables = {'thetao', 'so'}; % T, S
+outputDir = rootSaveInput; % Dir to save> the profile used 
 
-% Fix to allow simulation prior to 01/01/2019 which is the low limit date
-% for global-analysis-forecast-phy-001-024 model
-lowerLimitDate_024 = datetime('2019-01-01', 'InputFormat', 'yyyy-MM-dd');
-upperLimitDate_030 = datetime('2019-12-31', 'InputFormat', 'yyyy-MM-dd');
-
-if tBox.stopDate <= lowerLimitDate_024
+if tBox.stopDate <= upperLimitDate_030
     motuPath = 'http://my.cmems-du.eu/motu-web/Motu'; % MY server 
     dbName = 'GLOBAL_MULTIYEAR_PHY_001_030-TDS';
-    productName = 'cmems_mod_glo_phy_my_0.083_P1M-m';
-    % For monthly-mean data dates need to be updated to fit with the
-    % requirement mean goes from 16th to next 16th
-    tBox.startDate.Day = 16;
-    tBox.stopDate.Day = 16;
+    productName = 'cmems_mod_glo_phy_my_0.083_P1D-m';
 
-elseif tBox.startDate >= lowerLimitDate_024
+    outputFile = sprintf('TempSalinity_%s_%s.nc', datestr(tBox.startDate, 'yyyy-mm-dd'), datestr(tBox.stopDate, 'yyyy-mm-dd'));
+    
+    oceanoArgin = {'dbName', dbName, 'productName', productName, ...
+                    'bBox', bBox, 'tBox', tBox, 'dBox', dBox, ...
+                    'variables', variables, 'outputDir', outputDir, ...
+                    'outputFile', outputFile, 'motuPath', motuPath};
+    
+    promptMsg = 'Downloading T, S from CMEMS';
+    fprintf(promptMsg)
+    getDataFromCMEMS(oceanoArgin{:})
+    linePts = repelem('.', 53 - numel(promptMsg));
+    fprintf(' %s DONE\n', linePts);
+    
+    % Read data
+    fileNETCDF = fullfile(outputDir, outputFile);
+    data = getDataFromNETCDF(fileNETCDF);
+
+elseif tBox.startDate >= lowerLimitDate_024 && tBox.stopDate <= upperLimitDate_024
     motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu';
-    dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
-    productName = 'global-analysis-forecast-phy-001-024';
-    tBox.startDate.Hour = 12;
-    tBox.stopDate.Hour = 12;
-else % TODO: To be modified for dates covering both periods --> need to be fix Warning: the limit date is changing over time -> 2 year Moving window 
-    motuPath = 'http://nrt.cmems-du.eu/motu-web/Motu'; % NRT server 
-    dbName = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
-    productName = 'global-analysis-forecast-phy-001-024';
-    tBox.startDate.Hour = 12;
-    tBox.stopDate.Hour = 12;
+    dbName = 'GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS';
+    base_productName = 'cmems_mod_glo_phy-%s_anfc_0.083deg_P1D-m';
+    
+    data = struct();
+    for i_v = 1:length(variables)
+        var = variables{i_v};
+        productName = sprintf(base_productName, var);
+        
+        outputFile = sprintf('%s_%s_%s.nc', var, datestr(tBox.startDate, 'yyyy-mm-dd'), datestr(tBox.stopDate, 'yyyy-mm-dd'));
+        
+        oceanoArgin = {'dbName', dbName, 'productName', productName, ...
+                        'bBox', bBox, 'tBox', tBox, 'dBox', dBox, ...
+                        'variables', {var}, 'outputDir', outputDir, ...
+                        'outputFile', outputFile, 'motuPath', motuPath};
+        
+        promptMsg = 'Downloading %s from CMEMS';
+        fprintf(promptMsg, var)
+        getDataFromCMEMS(oceanoArgin{:})
+        linePts = repelem('.', 53 - numel(promptMsg));
+        fprintf(' %s DONE\n', linePts);
+            
+        % Read data
+        fileNETCDF = fullfile(outputDir, outputFile);
+        d = getDataFromNETCDF(fileNETCDF);
+        data = mergeStruct(data, d);
+        
+    end
+
+else 
+    % Todo : get default values 
+    fprintf('Period not covered by CMEMS period')
+
 end
 
-% bBox = setbBoxAroundMooring(mooring.mooringPos); % Boundary box
-% tBox = gettBox(mooring.deploymentDate.startDate, mooring.deploymentDate.stopDate); % Time box
-% dBox = getdBox(0, maxDepth); % Depth box 
-
-variables = {'thetao', 'so'}; % T, S
-outputDir = rootSaveInput; % Dir to save the profile used 
-outputFile = sprintf('TempSalinity_%s_%s.nc', datestr(tBox.startDate, 'yyyy-mm-dd'), datestr(tBox.stopDate, 'yyyy-mm-dd'));
-
-oceanoArgin = {'dbName', dbName, 'productName', productName, ...
-                'bBox', bBox, 'tBox', tBox, 'dBox', dBox, ...
-                'variables', variables, 'outputDir', outputDir, ...
-                'outputFile', outputFile, 'motuPath', motuPath};
-
-promptMsg = 'Downloading T, S from CMEMS';
-fprintf(promptMsg)
-getDataFromCMEMS(oceanoArgin{:})
-linePts = repelem('.', 53 - numel(promptMsg));
-fprintf(' %s DONE\n', linePts);
 
 
-%% Read data
-fileNETCDF = fullfile(outputDir, outputFile);
-data = getDataFromNETCDF(fileNETCDF);
-
+% %% Read data
+% fileNETCDF = fullfile(outputDir, outputFile);
+% data = getDataFromNETCDF(fileNETCDF);
+% 
 % For the moment T and S are mean value in the area of interest and time
 % averaged (4th dimension -> data are matrix with shape [nx, ny, nz, nt])
 % T, S are averaged over the dimensions 1, 2 and 4 corresponding to x, y, t
@@ -106,19 +143,20 @@ figure('Visible','off')
 meanT = mean(data.thetao, [1, 2, 3], 'omitnan');
 meanT = reshape(meanT, [1, numel(meanT)]);
 
-if tBox.stopDate <= lowerLimitDate_024
-    time = tBox.startDate:calmonths(1):tBox.stopDate;
-    for i=1:numel(meanT)
-        hold on 
-        plot([time(i), time(i+1)], [meanT(i), meanT(i)]); % Constant value over the month (monthly-averaged)
-    end
-elseif tBox.startDate >= lowerLimitDate_024
-    time = tBox.startDate:1:tBox.stopDate;
-    plot(time, meanT)
-else % TODO: To be modified for dates covering both periods --> need to be fix 
-    time = tBox.startDate:1:tBox.stopDate;
-    plot(time, meanT)
-end
+% if strcmp(dbName,'GLOBAL_MULTIYEAR_PHY_001_030-TDS')
+%     time = tBox.startDate:calmonths(1):tBox.stopDate;
+%     for i=1:numel(meanT)
+%         hold on 
+%         plot([time(i), time(i+1)], [meanT(i), meanT(i)]); % Constant value over the month (monthly-averaged)
+%     end
+% elseif strcmp(dbName, 'GLOBAL_ANALYSISFORECAST_PHY_001_024-TDS')
+%     time = tBox.startDate:1:tBox.stopDate;
+time = tBox.startDate:1:tBox.stopDate;
+plot(time, meanT)
+% else 
+%     time = tBox.startDate:1:tBox.stopDate;
+%     plot(time, meanT)
+% end
 % plot(time, meanT)
 xlabel('Time')
 ylabel('Temperature °C')
@@ -132,19 +170,19 @@ figure('Visible','off')
 meanS = mean(data.so, [1, 2, 3], 'omitnan');
 meanS = reshape(meanS, [1, numel(meanS)]);
 
-if tBox.stopDate <= lowerLimitDate_024
-    time = tBox.startDate:calmonths(1):tBox.stopDate;
-    for i=1:numel(meanS)
-        hold on 
-        plot([time(i), time(i+1)], [meanS(i), meanS(i)], '-b'); % Constant value over the month (monthly-averaged)
-    end
-elseif tBox.startDate >= lowerLimitDate_024
-    time = tBox.startDate:1:tBox.stopDate;
-    plot(time, meanS)
-else % TODO: To be modified for dates covering both periods --> need to be fix 
-    time = tBox.startDate:1:tBox.stopDate;
-    plot(time, meanS)
-end
+% if tBox.stopDate <= lowerLimitDate_024
+%     time = tBox.startDate:calmonths(1):tBox.stopDate;
+%     for i=1:numel(meanS)
+%         hold on 
+%         plot([time(i), time(i+1)], [meanS(i), meanS(i)], '-b'); % Constant value over the month (monthly-averaged)
+%     end
+% elseif tBox.startDate >= lowerLimitDate_024
+time = tBox.startDate:1:tBox.stopDate;
+plot(time, meanS)
+% else % TODO: To be modified for dates covering both periods --> need to be fix 
+%     time = tBox.startDate:1:tBox.stopDate;
+%     plot(time, meanS)
+% end
 
 legend()
 xlabel('Time')
