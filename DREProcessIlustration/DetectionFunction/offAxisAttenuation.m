@@ -7,6 +7,7 @@ clear
 close all 
 % Constants 
 DI = 23.5; % Directivity index of Porpoise (PAMofC (p89)) [dB]
+DI = 0.1;
 ka = 10^(DI/20);
 
 % Broadband

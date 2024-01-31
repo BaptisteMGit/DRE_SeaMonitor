@@ -68,8 +68,8 @@ elseif tBox.startDate >= lowerLimitDate_024 && tBox.stopDate <= upperLimitDate_0
                         'variables', {var}, 'outputDir', outputDir, ...
                         'outputFile', outputFile, 'motuPath', motuPath};
         
-        promptMsg = 'Downloading %s from CMEMS';
-        fprintf(promptMsg, var)
+        promptMsg = sprintf('Downloading %s from CMEMS', var);
+        fprintf(promptMsg)
         getDataFromCMEMS(oceanoArgin{:})
         linePts = repelem('.', 53 - numel(promptMsg));
         fprintf(' %s DONE\n', linePts);

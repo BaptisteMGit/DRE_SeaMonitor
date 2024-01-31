@@ -104,7 +104,7 @@ classdef MarineMammal < handle
             end
 
             % Abitrary rMax limits (TODO: investigate)
-            rMaxMax = 100000; % 125 km (Sperm whales detected up to 121km reported in Frouin-Mouy, H., S. Hipsey, S. Denes, and R. Burns. 2017. Soundscape Characterisation and 
+            rMaxMax = 125000; % 125 km (Sperm whales detected up to 121km reported in Frouin-Mouy, H., S. Hipsey, S. Denes, and R. Burns. 2017. Soundscape Characterisation and 
 % Cetacean Presence in the Porcupine Basin)
             rMaxMin = 100; % 100m 
             if obj.rMax > rMaxMax || obj.rMax < rMaxMin
@@ -127,7 +127,9 @@ classdef MarineMammal < handle
             end
 
 
-            if obj.directivityIndex < 1
+%             if obj.directivityIndex < 1   %31/01/2024 
+            if obj.directivityIndex < 0
+
                 bool = 0;
                 msg{end+1} = sprintf(['Invalid directivity index. ' ...
                     'Directivity index must be greater than 1dB'], rMaxMin, rMaxMax);
